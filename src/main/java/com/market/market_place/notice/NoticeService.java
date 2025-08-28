@@ -3,9 +3,9 @@ package com.market.market_place.notice;
 import com.market.market_place.notice.dto.NoticeRequest;
 import com.market.market_place.notice.dto.NoticeResponse;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class NoticeService {
@@ -21,11 +21,9 @@ public class NoticeService {
         return NoticeResponse.fromEntity(savedNotice);
     }
 
-    public List<NoticeResponse> getAllNotices() {
-        return noticeRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(NoticeResponse::fromEntity)
-                .collect(Collectors.toList());
+    public Page<NoticeResponse> getAllNotices(Pageable pageable) {
+        return noticeRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(NoticeResponse::fromEntity);
     }
 
     public NoticeResponse getNoticeById(Long id) {

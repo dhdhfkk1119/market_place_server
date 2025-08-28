@@ -2,11 +2,13 @@ package com.market.market_place.notice;
 
 import com.market.market_place.notice.dto.NoticeRequest;
 import com.market.market_place.notice.dto.NoticeResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/notices")
@@ -25,9 +27,10 @@ public class NoticeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<NoticeResponse>> getAllNotices() {
-        List<NoticeResponse> responseList = noticeService.getAllNotices();
-        return new ResponseEntity<>(responseList, HttpStatus.OK);
+    public ResponseEntity<Page<NoticeResponse>> getAllNotices(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<NoticeResponse> responsePage = noticeService.getAllNotices(pageable);
+        return new ResponseEntity<>(responsePage, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
