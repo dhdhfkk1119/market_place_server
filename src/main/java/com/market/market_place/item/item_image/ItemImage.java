@@ -1,6 +1,5 @@
 package com.market.market_place.item.item_image;
 
-import com.market.market_place.item.core.Item;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +16,10 @@ public class ItemImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String imageUrl;
+    private String fileName;
+
+    @Lob
+    private String imageData;
 
 //    private Item item;
 
