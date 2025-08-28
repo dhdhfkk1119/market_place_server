@@ -1,5 +1,6 @@
 package com.market.market_place.terms.controllers;
 
+import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place.terms.dtos.TermsDto;
 import com.market.market_place.terms.services.TermsService;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +21,15 @@ public class TermsController {
 
     // 약관목록
     @GetMapping
-    public ResponseEntity<List<TermsDto>> getTermsList() {
+    public ResponseEntity<ApiUtil.ApiResult<List<TermsDto>>> getTermsList() {
         List<TermsDto> terms = termsService.getTermsList();
-        return ResponseEntity.ok(terms);
+        return ResponseEntity.ok(ApiUtil.success(terms));
     }
 
     // 약관 상세조회 id
     @GetMapping("/{id}")
-    public ResponseEntity<TermsDto> getTermById(@PathVariable Long id) {
+    public ResponseEntity<ApiUtil.ApiResult<TermsDto>> getTermById(@PathVariable Long id) {
         TermsDto term = termsService.getTermById(id);
-        return ResponseEntity.ok(term);
+        return ResponseEntity.ok(ApiUtil.success(term));
     }
 }

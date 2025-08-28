@@ -1,5 +1,6 @@
 package com.market.market_place._core._exception;
 
+import com.market.market_place._core._utils.ApiUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,53 +18,46 @@ public class MyExceptionHandler {
 
     // 유효성 검사 실패 시
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiUtil.ApiResult<?>> handleValidationExceptions(MethodArgumentNotValidException e) {
         // 첫 번째 에러 메시지를 사용
         String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
-        ErrorResponse response = new ErrorResponse(errorMessage);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ApiUtil.fail(errorMessage, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception400.class)
-    public ResponseEntity<ErrorResponse> ex400(Exception400 e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiUtil.ApiResult<?>> ex400(Exception400 e) {
+        return new ResponseEntity<>(ApiUtil.fail(e.getMessage(), HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception401.class)
-    public ResponseEntity<ErrorResponse> ex401(Exception401 e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    public ResponseEntity<ApiUtil.ApiResult<?>> ex401(Exception401 e) {
+        return new ResponseEntity<>(ApiUtil.fail(e.getMessage(), HttpStatus.UNAUTHORIZED), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception403.class)
-    public ResponseEntity<ErrorResponse> ex403(Exception403 e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    public ResponseEntity<ApiUtil.ApiResult<?>> ex403(Exception403 e) {
+        return new ResponseEntity<>(ApiUtil.fail(e.getMessage(), HttpStatus.FORBIDDEN), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception404.class)
-    public ResponseEntity<ErrorResponse> ex404(Exception404 e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiUtil.ApiResult<?>> ex404(Exception404 e) {
+        return new ResponseEntity<>(ApiUtil.fail(e.getMessage(), HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception500.class)
-    public ResponseEntity<ErrorResponse> ex500(Exception500 e) {
+    public ResponseEntity<ApiUtil.ApiResult<?>> ex500(Exception500 e) {
         log.error("======================================================");
         log.error("Internal Server Error", e);
         log.error("======================================================");
-        ErrorResponse response = new ErrorResponse("서버 내부 오류가 발생했습니다. 관리자에게 문의해주세요.");
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ApiUtil.fail("서버 내부 오류가 발생했습니다. 관리자에게 문의해주세요.", HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // 그 외 모든 예외를 처리
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> unknown(Exception e) {
+    public ResponseEntity<ApiUtil.ApiResult<?>> unknown(Exception e) {
         log.error("======================================================");
         log.error("Unknown Server Error", e);
         log.error("======================================================");
-        ErrorResponse response = new ErrorResponse("알 수 없는 서버 오류가 발생했습니다. 관리자에게 문의해주세요.");
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ApiUtil.fail("알 수 없는 서버 오류가 발생했습니다. 관리자에게 문의해주세요.", HttpStatus.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
