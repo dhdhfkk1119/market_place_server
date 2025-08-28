@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JwtUtil jwtUtil;
 
     // 회원가입
     @PostMapping("/register")
@@ -33,10 +31,17 @@ public class MemberController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiUtil.ApiResult<MemberLoginResponse>> login(@RequestBody MemberLoginRequest request) {
+        // 1. 사용자 인증
         Member member = memberService.login(request);
+        // 2. JWT 토큰 생성
         String token = JwtUtil.createToken(member);
-        MemberLoginResponse response = new MemberLoginResponse(member, token);
-        return ResponseEntity.ok(ApiUtil.success(response));
+        // 3. 응답 DTO 생성
+        MemberLoginResponse response = new MemberLoginResponse(member);
+
+        // 4. 헤더에 토큰을 담아 응답 반환
+        return ResponseEntity.ok()
+                .header(JwtUtil.HEADER, JwtUtil.TOKEN_PREFIX + token)
+                .body(ApiUtil.success(response));
     }
 
     // 회원 정보 수정

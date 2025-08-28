@@ -16,6 +16,10 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    // JWT 관련 상수
+    public static final String HEADER = "Authorization";
+    public static final String TOKEN_PREFIX = "Bearer ";
+
     // 테스트 편의성을 위해 비밀 키를 다시 static 상수로 관리
     private static final String SECRET_KEY = "MySuperSecretKeyForMarketPlaceProject";
     private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24; // 24시간
