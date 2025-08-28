@@ -1,8 +1,11 @@
 package com.market.market_place.members.controllers;
 
+import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
+import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Member.MemberRole;
 import com.market.market_place.members.dtos.*;
 import com.market.market_place.members.services.MemberService;
 import jakarta.validation.Valid;
@@ -31,38 +34,51 @@ public class MemberController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiUtil.ApiResult<MemberLoginResponse>> login(@RequestBody MemberLoginRequest request) {
-        // 1. 사용자 인증
         Member member = memberService.login(request);
-        // 2. JWT 토큰 생성
         String token = JwtUtil.createToken(member);
-        // 3. 응답 DTO 생성
         MemberLoginResponse response = new MemberLoginResponse(member);
 
-        // 4. 헤더에 토큰을 담아 응답 반환
         return ResponseEntity.ok()
                 .header(JwtUtil.HEADER, JwtUtil.TOKEN_PREFIX + token)
                 .body(ApiUtil.success(response));
     }
 
     // 회원 정보 수정
+    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiUtil.ApiResult<MemberUpdateResponse>> updateMember(@PathVariable Long id, @Valid @RequestBody MemberUpdateRequest request) {
+    public ResponseEntity<ApiUtil.ApiResult<MemberUpdateResponse>> updateMember(
+            @PathVariable Long id,
+            @Valid @RequestBody MemberUpdateRequest request,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+
+        // USER 권한일 경우, 본인의 정보만 수정 가능하도록 검증
+        if (sessionUser.getRole() == MemberRole.USER && !sessionUser.getId().equals(id)) {
+            throw new Exception403("본인의 정보만 수정할 수 있습니다.");
+        }
+
         Member updatedMember = memberService.updateMember(id, request);
         MemberUpdateResponse response = new MemberUpdateResponse(updatedMember);
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     // 회원 상세 조회 (loginId 기준)
+    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
     @GetMapping("/{loginId}")
-    public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> getMember(@PathVariable String loginId) {
+    public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> getMember(
+            @PathVariable String loginId,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        // 모든 로그인 사용자가 조회 가능하므로 추가적인 권한 검증은 필요 없음
         Member member = memberService.findMemberByLoginId(loginId);
         MemberRegisterResponse response = new MemberRegisterResponse(member);
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
     // 회원 전체 조회
+    @Auth(roles = MemberRole.ADMIN)
     @GetMapping
-    public ResponseEntity<ApiUtil.ApiResult<List<MemberRegisterResponse>>> getAllMembers() {
+    public ResponseEntity<ApiUtil.ApiResult<List<MemberRegisterResponse>>> getAllMembers(
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        // ADMIN 권한만 접근 가능하므로 추가적인 권한 검증은 필요 없음
         List<Member> members = memberService.findAllMembers();
         List<MemberRegisterResponse> response = members.stream()
                 .map(MemberRegisterResponse::new)
@@ -71,8 +87,12 @@ public class MemberController {
     }
 
     // 회원 삭제
+    @Auth(roles = MemberRole.ADMIN)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteMember(
+            @PathVariable Long id,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        // ADMIN 권한만 접근 가능하므로 추가적인 권한 검증은 필요 없음
         memberService.deleteMember(id);
         return ResponseEntity.noContent().build();
     }
