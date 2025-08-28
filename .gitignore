@@ -326,6 +326,7 @@ $RECYCLE.BIN/
 # Gradle 캐시와 빌드 산출물 무시
 .gradle/
 build/
+.idea/
 
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,windows,eclipse,visualstudiocode,macos,flutter

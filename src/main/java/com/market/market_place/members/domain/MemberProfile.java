@@ -24,9 +24,10 @@ public class MemberProfile {
     private Member member;
 
     @Column(length = 100)
-    private String name; // 이름 또는 닉네임
+    private String name; // 닉네임
 
-    private String profileImageUrl;
+    @Lob // Base64 인코딩된 긴 텍스트 저장을 위해 @Lob 사용
+    private String profileImageBase64;
 
     private Double temperature = 36.5; // 매너 온도 초기값
 

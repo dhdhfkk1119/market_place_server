@@ -25,4 +25,8 @@ public class CommunityTopic {
     @JoinColumn(name = "category_id")
     private CommunityCategory category;
 
+    public void update(CommunityTopicRequest.UpdateDTO updateDTO){
+        this.name = updateDTO.getName();
+    }
+
 }
