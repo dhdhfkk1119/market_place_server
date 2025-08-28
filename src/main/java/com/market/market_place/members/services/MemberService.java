@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -30,84 +31,75 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final TermsService termsService;
 
-    // 회원가입
+    // 회원가입 (내용은 기존과 동일)
     @Transactional
     public MemberRegisterResponse registerMember(MemberRegisterRequest request) {
-        // 1. 전화번호 인증 여부 확인
         if (request.getIsVerified() == null || !request.getIsVerified()) {
             throw new Exception400("전화번호 인증이 완료되지 않았습니다.");
         }
-        // 2. 아이디 중복 확인
         if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
             throw new Exception400("이미 사용 중인 아이디입니다.");
         }
-
-        // 3. Member 엔티티 생성
         Member newMember = Member.builder()
                 .loginId(request.getLoginId())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Member.MemberRole.USER)
                 .build();
-
-        // 4. 연관 엔티티 생성 및 설정 (연관관계 편의 메소드 사용)
         newMember.setMemberProfile(MemberProfile.builder().build());
         newMember.setMemberActivity(MemberActivity.builder().build());
-        // telecom 정보 추가
         newMember.setMemberAuth(MemberAuth.builder()
                 .phoneNumber(request.getPhoneNumber())
                 .telecom(request.getTelecom())
                 .build());
-
-        // 5. 회원 정보 저장
         Member savedMember = memberRepository.save(newMember);
-
-        // 6. 약관 동의 처리
         AgreeTermsRequestDto agreeTermsRequest = new AgreeTermsRequestDto();
         agreeTermsRequest.setAgreedTermIds(request.getAgreedTermIds());
         termsService.agreeTerms(agreeTermsRequest, savedMember);
-
-        // 7. 응답 DTO 생성 및 반환
         return new MemberRegisterResponse(savedMember);
     }
 
-    // 로그인
-    public Member login(MemberLoginRequest request) {
-        Member member = memberRepository.findByLoginId(request.getLoginId())
-                .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
+    // 회원 정보 수정 (닉네임 / 프로필 이미지)
+    @Transactional
+    public Member updateMember(Long memberId, MemberUpdateRequest request) {
+        Member member = findMember(memberId);
+        MemberProfile memberProfile = member.getMemberProfile();
 
-        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");
+        if (StringUtils.hasText(request.getName())) {
+            memberProfile.updateName(request.getName());
+        }
+
+        // Base64 문자열을 DB에 직접 저장
+        if (StringUtils.hasText(request.getProfileImage())) {
+            memberProfile.setProfileImageBase64(request.getProfileImage());
         }
 
         return member;
     }
 
-    // 회원 정보 수정 (이름/닉네임)
-    @Transactional
-    public Member updateMember(Long memberId, MemberUpdateRequest request) {
-        Member member = findMember(memberId);
-        member.getMemberProfile().updateName(request.getName());
+    // --- 이하 다른 메서드들은 기존과 동일 ---
+    public Member login(MemberLoginRequest request) {
+        Member member = memberRepository.findByLoginId(request.getLoginId())
+                .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
+        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+            throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
         return member;
     }
 
-    // 회원 상세 조회 (ID 기준)
     public Member findMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
     }
 
-    // 회원 상세 조회 (Login ID 기준)
     public Member findMemberByLoginId(String loginId) {
         return memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
     }
 
-    // 회원 전체 조회
     public List<Member> findAllMembers() {
         return memberRepository.findAll();
     }
 
-    // 회원 삭제
     @Transactional
     public void deleteMember(Long memberId) {
         if (!memberRepository.existsById(memberId)) {
