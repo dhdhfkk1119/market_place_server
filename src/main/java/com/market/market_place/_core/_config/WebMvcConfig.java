@@ -1,6 +1,6 @@
 package com.market.market_place._core._config;
 
-import com.market.market_place._core._interceptors.LoginInterceptor;
+import com.market.market_place._core.auth.AuthInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -10,18 +10,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private final LoginInterceptor loginInterceptor;
+    private final AuthInterceptor authInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor)
-                // 인터셉터를 적용할 경로 패턴
+        registry.addInterceptor(authInterceptor)
+                // 인터셉터를 모든 API 경로에 적용합니다.
                 .addPathPatterns("/api/**")
-                // 인터셉터 적용에서 제외할 경로 패턴
+                // 인증이 필요 없는 경로
                 .excludePathPatterns(
+                        // 가입,로그인,평가
                         "/api/members/register",
                         "/api/members/login",
-                        "/api/members/health"
+                        "/api/members/health",
+                        // 약관
+                        "/api/terms",
+                        "/api/terms/{id}"
                 );
     }
 }
