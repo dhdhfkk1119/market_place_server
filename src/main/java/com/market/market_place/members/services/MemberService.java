@@ -33,35 +33,40 @@ public class MemberService {
     // 회원가입
     @Transactional
     public MemberRegisterResponse registerMember(MemberRegisterRequest request) {
-        // 전화번호 인증 여부 확인
+        // 1. 전화번호 인증 여부 확인
         if (request.getIsVerified() == null || !request.getIsVerified()) {
             throw new Exception400("전화번호 인증이 완료되지 않았습니다.");
         }
-        // 아이디 중복 확인
+        // 2. 아이디 중복 확인
         if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
             throw new Exception400("이미 사용 중인 아이디입니다.");
         }
-        // Member 엔티티 생성
+
+        // 3. Member 엔티티 생성
         Member newMember = Member.builder()
                 .loginId(request.getLoginId())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Member.MemberRole.USER)
                 .build();
 
-        // 연관 엔티티 생성 및 설정 (연관관계 편의 메소드 사용)
+        // 4. 연관 엔티티 생성 및 설정 (연관관계 편의 메소드 사용)
         newMember.setMemberProfile(MemberProfile.builder().build());
         newMember.setMemberActivity(MemberActivity.builder().build());
-        newMember.setMemberAuth(MemberAuth.builder().phoneNumber(request.getPhoneNumber()).build());
+        // telecom 정보 추가
+        newMember.setMemberAuth(MemberAuth.builder()
+                .phoneNumber(request.getPhoneNumber())
+                .telecom(request.getTelecom())
+                .build());
 
-        // 저장
+        // 5. 회원 정보 저장
         Member savedMember = memberRepository.save(newMember);
 
-        // 약관 동의 처리
+        // 6. 약관 동의 처리
         AgreeTermsRequestDto agreeTermsRequest = new AgreeTermsRequestDto();
         agreeTermsRequest.setAgreedTermIds(request.getAgreedTermIds());
         termsService.agreeTerms(agreeTermsRequest, savedMember);
 
-        // 응답 DTO 생성 및 반환
+        // 7. 응답 DTO 생성 및 반환
         return new MemberRegisterResponse(savedMember);
     }
 
@@ -81,7 +86,6 @@ public class MemberService {
     @Transactional
     public Member updateMember(Long memberId, MemberUpdateRequest request) {
         Member member = findMember(memberId);
-        // 이제 이름은 MemberProfile이 관리
         member.getMemberProfile().updateName(request.getName());
         return member;
     }

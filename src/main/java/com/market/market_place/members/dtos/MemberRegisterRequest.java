@@ -1,9 +1,9 @@
 package com.market.market_place.members.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +30,10 @@ public class MemberRegisterRequest {
     @NotBlank(message = "전화번호를 입력해주세요.")
     @Pattern(regexp = "^\\d{10,11}$", message = "전화번호는 10자리 또는 11자리 숫자여야 합니다.")
     private String phoneNumber;
+
+    // 통신사 정보
+    @NotBlank(message = "통신사 정보를 입력해주세요.")
+    private String telecom;
 
     // 전화번호 인증 여부
     @NotNull(message = "전화번호 인증 여부가 필요합니다.")
