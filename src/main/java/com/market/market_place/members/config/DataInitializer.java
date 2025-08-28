@@ -1,0 +1,71 @@
+package com.market.market_place.members.config;
+
+import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.MemberActivity;
+import com.market.market_place.members.domain.MemberAuth;
+import com.market.market_place.members.domain.MemberProfile;
+import com.market.market_place.members.repositories.MemberRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+// 개발(dev) 또는 로컬(local) 환경에서만 실행되도록 프로필 설정
+@Profile({"dev", "local"})
+@Component
+@RequiredArgsConstructor
+public class DataInitializer implements CommandLineRunner {
+
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    @Transactional
+    public void run(String... args) throws Exception {
+        // 관리자 계정이 없으면 생성
+        if (memberRepository.findByLoginId("admin").isEmpty()) {
+            Member admin = Member.builder()
+                    .loginId("admin")
+                    .password(passwordEncoder.encode("admin1234"))
+                    .role(Member.MemberRole.ADMIN)
+                    .build();
+
+            MemberProfile adminProfile = MemberProfile.builder()
+                    .name("관리자") // 관리자 이름 다시 추가
+                    .build();
+            MemberActivity adminActivity = MemberActivity.builder().build();
+            MemberAuth adminAuth = MemberAuth.builder().build();
+
+            admin.setMemberProfile(adminProfile);
+            admin.setMemberActivity(adminActivity);
+            admin.setMemberAuth(adminAuth);
+
+            memberRepository.save(admin);
+        }
+
+        // 테스트용 일반 멤버 계정이 없으면 생성
+        if (memberRepository.findByLoginId("user1").isEmpty()) {
+            Member user = Member.builder()
+                    .loginId("user1")
+                    .password(passwordEncoder.encode("user1234"))
+                    .role(Member.MemberRole.USER)
+                    .build();
+
+            MemberProfile userProfile = MemberProfile.builder()
+                    .name("테스트유저")
+                    .build();
+            MemberActivity userActivity = MemberActivity.builder().build();
+            MemberAuth userAuth = MemberAuth.builder()
+                    .phoneNumber("01012345678")
+                    .build();
+
+            user.setMemberProfile(userProfile);
+            user.setMemberActivity(userActivity);
+            user.setMemberAuth(userAuth);
+
+            memberRepository.save(user);
+        }
+    }
+}

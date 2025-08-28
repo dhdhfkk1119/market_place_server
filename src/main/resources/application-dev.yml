@@ -1,0 +1,70 @@
+server:
+  servlet:
+    tomcat:
+      max-part-count: 20 # 사용자가 보낸 input 태그의 갯수를 제한
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8080
+
+# 이미지 저장 시 파일 저장 위치
+upload:
+  root-dir: ./uploads/
+  corp-dir: corp-images/
+  member-dir: member-images/
+
+# 로그 레벨의 개념
+# ERROR > WARN > INFO > DEBUG > TRACE
+logging:
+  level:
+    root: INFO  # 모든 라이브러리는 INFO 이상만 출력
+    com.tenco: DEBUG # 내 프로젝트는 DEBUG 이상 모두 출력
+
+# spring 환경 설정
+spring:
+  mustache:
+    # 템플릿 파일의 확장자를 .mustache로 지정하여 Mustache
+    # 템플릿 파일을 인식하도록 설정
+    suffix: .mustache
+    # 템플릿 파일이 위치한
+    # 기본 경로를 src/main/resources/templates/로 설정
+    prefix: classpath:/templates/
+    # 개발 중 템플릿 캐시를 비활성화하여 코드
+    # 수정 후 바로 반영되도록 함 (프로덕션에서는 true로 설정 권장)
+    cache: false
+    # 템플릿 파일을 UTF-8 인코딩으로 처리하여 한글 등 다양한 문자 지원
+    charset: UTF-8
+    servlet:
+      # 세션과 요청 속성을 템플릿에서 사용 가능하게 함
+      expose-session-attributes: true
+      expose-request-attributes: true
+  # 데이터 베이스 연결 설정 (H2 인메모리 데이터베이스)
+  datasource:
+    url: jdbc:h2:mem:test;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      # create: 애플리케이션 시작시 테이블을 새로 생성
+      # 기존 데이터는 모두 삭제됨 (개발용)
+      ddl-auto: update
+    # SQL 쿼리를 콘솔에 출력 (개발용 디버깅)
+    show-sql: true
+    properties:
+      hibernate:
+        # SQL 쿼리를 보기 좋게 포맷팅
+        format_sql: true
+        # in query 선택
+        default_batch_fetch_size: 10
+    # data.sql 파일을 Hibernate 초기화 이후에 실행
+    defer-datasource-initialization: true

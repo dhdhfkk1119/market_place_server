@@ -1,0 +1,46 @@
+package com.market.market_place.community.community_category;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/communityCategories")
+public class CommunityCategoryController {
+
+    private final CommunityCategoryService categoryService;
+
+    // 조회
+    @GetMapping
+    public ResponseEntity<?> findAll() {
+        List<CommunityCategoryResponse.ListDTO> categories = categoryService.findAll();
+        return ResponseEntity.ok(categories);
+    }
+
+    // 등록
+    @PostMapping
+    public ResponseEntity<?> save(@Valid @RequestBody CommunityCategoryRequest.SaveDTO saveDTO) {
+        CommunityCategoryResponse.CategoryResponseDTO savedCategory = categoryService.save(saveDTO);
+        return ResponseEntity.ok(savedCategory);
+    }
+
+    // 수정
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
+                                    @Valid @RequestBody CommunityCategoryRequest.UpdateDTO updateDTO){
+        CommunityCategoryResponse.CategoryResponseDTO updateCategory = categoryService.update(id, updateDTO);
+        return ResponseEntity.ok(updateCategory);
+    }
+
+    // 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id){
+        categoryService.deleteById(id);
+        return ResponseEntity.ok(null);
+    }
+
+}
