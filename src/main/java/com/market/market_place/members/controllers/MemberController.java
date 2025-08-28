@@ -24,9 +24,10 @@ public class MemberController {
     // 회원가입
     @PostMapping("/register")
     public ResponseEntity<MemberRegisterResponse> registerMember(@Valid @RequestBody MemberRegisterRequest request) {
-        Member newMember = memberService.registerMember(request);
-        MemberRegisterResponse response = new MemberRegisterResponse(newMember);
-        URI location = URI.create("/api/members/" + newMember.getId());
+        // 서비스에서 직접 응답 DTO를 반환받음
+        MemberRegisterResponse response = memberService.registerMember(request);
+        // Location 헤더에 loginId를 사용하여 URI 생성
+        URI location = URI.create("/api/members/" + response.getLoginId());
         return ResponseEntity.created(location).body(response);
     }
 
@@ -52,10 +53,10 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-    // 회원 상세 조회
-    @GetMapping("/{id}")
-    public ResponseEntity<MemberRegisterResponse> getMember(@PathVariable Long id) {
-        Member member = memberService.findMember(id);
+    // 회원 상세 조회 (loginId 기준)
+    @GetMapping("/{loginId}")
+    public ResponseEntity<MemberRegisterResponse> getMember(@PathVariable String loginId) {
+        Member member = memberService.findMemberByLoginId(loginId);
         MemberRegisterResponse response = new MemberRegisterResponse(member);
         return ResponseEntity.ok(response);
     }

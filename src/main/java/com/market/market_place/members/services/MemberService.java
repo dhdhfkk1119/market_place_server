@@ -9,8 +9,11 @@ import com.market.market_place.members.domain.MemberAuth;
 import com.market.market_place.members.domain.MemberProfile;
 import com.market.market_place.members.dtos.MemberLoginRequest;
 import com.market.market_place.members.dtos.MemberRegisterRequest;
+import com.market.market_place.members.dtos.MemberRegisterResponse;
 import com.market.market_place.members.dtos.MemberUpdateRequest;
 import com.market.market_place.members.repositories.MemberRepository;
+import com.market.market_place.terms.dtos.AgreeTermsRequestDto;
+import com.market.market_place.terms.services.TermsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,35 +28,41 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TermsService termsService;
 
     // 회원가입
     @Transactional
-    public Member registerMember(MemberRegisterRequest request) {
+    public MemberRegisterResponse registerMember(MemberRegisterRequest request) {
+        // 전화번호 인증 여부 확인
+        if (request.getIsVerified() == null || !request.getIsVerified()) {
+            throw new Exception400("전화번호 인증이 완료되지 않았습니다.");
+        }
+        // 아이디 중복 확인
         if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
             throw new Exception400("이미 사용 중인 아이디입니다.");
         }
-
-        // 1. Member 엔티티 생성 (인증 정보 중심)
+        // Member 엔티티 생성
         Member newMember = Member.builder()
                 .loginId(request.getLoginId())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Member.MemberRole.USER)
                 .build();
 
-        // 2. 연관 엔티티 생성
-        MemberProfile memberProfile = MemberProfile.builder().build();
-        MemberActivity memberActivity = MemberActivity.builder().build();
-        MemberAuth memberAuth = MemberAuth.builder()
-                .phoneNumber(request.getPhoneNumber())
-                .build();
+        // 연관 엔티티 생성 및 설정 (연관관계 편의 메소드 사용)
+        newMember.setMemberProfile(MemberProfile.builder().build());
+        newMember.setMemberActivity(MemberActivity.builder().build());
+        newMember.setMemberAuth(MemberAuth.builder().phoneNumber(request.getPhoneNumber()).build());
 
-        // 3. 연관관계 설정 (CascadeType.ALL 덕분에 Member만 저장해도 모두 저장됨)
-        newMember.setMemberProfile(memberProfile);
-        newMember.setMemberActivity(memberActivity);
-        newMember.setMemberAuth(memberAuth);
+        // 저장
+        Member savedMember = memberRepository.save(newMember);
 
-        // 4. 저장
-        return memberRepository.save(newMember);
+        // 약관 동의 처리
+        AgreeTermsRequestDto agreeTermsRequest = new AgreeTermsRequestDto();
+        agreeTermsRequest.setAgreedTermIds(request.getAgreedTermIds());
+        termsService.agreeTerms(agreeTermsRequest, savedMember);
+
+        // 응답 DTO 생성 및 반환
+        return new MemberRegisterResponse(savedMember);
     }
 
     // 로그인
