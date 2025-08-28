@@ -27,4 +27,5 @@ public class Terms {
 
     @Column(nullable = false)
     private boolean isRequired;
+
 }

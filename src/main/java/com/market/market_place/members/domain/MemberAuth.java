@@ -22,12 +22,13 @@ public class MemberAuth {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    // 사용자 전화번호 (고유 값)
     @Column(unique = true)
     private String phoneNumber;
 
-    private String ssnPrefix; // 주민번호 앞자리
+    // 통신사 정보를 저장하는 필드
+    private String telecom;
 
-    private String ssnSuffix; // 주민번호 뒷자리 (암호화 필요)
-
-    private LocalDateTime verifiedAt; // 인증 완료 시각
+    // 전화번호 인증 완료 시각
+    private LocalDateTime verifiedAt;
 }

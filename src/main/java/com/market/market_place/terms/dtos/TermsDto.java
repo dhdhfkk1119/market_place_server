@@ -10,10 +10,10 @@ public class TermsDto {
     private final String content;
     private final boolean isRequired;
 
-    public TermsDto(Terms terms) {
-        this.id = terms.getId();
-        this.title = terms.getTitle();
-        this.content = terms.getContent();
-        this.isRequired = terms.isRequired();
+    public TermsDto(Terms term) {
+        this.id = term.getId();
+        this.title = term.getTitle();
+        this.content = term.getContent();
+        this.isRequired = term.isRequired();
     }
 }

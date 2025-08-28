@@ -1,6 +1,7 @@
 package com.market.market_place.terms.services;
 
 import com.market.market_place._core._exception.Exception400;
+import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.terms.domain.MemberAgreedTerms;
 import com.market.market_place.terms.domain.Terms;
@@ -32,6 +33,17 @@ public class TermsService {
         return termsRepository.findAll().stream()
                 .map(TermsDto::new)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * ID로 특정 약관의 상세 정보를 조회합니다.
+     * @param termId 조회할 약관의 ID
+     * @return 약관 상세 정보를 담은 DTO
+     */
+    public TermsDto getTermById(Long termId) {
+        Terms terms = termsRepository.findById(termId)
+                .orElseThrow(() -> new Exception404("해당 약관을 찾을 수 없습니다. ID: " + termId));
+        return new TermsDto(terms);
     }
 
     /**
