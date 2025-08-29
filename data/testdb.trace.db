@@ -339,3 +339,12 @@ Caused by: org.h2.mvstore.MVStoreException: The file is locked: C:/workspace_tea
 	at org.h2.mvstore.SingleFileStore.open(SingleFileStore.java:81)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:286)
 	... 57 more
+2025-08-29 15:21:29.907675+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]ITEM_FAVORITE_TB"; expected "INSERT"; SQL statement:
+ITEM_FAVORITE_TB [42001-232]
+2025-08-29 15:21:35.889120+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ITEM_FAVORITE_TB" not found; SQL statement:
+SELECT * FROM ITEM_FAVORITE_TB [42102-232]
+2025-08-29 15:21:53.520555+09:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM COMMUNITY_CATEGORY_TB MEMBER [*]ITEM_FAVORITE_TB"; SQL statement:
+SELECT * FROM COMMUNITY_CATEGORY_TB MEMBER ITEM_FAVORITE_TB [42000-232]

@@ -7,9 +7,15 @@ public class ItemResponse {
     @Data
     public static class DetailDTO {
 
+        private Long itemCategoryId;
+        private Long memberAddressId;
         private String title;
         private String content;
-        private Integer price;
+        private Long price;
+
+        public class fromEntity{
+
+        }
 
     }
 
