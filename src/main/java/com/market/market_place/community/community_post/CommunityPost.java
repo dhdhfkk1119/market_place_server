@@ -45,6 +45,9 @@ public class CommunityPost {
     @Column(nullable = false)
     private int likeCount = 0;
 
+    @Column(nullable = false)
+    private int viewCount =0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -65,5 +68,11 @@ public class CommunityPost {
     public boolean isOwner(Long checkMemberId){
         return this.member.getId().equals(checkMemberId);
     }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
+    public void updateLikeCount(int count) { this.likeCount = count; }
 
 }
