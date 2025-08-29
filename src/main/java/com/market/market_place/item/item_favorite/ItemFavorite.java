@@ -5,12 +5,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+@Entity
+@Table(name = "item_favorite_tb")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Table(name = "item_favorite_tb")
-@Entity
 public class ItemFavorite {
 
     @Id
