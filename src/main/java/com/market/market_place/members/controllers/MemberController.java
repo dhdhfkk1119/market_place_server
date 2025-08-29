@@ -8,6 +8,9 @@ import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.Member.MemberRole;
 import com.market.market_place.members.dtos.*;
 import com.market.market_place.members.services.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Tag(name = "Member API", description = "회원 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
@@ -24,14 +28,14 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // 회원가입
+    @Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
     @PostMapping("/register")
     public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> registerMember(@Valid @RequestBody MemberRegisterRequest request) {
         MemberRegisterResponse response = memberService.registerMember(request);
         return new ResponseEntity<>(ApiUtil.success(response), HttpStatus.CREATED);
     }
 
-    // 로그인
+    @Operation(summary = "로그인", description = "로그인 ID와 비밀번호로 인증하여 JWT 토큰을 발급받습니다.")
     @PostMapping("/login")
     public ResponseEntity<ApiUtil.ApiResult<MemberLoginResponse>> login(@RequestBody MemberLoginRequest request) {
         Member member = memberService.login(request);
@@ -43,7 +47,8 @@ public class MemberController {
                 .body(ApiUtil.success(response));
     }
 
-    // 회원 정보 수정
+    @Operation(summary = "회원 정보 수정", description = "회원의 닉네임 또는 프로필 이미지를 수정합니다. (USER, ADMIN 권한 필요)")
+    @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
     @PutMapping("/{id}")
     public ResponseEntity<ApiUtil.ApiResult<MemberUpdateResponse>> updateMember(
@@ -51,7 +56,6 @@ public class MemberController {
             @Valid @RequestBody MemberUpdateRequest request,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
-        // USER 권한일 경우, 본인의 정보만 수정 가능하도록 검증
         if (sessionUser.getRole() == MemberRole.USER && !sessionUser.getId().equals(id)) {
             throw new Exception403("본인의 정보만 수정할 수 있습니다.");
         }
@@ -61,24 +65,24 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    // 회원 상세 조회 (loginId 기준)
+    @Operation(summary = "회원 상세 조회", description = "로그인 ID로 특정 회원의 정보를 조회합니다. (USER, ADMIN 권한 필요)")
+    @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
     @GetMapping("/{loginId}")
     public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> getMember(
             @PathVariable String loginId,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-        // 모든 로그인 사용자가 조회 가능하므로 추가적인 권한 검증은 필요 없음
         Member member = memberService.findMemberByLoginId(loginId);
         MemberRegisterResponse response = new MemberRegisterResponse(member);
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    // 회원 전체 조회
+    @Operation(summary = "회원 전체 조회", description = "모든 회원의 목록을 조회합니다. (ADMIN 권한 필요)")
+    @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = MemberRole.ADMIN)
     @GetMapping
     public ResponseEntity<ApiUtil.ApiResult<List<MemberRegisterResponse>>> getAllMembers(
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-        // ADMIN 권한만 접근 가능하므로 추가적인 권한 검증은 필요 없음
         List<Member> members = memberService.findAllMembers();
         List<MemberRegisterResponse> response = members.stream()
                 .map(MemberRegisterResponse::new)
@@ -86,18 +90,18 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    // 회원 삭제
+    @Operation(summary = "회원 삭제", description = "특정 회원의 정보를 시스템에서 영구적으로 삭제합니다. (ADMIN 권한 필요)")
+    @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = MemberRole.ADMIN)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMember(
             @PathVariable Long id,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-        // ADMIN 권한만 접근 가능하므로 추가적인 권한 검증은 필요 없음
         memberService.deleteMember(id);
         return ResponseEntity.noContent().build();
     }
 
-    // 상태 확인용
+    @Operation(summary = "API 상태 확인", description = "Member API 서버의 상태를 확인합니다.")
     @GetMapping("/health")
     public ResponseEntity<ApiUtil.ApiResult<String>> healthCheck() {
         return ResponseEntity.ok(ApiUtil.success("Member API is healthy!"));
