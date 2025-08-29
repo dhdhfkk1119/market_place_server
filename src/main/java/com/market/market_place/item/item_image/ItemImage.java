@@ -5,11 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Entity
+@Table(name = "item_image_tb")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Table(name = "item_image_tb")
-@Entity
 public class ItemImage {
 
     @Id
