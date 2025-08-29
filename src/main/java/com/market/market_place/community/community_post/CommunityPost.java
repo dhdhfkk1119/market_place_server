@@ -29,10 +29,10 @@ public class CommunityPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private  String title;
+    private String title;
 
     @Column(columnDefinition = "TEXT")
-    private  String content;
+    private String content;
 
     private String location; // 임시 위치 정보
 
@@ -46,7 +46,7 @@ public class CommunityPost {
     private int likeCount = 0;
 
     @Column(nullable = false)
-    private int viewCount =0;
+    private int viewCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -65,7 +65,7 @@ public class CommunityPost {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityPostLike> likes = new ArrayList<>();
 
-    public boolean isOwner(Long checkMemberId){
+    public boolean isOwner(Long checkMemberId) {
         return this.member.getId().equals(checkMemberId);
     }
 
@@ -73,6 +73,15 @@ public class CommunityPost {
         this.viewCount++;
     }
 
-    public void updateLikeCount(int count) { this.likeCount = count; }
+    public void updateLikeCount(int count) {
+        this.likeCount = count;
+    }
+
+    public void update(CommunityPostRequest.UpdateDTO updateDTO) {
+        this.title = updateDTO.getTitle();
+        this.content = updateDTO.getContent();
+        this.location = updateDTO.getLocation();
+    }
+
 
 }

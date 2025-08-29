@@ -1,17 +1,14 @@
 package com.market.market_place.community.community_post;
 
-import com.market.market_place._core._exception.Exception401;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
-import com.market.market_place.community.community_comment.CommunityComment;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import com.market.market_place.community.community_post_image.CommunityPostImageRepository;
 import com.market.market_place.community.community_topic.CommunityTopic;
 import com.market.market_place.community.community_topic.CommunityTopicRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
-import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +34,7 @@ public class CommunityPostService {
     }
 
     // 상세보기
-    public CommunityPostResponse.DetailDTO detail (Long id){
+    public CommunityPostResponse.DetailDTO detail(Long id) {
         CommunityPost post = postRepository.findById(id).orElseThrow(() ->
                 new Exception404("게시글이 없습니다"));
         postRepository.findByIdWithImages(id);
@@ -51,7 +48,7 @@ public class CommunityPostService {
     public CommunityPostResponse.ResponseDTO save(CommunityPostRequest.SaveDTO saveDTO,
                                                   JwtUtil.SessionUser sessionUser) {
         Member member = memberRepository.findById(sessionUser.getId())
-                .orElseThrow(() -> new Exception401("사용자를 찾을 수 없습니다"));
+                .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다"));
 
         CommunityTopic topic = topicRepository.findById(saveDTO.getTopicId())
                 .orElseThrow(() -> new Exception404("세부 카테고리가 존재하지 않습니다"));
@@ -70,21 +67,54 @@ public class CommunityPostService {
         return new CommunityPostResponse.ResponseDTO(savedPost);
     }
 
-//    // 수정
-//    @Transactional
-//    public CommunityPostResponse.ResponseDTO update(Long id, CommunityPostRequest.UpdateDTO updateDTO,
-//                                                    JwtUtil.SessionUser sessionUser){
-//        CommunityPost post = postRepository.findById(id).orElseThrow(() ->
-//                new Exception404("해당 개시글이 없습니다"));
-//        if(!post.isOwner(sessionUser.getId())){
-//            throw new Exception403("본인이 작성한 게시글만 수정할 수 있습니다");
-//        }
-//
-//    }
+    // 수정
+    @Transactional
+    public CommunityPostResponse.ResponseDTO update(Long id, CommunityPostRequest.UpdateDTO updateDTO,
+                                                    JwtUtil.SessionUser sessionUser) {
+        CommunityPost post = postRepository.findById(id).orElseThrow(() ->
+                new Exception404("해당 개시글이 없습니다"));
+        if (!post.isOwner(sessionUser.getId())) {
+            throw new Exception403("본인이 작성한 게시글만 수정할 수 있습니다");
+        }
+
+        CommunityTopic topic = topicRepository.findById(updateDTO.getTopicId())
+                .orElseThrow(() -> new Exception404("세부 카테고리가 없습니다"));
+
+        post.setTopic(topic);
+        post.update(updateDTO);
+
+        // 이미지 삭제
+        if (updateDTO.getDeleteImages() != null) {
+            for (String imageUrl : updateDTO.getDeleteImages()) {
+                CommunityPostImage image = imageRepository.findByPostAndImageUrl(post, imageUrl)
+                        .orElseThrow(() -> new Exception404("삭제할 이미지가 존재하지 않습니다"));
+                post.getImages().remove(image);
+                imageRepository.delete(image);
+            }
+        }
+
+        // 이미지 추가
+        if (updateDTO.getAddImages() != null) {
+            for (String imageUrl : updateDTO.getAddImages()) {
+                CommunityPostImage image = new CommunityPostImage();
+                image.setPost(post);
+                image.setImageUrl(imageUrl);
+                imageRepository.save(image);
+                post.getImages().add(image);
+            }
+        }
+        return new CommunityPostResponse.ResponseDTO(post);
+    }
 
     // 삭제
-
-
-
-
+    @Transactional
+    public void delete(Long id, JwtUtil.SessionUser sessionUser){
+        CommunityPost post = postRepository.findById(id)
+                .orElseThrow(() -> new Exception404("삭제하려는 게시글이 없습니다"));
+        if(!post.isOwner(sessionUser.getId())){
+            throw new Exception403("본인이 작성한 게시글만 삭제할 수 있습니다");
+        }
+        postRepository.delete(post);
+    }
 }
+
