@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Test</title>
+</head>
+<body>
+<h2>WebSocket Chat Test</h2>
+<input id="msgInput" type="text" placeholder="메시지를 입력하세요">
+<button onclick="sendMessage()">보내기</button>
+<div id="chatLog"></div>
+
+<script>
+    let socket = new WebSocket("ws://localhost:8080/ws-stomp");
+
+    socket.onopen = () => {
+        document.getElementById("chatLog").innerHTML += "<p>✅ 서버 연결됨</p>";
+    };
+
+    socket.onmessage = (event) => {
+        document.getElementById("chatLog").innerHTML += "<p>📩 서버: " + event.data + "</p>";
+    };
+
+    function sendMessage() {
+        let msg = document.getElementById("msgInput").value;
+        socket.send(JSON.stringify({
+            sendId: 1,
+            receiveId: 2,
+            content: msg
+        }));
+    }
+</script>
+</body>
+</html>
