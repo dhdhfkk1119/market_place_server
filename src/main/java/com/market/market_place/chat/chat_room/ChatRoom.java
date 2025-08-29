@@ -1,6 +1,7 @@
 package com.market.market_place.chat.chat_room;
 
 import com.market.market_place._core._utils.DateUtil;
+import com.market.market_place.chat.chat_message.ChatMessage;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -27,6 +30,10 @@ public class ChatRoom {
 
     @CreationTimestamp
     private Timestamp createdAt;
+
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
 
     public String getTime(){
         return DateUtil.chatFormat(createdAt);

@@ -1,20 +1,29 @@
 package com.market.market_place._core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.market.market_place._core._config.UploadConfig;
+import com.market.market_place._core._utils.FileUploadUtil;
+import com.market.market_place.chat._enum.MessageType;
+import com.market.market_place.chat.chat_image.ChatImage;
+import com.market.market_place.chat.chat_image.ChatImageRepository;
+import com.market.market_place.chat.chat_image.ChatImageRequestDTO;
 import com.market.market_place.chat.chat_message.ChatMessage;
 import com.market.market_place.chat.chat_message.ChatMessageRepository;
 import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
 import com.market.market_place.chat.chat_message.ChatMessageResponseDTO;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
+import com.market.market_place.chat.chat_room.ChatRoomRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +34,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
-    private final ChatImage
+    private final ChatImageRepository chatImageRepository;
+    private final FileUploadUtil fileUploadUtil;
+    private final UploadConfig uploadConfig;
 
     // 연결된 사용자 세션을 저장할 맵 (userId → session)
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
@@ -52,22 +63,36 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         ChatMessageRequestDTO.Message msgDTO = objectMapper.readValue(payload, ChatMessageRequestDTO.Message.class);
 
+
         // 방 생성 or 조회
-        ChatRoom room = chatRoomRepository.findByUserId1AndUserId2(msgDTO.getSendId(), msgDTO.getReceiveId())
+        ChatRoom room = chatRoomRepository.findByUserIds(msgDTO.getSendId(), msgDTO.getReceiveId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
                         .userId1(msgDTO.getSendId())
                         .userId2(msgDTO.getReceiveId())
                         .build()));
-        if(!msgDTO.getImages().isEmpty()) {
 
-        }
 
         // 메시지 저장
         ChatMessage chatMessage = msgDTO.toEntity(room);
+        chatMessage.setMessageType(MessageType.TEXT);
         chatMessageRepository.save(chatMessage);
 
+        if(msgDTO.getImages() != null && !msgDTO.getImages().isEmpty()) {
+            ChatImageRequestDTO.ChatImageDTO chatImageDTO = new ChatImageRequestDTO.ChatImageDTO();
+            List<String> images = msgDTO.getImages();
+            for(String img : images){
+                String imageList = fileUploadUtil.uploadProfileImage(img,uploadConfig.getChatDir());
+                ChatImage chatImage = chatImageDTO.toEntity(imageList,chatMessage);
+                chatImageRepository.save(chatImage);
+            }
+            chatMessage.setMessageType(MessageType.IMAGE);
+            chatMessageRepository.save(chatMessage);
+        }
+
         // 응답 DTO 생성
-        ChatMessageResponseDTO.MessageDTO responseDTO = new ChatMessageResponseDTO.MessageDTO(chatMessage, Collections.emptyList());
+        List<ChatImage> images = chatImageRepository.findByChatMessage(chatMessage);
+        ChatMessageResponseDTO.MessageDTO responseDTO =
+                new ChatMessageResponseDTO.MessageDTO(chatMessage, images);
         String response = objectMapper.writeValueAsString(responseDTO);
 
         // 1. 보낸 본인에게 전송

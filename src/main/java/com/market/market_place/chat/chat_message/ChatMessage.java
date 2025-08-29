@@ -32,8 +32,9 @@ public class ChatMessage {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    private MessageType messageType;
+    private MessageType messageType = MessageType.TEXT;
 
     private String message;
 

@@ -23,7 +23,7 @@ public class ChatImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_message_id")
     private ChatMessage chatMessage;
-    private String imageUrl;
 
+    private String imageUrl;
 
 }

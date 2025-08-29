@@ -25,7 +25,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/members/health",
                         // 약관
                         "/api/terms",
-                        "/api/terms/{id}"
+                        "/api/terms/{id}",
+                        "/api/chat/rooms/**"
                 );
     }
 }

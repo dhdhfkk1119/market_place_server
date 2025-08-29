@@ -19,10 +19,10 @@ public class ChatRoomController {
         return ResponseEntity.ok(chatRoomDTO);
     }
 
-    // 특정 상대방과의 방 가져오기/생성
-    @PostMapping("/get-or-create")
-    public ChatRoom getOrCreateRoom(@RequestParam Long senderId, @RequestParam Long receiverId) {
-        return chatRoomService.getOrCreateRoom(senderId, receiverId);
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<?> deleteRoom(@PathVariable Long roomId){
+        chatRoomService.deleteRoom(roomId);
+        return ResponseEntity.ok("정상적으로 방이 삭제되었습니다");
     }
 
 

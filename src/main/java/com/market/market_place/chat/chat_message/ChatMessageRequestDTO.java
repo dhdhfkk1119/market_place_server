@@ -3,7 +3,9 @@ package com.market.market_place.chat.chat_message;
 import com.market.market_place.chat._enum.MessageType;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatMessageRequestDTO {
@@ -12,8 +14,8 @@ public class ChatMessageRequestDTO {
         private Long sendId;
         private Long receiveId;
         private Long roomId;
+        private List<String> images = new ArrayList<>();
         private MessageType messageType;
-        private List<String> Images;
         private String message;
 
         public ChatMessage toEntity(ChatRoom chatRoom){

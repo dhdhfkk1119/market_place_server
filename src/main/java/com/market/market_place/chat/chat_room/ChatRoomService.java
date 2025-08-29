@@ -33,14 +33,9 @@ public class ChatRoomService {
         }).toList();
     }
 
-    @Transactional
-    public ChatRoom getOrCreateRoom(Long senderId, Long receiverId) {
-        return chatRoomRepository.findByUserIds(senderId, receiverId)
-                .orElseGet(() -> chatRoomRepository.save(
-                        ChatRoom.builder()
-                                .userId1(senderId)
-                                .userId2(receiverId)
-                                .build()
-                ));
+
+    // 방 나가기 -> 채팅방 삭제
+    public void deleteRoom(Long roomId){
+        chatRoomRepository.deleteById(roomId);
     }
 }
