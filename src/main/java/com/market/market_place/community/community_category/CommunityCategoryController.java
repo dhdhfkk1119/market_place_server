@@ -39,8 +39,7 @@ public class CommunityCategoryController {
     // 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id){
-        categoryService.deleteById(id);
-        return ResponseEntity.ok(null);
+        categoryService.delete(id);
+        return ResponseEntity.ok("삭제 성공");
     }
-
 }

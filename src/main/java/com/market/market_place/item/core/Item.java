@@ -23,16 +23,17 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long status; // 판매상태 엔티티 생성 시 타입 변경
+    private Long seller; // 판매자 정보 (user 엔티티 생성 시 타입 변경)
+    private String itemCategory;
+    private Long memberAddress;
+
     private String title;
-    private String description;
+    private String content;
 
     private Long price;
 
-    private String status; // 판매상태 엔티티 생성 시 타입 변경
-    private Long seller; // 판매자 정보 (user 엔티티 생성 시 타입 변경)
 
-//    private ItemCategory itemCategory;
-//
 //    private List<ItemImage> images = new ArrayList<>();
 //    private List<ItemFavorite> favorites = new ArrayList<>();
 

@@ -32,6 +32,5 @@ public class ChatMessageResponseDTO {
             this.imageUrls = chatImage.stream().map(ChatImage::getImageUrl).collect(Collectors.toList());
             this.createdAt = chatMessage.getTime();
         }
-
     }
 }
