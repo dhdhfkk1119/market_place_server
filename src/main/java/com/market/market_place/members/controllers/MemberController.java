@@ -45,7 +45,7 @@ public class MemberController {
 
     // 회원 정보 수정
     @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiUtil.ApiResult<MemberUpdateResponse>> updateMember(
             @PathVariable Long id,
             @Valid @RequestBody MemberUpdateRequest request,

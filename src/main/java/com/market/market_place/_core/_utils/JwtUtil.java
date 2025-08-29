@@ -24,12 +24,7 @@ public class JwtUtil {
     private static final String SECRET_KEY = "MySuperSecretKeyForMarketPlaceProject";
     private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24; // 24시간
 
-    /**
-     * Member 정보를 담은 JWT 토큰을 생성합니다.
-     *
-     * @param member 토큰에 담을 회원 정보
-     * @return 생성된 JWT 토큰 문자열
-     */
+    // Member 정보를 담은 JWT 토큰을 생성
     public static String createToken(Member member) {
         Date expiresAt = new Date(System.currentTimeMillis() + EXPIRATION_TIME);
         return JWT.create()
@@ -41,24 +36,14 @@ public class JwtUtil {
                 .sign(Algorithm.HMAC512(SECRET_KEY));
     }
 
-    /**
-     * JWT 토큰을 검증하고, 디코딩된 JWT 객체를 반환합니다.
-     *
-     * @param jwt 검증할 토큰 문자열
-     * @return 디코딩된 JWT 객체
-     */
+    // JWT 토큰을 검증하고, 디코딩된 JWT 객체를 반환
     public static DecodedJWT verify(String jwt) {
         return JWT.require(Algorithm.HMAC512(SECRET_KEY))
                 .build()
                 .verify(jwt);
     }
 
-    /**
-     * JWT 토큰을 검증하고, 사용자 정보를 담은 SessionUser 객체를 반환합니다.
-     *
-     * @param jwt 검증할 토큰 문자열
-     * @return 사용자 정보를 담은 SessionUser 객체
-     */
+    // JWT 토큰을 검증하고, 사용자 정보를 담은 SessionUser 객체를 반환
     public static SessionUser verifyAndReturnSessionUser(String jwt) throws JWTVerificationException {
         DecodedJWT decodedJWT = verify(jwt); // static 메서드 호출
 
@@ -73,11 +58,7 @@ public class JwtUtil {
                 .build();
     }
 
-    /**
-     * JWT 토큰에서 추출한 사용자 정보를 담는 세션 사용자 객체
-     * 컨트롤러, 서비스 등에서 인증된 사용자 정보를 간편하게 접근할 수 있도록 합니다.
-     * 이 클래스는 JWTUtil의 정적 내부 클래스로서 JWTUtil과 함께 관리됩니다.
-     */
+    // JWT 토큰에서 추출한 사용자 정보를 담는 세션 사용자 객체
     @Getter
     @Builder
     public static class SessionUser {
