@@ -1,9 +1,6 @@
 package com.market.market_place.members.config;
 
-import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.MemberActivity;
-import com.market.market_place.members.domain.MemberAuth;
-import com.market.market_place.members.domain.MemberProfile;
+import com.market.market_place.members.domain.*;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -16,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Profile({"dev", "local"})
 @Component
 @RequiredArgsConstructor
-public class DataInitializer implements CommandLineRunner {
+public class MemberInitializer implements CommandLineRunner {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -30,10 +27,11 @@ public class DataInitializer implements CommandLineRunner {
                     .loginId("admin")
                     .password(passwordEncoder.encode("admin1234"))
                     .role(Member.MemberRole.ADMIN)
+                    .status(MemberStatus.ACTIVE) // [수정] 관리자 계정 상태 ACTIVE로 설정
                     .build();
 
             MemberProfile adminProfile = MemberProfile.builder()
-                    .name("관리자") // 관리자 이름 다시 추가
+                    .name("관리자")
                     .build();
             MemberActivity adminActivity = MemberActivity.builder().build();
             MemberAuth adminAuth = MemberAuth.builder().build();
@@ -51,6 +49,7 @@ public class DataInitializer implements CommandLineRunner {
                     .loginId("user1")
                     .password(passwordEncoder.encode("user1234"))
                     .role(Member.MemberRole.USER)
+                    .status(MemberStatus.ACTIVE) // [수정] 일반 사용자 계정 상태 ACTIVE로 설정
                     .build();
 
             MemberProfile userProfile = MemberProfile.builder()

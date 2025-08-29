@@ -5,6 +5,7 @@ import com.market.market_place._core._exception.Exception401;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberProfile;
+import com.market.market_place.members.domain.MemberStatus;
 import com.market.market_place.members.dtos.MemberLoginRequest;
 import com.market.market_place.members.dtos.MemberRegisterRequest;
 import com.market.market_place.members.dtos.MemberRegisterResponse;
@@ -64,13 +65,38 @@ public class MemberService {
         return member;
     }
 
+    // 회원 탈퇴 (논리적 삭제)
+    @Transactional
+    public void withdrawMember(Long memberId) {
+        // 1. 탈퇴할 회원 엔티티 조회
+        Member member = findMember(memberId);
+
+        // 2. 탈퇴 처리 책임을 Member 엔티티의 인스턴스 메서드에 위임
+        member.withdraw();
+    }
+
+    // 회원 정지 (관리자용)
+    @Transactional
+    public void banMember(Long memberId) {
+        // 1. 정지할 회원 엔티티 조회
+        Member member = findMember(memberId);
+
+        // 2. 정지 처리 책임을 Member 엔티티의 인스턴스 메서드에 위임
+        member.ban();
+    }
+
     // 로그인
     public Member login(MemberLoginRequest request) {
         // 1. 아이디로 회원 조회
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
-        
-        // 2. 비밀번호 일치 여부 확인
+
+        // 2. 회원 상태 확인 (활성 상태만 로그인 가능)
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            throw new Exception401("이미 탈퇴했거나 정지된 계정입니다.");
+        }
+
+        // 3. 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
@@ -94,7 +120,7 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    // 회원 삭제 (관리자용)
+    // 회원 삭제 (관리자용, 물리적 삭제)
     @Transactional
     public void deleteMember(Long memberId) {
         if (!memberRepository.existsById(memberId)) {

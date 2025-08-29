@@ -65,6 +65,34 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
+    @Operation(summary = "회원 탈퇴 (논리적 삭제)", description = "회원 상태를 '탈퇴'로 변경합니다. 데이터는 보존됩니다. (USER, ADMIN 권한 필요)")
+    @SecurityRequirement(name = "jwtAuth")
+    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @PatchMapping("/{id}/withdraw")
+    public ResponseEntity<ApiUtil.ApiResult<String>> withdrawMember(
+            @PathVariable Long id,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+
+        if (sessionUser.getRole() == MemberRole.USER && !sessionUser.getId().equals(id)) {
+            throw new Exception403("본인만 탈퇴할 수 있습니다.");
+        }
+
+        memberService.withdrawMember(id);
+        return ResponseEntity.ok(ApiUtil.success("회원 탈퇴가 정상적으로 처리되었습니다."));
+    }
+
+    @Operation(summary = "회원 정지 (관리자용)", description = "특정 회원의 상태를 '정지'로 변경합니다. (ADMIN 권한 필요)")
+    @SecurityRequirement(name = "jwtAuth")
+    @Auth(roles = MemberRole.ADMIN)
+    @PatchMapping("/{id}/ban")
+    public ResponseEntity<ApiUtil.ApiResult<String>> banMember(
+            @PathVariable Long id,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+
+        memberService.banMember(id);
+        return ResponseEntity.ok(ApiUtil.success("해당 회원이 정지 처리되었습니다."));
+    }
+
     @Operation(summary = "회원 상세 조회", description = "로그인 ID로 특정 회원의 정보를 조회합니다. (USER, ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
@@ -90,7 +118,7 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @Operation(summary = "회원 삭제", description = "특정 회원의 정보를 시스템에서 영구적으로 삭제합니다. (ADMIN 권한 필요)")
+    @Operation(summary = "회원 삭제 (물리적 삭제)", description = "특정 회원의 정보를 시스템에서 영구적으로 삭제합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = MemberRole.ADMIN)
     @DeleteMapping("/{id}")

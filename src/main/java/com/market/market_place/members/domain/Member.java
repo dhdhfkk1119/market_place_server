@@ -32,6 +32,10 @@ public class Member {
     @Column(nullable = false)
     private MemberRole role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberStatus status; // 회원 상태 (활성, 탈퇴, 정지)
+
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MemberProfile memberProfile;
 
@@ -60,6 +64,7 @@ public class Member {
                 .loginId(dto.getLoginId())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .role(MemberRole.USER)
+                .status(MemberStatus.ACTIVE) // 신규 회원은 항상 활성 상태로 시작
                 .build();
 
         member.setMemberProfile(MemberProfile.builder().build());
@@ -93,5 +98,13 @@ public class Member {
     // Member 엔티티와 직접 관련된 비즈니스 로직을 처리합니다.
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void withdraw() {
+        this.status = MemberStatus.WITHDRAWN;
+    }
+
+    public void ban() {
+        this.status = MemberStatus.BANNED;
     }
 }
