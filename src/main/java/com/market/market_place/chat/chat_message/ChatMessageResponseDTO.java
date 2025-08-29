@@ -16,6 +16,8 @@ public class ChatMessageResponseDTO {
         private Long roomId;
         private Long senderId;
         private Long receiverId;
+        private String senderName;
+        private String receiverName;
         private MessageType messageType;
         private String message;
         private List<String> imageUrls;
@@ -25,9 +27,11 @@ public class ChatMessageResponseDTO {
         public MessageDTO(ChatMessage chatMessage, List<ChatImage> chatImage){
             this.messageId = chatMessage.getId();
             this.roomId = chatMessage.getChatRoom().getId();
-            this.senderId = chatMessage.getSendId();
-            this.receiverId = chatMessage.getReceiveId();
+            this.senderId = chatMessage.getSender().getId();
+            this.receiverId = chatMessage.getReceiver().getId();
             this.messageType = chatMessage.getMessageType();
+            this.senderName = chatMessage.getSender().getMemberProfile().getName();
+            this.receiverName = chatMessage.getReceiver().getMemberProfile().getName();
             this.message = chatMessage.getMessage();
             this.imageUrls = chatImage.stream().map(ChatImage::getImageUrl).collect(Collectors.toList());
             this.createdAt = chatMessage.getTime();

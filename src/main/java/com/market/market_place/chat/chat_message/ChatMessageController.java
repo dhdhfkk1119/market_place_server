@@ -14,11 +14,11 @@ public class ChatMessageController {
 
     private final ChatMessageService chatMessageService;
 
-    @PostMapping("/send")
-    public ResponseEntity<?> sendMessage(@RequestBody ChatMessageRequestDTO.Message dto){
-        ChatMessageResponseDTO.MessageDTO chatRoomDTO = chatMessageService.saveMessage(dto);
-        return ResponseEntity.ok(chatRoomDTO);
-    }
+//    @PostMapping("/send")
+//    public ResponseEntity<?> sendMessage(@RequestBody ChatMessageRequestDTO.Message dto){
+//        ChatMessageResponseDTO.MessageDTO chatRoomDTO = chatMessageService.saveMessage(dto);
+//        return ResponseEntity.ok(chatRoomDTO);
+//    }
 
     @GetMapping("/room/{roomId}")
     public ResponseEntity<List<ChatMessageResponseDTO.MessageDTO>> getMessages(@PathVariable Long roomId) {

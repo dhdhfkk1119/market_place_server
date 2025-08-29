@@ -1,7 +1,9 @@
 package com.market.market_place.chat.chat_message;
 
+import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.chat._enum.MessageType;
 import com.market.market_place.chat.chat_room.ChatRoom;
+import com.market.market_place.members.domain.Member;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,10 +20,10 @@ public class ChatMessageRequestDTO {
         private MessageType messageType;
         private String message;
 
-        public ChatMessage toEntity(ChatRoom chatRoom){
+        public ChatMessage toEntity(Member sender,Member receiver, ChatRoom chatRoom){
             return ChatMessage.builder()
-                    .sendId(sendId)
-                    .receiveId(receiveId)
+                    .sender(sender)
+                    .receiver(receiver)
                     .chatRoom(chatRoom)
                     .messageType(messageType)
                     .message(message)

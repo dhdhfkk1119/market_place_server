@@ -21,16 +21,16 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
 
     // 메세지 보내기 및 방 생성하기
-    public ChatMessageResponseDTO.MessageDTO saveMessage(ChatMessageRequestDTO.Message dto){
-        ChatRoom room = chatRoomRepository.findByUserIds(dto.getSendId(),dto.getReceiveId())
-                .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
-                                .userId1(dto.getSendId())
-                                .userId2(dto.getReceiveId())
-                        .build()));
-        ChatMessage chatMessage = dto.toEntity(room);
-        chatMessageRepository.save(chatMessage);
-        return new ChatMessageResponseDTO.MessageDTO(chatMessage, Collections.emptyList());
-    }
+//    public ChatMessageResponseDTO.MessageDTO saveMessage(ChatMessageRequestDTO.Message dto){
+//        ChatRoom room = chatRoomRepository.findByUserIds(dto.getSendId(),dto.getReceiveId())
+//                .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
+//                                .userId1(dto.getSendId())
+//                                .userId2(dto.getReceiveId())
+//                        .build()));
+//        ChatMessage chatMessage = dto.toEntity(room);
+//        chatMessageRepository.save(chatMessage);
+//        return new ChatMessageResponseDTO.MessageDTO(chatMessage, Collections.emptyList());
+//    }
 
     // 내가 속한 한 방에 메세지 내역을 전부 가져오기
     public List<ChatMessageResponseDTO.MessageDTO> getMessagesByRoom(Long roomId) {
@@ -40,6 +40,5 @@ public class ChatMessageService {
                 .map(msg -> new ChatMessageResponseDTO.MessageDTO(msg, Collections.emptyList()))
                 .collect(Collectors.toList());
     }
-
 
 }

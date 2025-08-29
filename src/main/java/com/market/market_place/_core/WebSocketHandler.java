@@ -1,8 +1,11 @@
 package com.market.market_place._core;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.market.market_place._core._config.UploadConfig;
+import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.FileUploadUtil;
+import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.chat._enum.MessageType;
 import com.market.market_place.chat.chat_image.ChatImage;
 import com.market.market_place.chat.chat_image.ChatImageRepository;
@@ -14,13 +17,17 @@ import com.market.market_place.chat.chat_message.ChatMessageResponseDTO;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
 import com.market.market_place.chat.chat_room.ChatRoomRequestDTO;
+import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +44,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final ChatImageRepository chatImageRepository;
     private final FileUploadUtil fileUploadUtil;
     private final UploadConfig uploadConfig;
+    private final MemberRepository memberRepository;
 
     // 연결된 사용자 세션을 저장할 맵 (userId → session)
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
@@ -48,11 +56,17 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // 일단 테스트용: URL query ?userId=1 이런 식으로 전달받는다고 가정
-        String query = session.getUri().getQuery(); // "userId=1"
-        Long userId = Long.parseLong(query.split("=")[1]);
-        sessions.put(userId, session);
+        String token = UriComponentsBuilder.fromUri(session.getUri()).build().getQueryParams().getFirst("token");
+        if (token != null && !token.isBlank()) {
+            try {
+                JwtUtil.SessionUser sessionUser = JwtUtil.verifyAndReturnSessionUser(token);
+                session.getAttributes().put("userId", sessionUser.getId());
+                sessions.put(sessionUser.getId(),session);
+            } catch (JWTVerificationException e) {
+                session.close(CloseStatus.BAD_DATA.withReason("Invalid JWT token."));
+            }
+        }
 
-        System.out.println("✅ 사용자 " + userId + " 연결됨");
     }
 
     /**
@@ -63,17 +77,29 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         ChatMessageRequestDTO.Message msgDTO = objectMapper.readValue(payload, ChatMessageRequestDTO.Message.class);
 
+        Long senderId = (Long) session.getAttributes().get("userId");
+        if (senderId == null) {
+            session.close(CloseStatus.BAD_DATA.withReason("User not authenticated."));
+            return;
+        }
+
+        Long receiverId = msgDTO.getReceiveId();
+
+        Member sender = memberRepository.findById(senderId)
+                .orElseThrow(() -> new Exception404("해당 유저가 없습니다"));
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(() -> new Exception404("해당 유저가 없습니다"));
 
         // 방 생성 or 조회
-        ChatRoom room = chatRoomRepository.findByUserIds(msgDTO.getSendId(), msgDTO.getReceiveId())
+        ChatRoom room = chatRoomRepository.findByUserIds(senderId,receiverId)
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
-                        .userId1(msgDTO.getSendId())
-                        .userId2(msgDTO.getReceiveId())
+                        .userId1(sender)
+                        .userId2(receiver)
                         .build()));
 
 
         // 메시지 저장
-        ChatMessage chatMessage = msgDTO.toEntity(room);
+        ChatMessage chatMessage = msgDTO.toEntity(sender,receiver,room);
         chatMessage.setMessageType(MessageType.TEXT);
         chatMessageRepository.save(chatMessage);
 

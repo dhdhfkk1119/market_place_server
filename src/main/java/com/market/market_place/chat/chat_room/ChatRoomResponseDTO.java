@@ -9,6 +9,8 @@ public class ChatRoomResponseDTO {
     public static class ChatRoomDTO {
         private Long roomId;
         private Long userId1;
+        private String user1Name;
+        private String user2Name;
         private Long userId2;
         private String message;
         private String createdAt;
@@ -16,9 +18,11 @@ public class ChatRoomResponseDTO {
         @Builder
         public ChatRoomDTO(ChatRoom chatRoom, ChatMessage lastMessage, Long loginUserId) {
             this.roomId = chatRoom.getId();
-            this.userId1 = chatRoom.getUserId1().equals(loginUserId)
-                    ? chatRoom.getUserId2()
-                    : chatRoom.getUserId1();
+            this.userId1 = chatRoom.getUserId1().getId().equals(loginUserId)
+                    ? chatRoom.getUserId2().getId()
+                    : chatRoom.getUserId1().getId();
+            this.user1Name = chatRoom.getUserId1().getMemberProfile().getName();
+            this.user2Name = chatRoom.getUserId1().getMemberProfile().getName();
 
             if (lastMessage != null) {
                 this.message = lastMessage.getMessage();

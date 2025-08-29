@@ -3,6 +3,7 @@ package com.market.market_place.chat.chat_message;
 import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.chat._enum.MessageType;
 import com.market.market_place.chat.chat_room.ChatRoom;
+import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +25,13 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long sendId;
-    private Long receiveId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private Member sender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

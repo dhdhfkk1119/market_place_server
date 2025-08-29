@@ -2,6 +2,7 @@ package com.market.market_place.chat.chat_room;
 
 import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.chat.chat_message.ChatMessage;
+import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +26,13 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId1;
-    private Long userId2;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId1")
+    private Member userId1;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId2")
+    private Member userId2;
 
     @CreationTimestamp
     private Timestamp createdAt;
