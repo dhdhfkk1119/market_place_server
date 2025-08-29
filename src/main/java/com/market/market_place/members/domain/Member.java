@@ -1,9 +1,11 @@
 package com.market.market_place.members.domain;
 
+import com.market.market_place.members.dtos.MemberRegisterRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -51,7 +53,27 @@ public class Member {
         ADMIN, USER
     }
 
-    //== 연관관계 편의 메소드 ==//
+    //== 정적 팩토리 메서드 ==//
+    // 회원가입 요청 정보를 바탕으로 완전한 Member 객체를 생성합니다.
+    public static Member from(MemberRegisterRequest dto, PasswordEncoder passwordEncoder) {
+        Member member = Member.builder()
+                .loginId(dto.getLoginId())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .role(MemberRole.USER)
+                .build();
+
+        member.setMemberProfile(MemberProfile.builder().build());
+        member.setMemberActivity(MemberActivity.builder().build());
+        member.setMemberAuth(MemberAuth.builder()
+                .phoneNumber(dto.getPhoneNumber())
+                .telecom(dto.getTelecom())
+                .build());
+
+        return member;
+    }
+
+    //== 연관관계 편의 메서드 ==//
+    // 양방향 연관관계에서 데이터의 일관성을 유지합니다.
     public void setMemberProfile(MemberProfile memberProfile) {
         this.memberProfile = memberProfile;
         memberProfile.setMember(this);
@@ -67,7 +89,8 @@ public class Member {
         memberAuth.setMember(this);
     }
 
-    //== 비즈니스 로직 ==//
+    //== 엔티티 비즈니스 로직 ==//
+    // Member 엔티티와 직접 관련된 비즈니스 로직을 처리합니다.
     public void updatePassword(String password) {
         this.password = password;
     }

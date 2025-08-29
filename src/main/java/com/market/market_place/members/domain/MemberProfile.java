@@ -1,8 +1,10 @@
 package com.market.market_place.members.domain;
 
+import com.market.market_place.members.dtos.MemberUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -38,8 +40,14 @@ public class MemberProfile {
     @UpdateTimestamp
     private LocalDateTime lastActiveAt;
 
-    //== 비즈니스 로직 ==//
-    public void updateName(String name) {
-        this.name = name;
+    //== 엔티티 비즈니스 로직 ==//
+    // DTO를 기반으로 프로필 정보(닉네임, 이미지)를 업데이트합니다.
+    public void updateFrom(MemberUpdateRequest dto) {
+        if (StringUtils.hasText(dto.getName())) {
+            this.name = dto.getName();
+        }
+        if (StringUtils.hasText(dto.getProfileImage())) {
+            this.profileImageBase64 = dto.getProfileImage();
+        }
     }
 }
