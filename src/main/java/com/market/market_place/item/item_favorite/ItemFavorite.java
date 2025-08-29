@@ -1,6 +1,7 @@
 package com.market.market_place.item.item_favorite;
 
 import com.market.market_place.item.core.Item;
+import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,7 +17,9 @@ public class ItemFavorite {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId; // User 엔티티 추가 시 변경
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member; // User 엔티티 추가 시 변경
 
 //    private Item item;
 

@@ -7,6 +7,7 @@ import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberAddress;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +18,6 @@ import java.util.List;
 @Table(name = "item_tb")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Item {
 
     @Id
@@ -39,9 +39,18 @@ public class Item {
     private String content;
     private Long price;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ItemFavorite> favorites = new ArrayList<>();
 
+    @Builder
+    public Item(String content, List<ItemFavorite> favorites,ItemCategory itemCategory,MemberAddress memberAddress, Long price, String title) {
+        this.content = content;
+        this.favorites = favorites;
+        this.itemCategory = itemCategory;
+        this.memberAddress = memberAddress;
+        this.price = price;
+        this.title = title;
+    }
 }
