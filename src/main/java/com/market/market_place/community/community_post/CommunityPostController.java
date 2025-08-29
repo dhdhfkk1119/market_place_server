@@ -10,12 +10,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/community/posts")
 @RequiredArgsConstructor
 public class CommunityPostController {
 
     private final CommunityPostService postService;
+
+    // 전체조회
+    @GetMapping
+    public ResponseEntity<?> findAll(){
+        List<CommunityPostResponse.ListDTO> posts = postService.findAllPosts();
+        return ResponseEntity.ok(ApiUtil.success(posts));
+    }
+
+    // 상세조회
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<ApiUtil.ApiResult<CommunityPostResponse.DetailDTO>> detail(
+            @PathVariable(name = "id")Long id){
+
+        CommunityPostResponse.DetailDTO detailDTO = postService.detail(id);
+        return ResponseEntity.ok(ApiUtil.success(detailDTO));
+    }
 
     // 글 작성
     @Auth(roles = Member.MemberRole.USER)
@@ -27,4 +45,23 @@ public class CommunityPostController {
         return ResponseEntity.ok(ApiUtil.success(savedPost));
     }
 
+    // 수정
+    @Auth(roles = Member.MemberRole.USER)
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
+                                    @Valid @RequestBody CommunityPostRequest.UpdateDTO updateDTO,
+                                    @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
+
+        CommunityPostResponse.ResponseDTO updatePost = postService.update(id, updateDTO, sessionUser);
+        return ResponseEntity.ok(ApiUtil.success(updatePost));
+    }
+
+    // 삭제
+    @Auth(roles = Member.MemberRole.USER)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiUtil.ApiResult<String>> delete(@PathVariable(name = "id") Long id,
+                                                  @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
+        postService.delete(id, sessionUser);
+        return ResponseEntity.ok(ApiUtil.success("삭제 성공"));
+    }
 }

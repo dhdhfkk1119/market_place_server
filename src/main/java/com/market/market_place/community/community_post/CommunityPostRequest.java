@@ -35,7 +35,8 @@ public class CommunityPostRequest {
         private String content;
         private String location;
         private Long topicId;
-        private List<String> images;
+        private List<String> addImages;
+        private List<String> deleteImages;
     }
 }
 
