@@ -13,8 +13,8 @@ server:
 # 이미지 저장 시 파일 저장 위치
 upload:
   root-dir: ./uploads/
-  corp-dir: corp-images/
-  member-dir: member-images/
+  chat-dir: chat-images/
+
 
 # 로그 레벨의 개념
 # ERROR > WARN > INFO > DEBUG > TRACE

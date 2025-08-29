@@ -1,5 +1,6 @@
 package com.market.market_place.chat.chat_room;
 
+import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
 import lombok.Data;
 
 public class ChatRoomRequestDTO {

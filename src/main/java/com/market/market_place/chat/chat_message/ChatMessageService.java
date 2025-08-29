@@ -22,7 +22,7 @@ public class ChatMessageService {
 
     // 메세지 보내기 및 방 생성하기
     public ChatMessageResponseDTO.MessageDTO saveMessage(ChatMessageRequestDTO.Message dto){
-        ChatRoom room = chatRoomRepository.findByUserId1AndUserId2(dto.getSendId(),dto.getReceiveId())
+        ChatRoom room = chatRoomRepository.findByUserIds(dto.getSendId(),dto.getReceiveId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
                                 .userId1(dto.getSendId())
                                 .userId2(dto.getReceiveId())
