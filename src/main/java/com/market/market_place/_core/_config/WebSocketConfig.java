@@ -1,6 +1,6 @@
 package com.market.market_place._core._config;
 
-import com.market.market_place._core.WebSocketHandler;
+import com.market.market_place._core.handler.WebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

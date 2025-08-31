@@ -17,7 +17,6 @@ public class ChatMessageRequestDTO {
         private Long receiveId;
         private Long roomId;
         private List<String> images = new ArrayList<>();
-        private MessageType messageType;
         private String message;
 
         public ChatMessage toEntity(Member sender,Member receiver, ChatRoom chatRoom){
@@ -25,7 +24,6 @@ public class ChatMessageRequestDTO {
                     .sender(sender)
                     .receiver(receiver)
                     .chatRoom(chatRoom)
-                    .messageType(messageType)
                     .message(message)
                     .build();
         }

@@ -1,4 +1,4 @@
-package com.market.market_place._core;
+package com.market.market_place._core.handler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,20 +16,16 @@ import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
 import com.market.market_place.chat.chat_message.ChatMessageResponseDTO;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
-import com.market.market_place.chat.chat_room.ChatRoomRequestDTO;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,10 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     // 연결된 사용자 세션을 저장할 맵 (userId → session)
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
-    /**
-     * 웹소켓 연결이 수립되었을 때
-     * (나중에 JWT에서 userId 추출해서 sessions.put(userId, session) 하면 됨)
-     */
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         // 일단 테스트용: URL query ?userId=1 이런 식으로 전달받는다고 가정
@@ -77,13 +70,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         ChatMessageRequestDTO.Message msgDTO = objectMapper.readValue(payload, ChatMessageRequestDTO.Message.class);
 
-        Long senderId = (Long) session.getAttributes().get("userId");
+        Long senderId = (Long) session.getAttributes().get("userId"); // 보내는 사용자 번호
+         
         if (senderId == null) {
             session.close(CloseStatus.BAD_DATA.withReason("User not authenticated."));
             return;
         }
 
-        Long receiverId = msgDTO.getReceiveId();
+        Long receiverId = msgDTO.getReceiveId(); // 받는 사용자 번호
 
         Member sender = memberRepository.findById(senderId)
                 .orElseThrow(() -> new Exception404("해당 유저가 없습니다"));

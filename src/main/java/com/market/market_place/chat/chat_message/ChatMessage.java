@@ -27,20 +27,20 @@ public class ChatMessage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
-    private Member sender;
+    private Member sender; // 보는 사용자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
-    private Member receiver;
+    private Member receiver; // 받는 사용자
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id")
-    private ChatRoom chatRoom;
+    private ChatRoom chatRoom; // 채팅 방
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    private MessageType messageType = MessageType.TEXT;
+    private MessageType messageType = MessageType.TEXT; // 메세지 형식
 
     private String message;
 
