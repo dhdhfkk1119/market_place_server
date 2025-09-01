@@ -8,7 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +38,11 @@ public class CommunityComment {
 
     @Column(nullable = false)
     private int likeCount = 0;
+
+    @CreationTimestamp
+    private Timestamp createdAt;
+
+    private Boolean isSecret;
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityCommentLike> likes = new ArrayList<>();

@@ -82,6 +82,4 @@ public class CommunityPost {
         this.content = updateDTO.getContent();
         this.location = updateDTO.getLocation();
     }
-
-
 }

@@ -10,6 +10,8 @@ import com.market.market_place.community.community_topic.CommunityTopicRepositor
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +29,8 @@ public class CommunityPostService {
     private final CommunityPostImageRepository imageRepository;
 
     // 전체 조회
-    public List<CommunityPostResponse.ListDTO> findAllPosts() {
-        List<CommunityPost> posts = postRepository.findAll();
+    public List<CommunityPostResponse.ListDTO> findAllPosts(Pageable pageable) {
+        Page<CommunityPost> posts = postRepository.findAllWithTopic(pageable);
         return posts.stream().map(CommunityPostResponse.ListDTO::new)
                 .collect(Collectors.toList());
     }
@@ -37,8 +39,6 @@ public class CommunityPostService {
     public CommunityPostResponse.DetailDTO detail(Long id) {
         CommunityPost post = postRepository.findById(id).orElseThrow(() ->
                 new Exception404("게시글이 없습니다"));
-        postRepository.findByIdWithImages(id);
-        postRepository.findByIdWithComments(id);
         post.increaseViewCount();
         return new CommunityPostResponse.DetailDTO(post);
     }

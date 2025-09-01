@@ -1,6 +1,7 @@
 package com.market.market_place.community.community_category;
 
 import com.market.market_place.community.community_topic.CommunityTopic;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
@@ -13,6 +14,7 @@ public class CommunityCategoryResponse {
         private Long id;
         private String name;
 
+        @Builder
         public ListDTO(CommunityCategory category) {
             this.id = category.getId();
             this.name = category.getName();
@@ -25,6 +27,7 @@ public class CommunityCategoryResponse {
         private Long id;
         private String name;
 
+        @Builder
         public CategoryResponseDTO(CommunityCategory category) {
             this.id = category.getId();
             this.name = category.getName();

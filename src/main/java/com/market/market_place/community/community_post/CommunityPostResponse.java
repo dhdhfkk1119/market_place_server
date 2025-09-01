@@ -2,6 +2,7 @@ package com.market.market_place.community.community_post;
 
 import com.market.market_place.community.community_comment.CommunityComment;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
+import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -15,20 +16,25 @@ public class CommunityPostResponse {
     public static class ListDTO{
         private Long id;
         private String title;
-        private int likeCount;
-        private Timestamp createdAt;
+        private String topic;
         private String location;
         private String preview;
+        private String thumbnail;
+        private int likeCount;
         private int viewCount;
+        private Timestamp createdAt;
 
-
+        @Builder
         public ListDTO(CommunityPost post) {
             this.id = post.getId();
             this.title = post.getTitle();
-            this.likeCount = post.getLikeCount();
-            this.createdAt = post.getCreatedAt();
+            this.topic = post.getTopic().getName();
             this.location = post.getLocation();
+            this.likeCount = post.getLikeCount();
             this.viewCount = post.getViewCount();
+            this.createdAt = post.getCreatedAt();
+            this.thumbnail = post.getImages().isEmpty() ?
+                    null : post.getImages().get(0).getImageUrl(); // 첫번째 이미지만 보임
 
             // 내용 30줄 미리보기
             String content = post.getContent();
@@ -52,6 +58,7 @@ public class CommunityPostResponse {
         private List<String> images;
         private List<CommunityComment> comments;
 
+        @Builder
         public DetailDTO(CommunityPost post) {
             this.id = post.getId();
             this.title = post.getTitle();
@@ -75,6 +82,7 @@ public class CommunityPostResponse {
         private String title;
         private String content;
 
+        @Builder
         public ResponseDTO(CommunityPost post) {
             this.id = post.getId();
             this.title = post.getTitle();
