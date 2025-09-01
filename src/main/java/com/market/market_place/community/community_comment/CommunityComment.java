@@ -54,6 +54,7 @@ public class CommunityComment {
     // update 메서드
     public void update(CommunityCommentRequest.UpdateDTO updateDTO) {
         this.content = updateDTO.getContent();
+        this.imageUrl = updateDTO.getImageUrl();
     }
 
     public void updateLikeCount(int likeCount) {
