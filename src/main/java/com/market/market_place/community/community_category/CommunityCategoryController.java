@@ -2,6 +2,7 @@ package com.market.market_place.community.community_category;
 
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class CommunityCategoryController {
     }
 
     // 등록
-    @Auth(roles = Member.MemberRole.ADMIN)
+    @Auth(roles = Role.ADMIN)
     @PostMapping
     public ResponseEntity<?> save(@Valid @RequestBody CommunityCategoryRequest.SaveDTO saveDTO) {
         CommunityCategoryResponse.CategoryResponseDTO savedCategory = categoryService.save(saveDTO);
@@ -32,7 +33,7 @@ public class CommunityCategoryController {
     }
 
     // 수정
-    @Auth(roles = Member.MemberRole.ADMIN)
+    @Auth(roles = Role.ADMIN)
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
                                     @Valid @RequestBody CommunityCategoryRequest.UpdateDTO updateDTO){
@@ -41,7 +42,7 @@ public class CommunityCategoryController {
     }
 
     // 삭제
-    @Auth(roles = Member.MemberRole.ADMIN)
+    @Auth(roles = Role.ADMIN)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id){
         categoryService.delete(id);

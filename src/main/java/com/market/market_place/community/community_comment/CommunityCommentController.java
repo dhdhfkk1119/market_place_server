@@ -4,6 +4,7 @@ import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class CommunityCommentController {
 
 
     // 저장
-    @Auth(roles = Member.MemberRole.USER)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @PostMapping("/posts/{postId}")
     public ResponseEntity<?> save(@PathVariable Long postId,
                                   @Valid @RequestBody CommunityCommentRequest.SaveDTO saveDTO,
@@ -38,7 +39,7 @@ public class CommunityCommentController {
     }
 
     // 수정
-    @Auth(roles = Member.MemberRole.USER)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
                                     @Valid @RequestBody CommunityCommentRequest.UpdateDTO updateDTO,
@@ -49,7 +50,7 @@ public class CommunityCommentController {
     }
 
     // 삭제
-    @Auth(roles = Member.MemberRole.USER)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id,
                                     @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser){

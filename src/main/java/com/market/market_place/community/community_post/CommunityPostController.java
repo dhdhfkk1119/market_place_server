@@ -4,6 +4,7 @@ import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +40,7 @@ public class CommunityPostController {
     }
 
     // 글 작성
-    @Auth(roles = Member.MemberRole.USER)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @PostMapping
     public ResponseEntity<?> save(@Valid @RequestBody CommunityPostRequest.SaveDTO saveDTO,
                                   @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser){
@@ -49,7 +50,7 @@ public class CommunityPostController {
     }
 
     // 수정
-    @Auth(roles = Member.MemberRole.USER)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
                                     @Valid @RequestBody CommunityPostRequest.UpdateDTO updateDTO,
@@ -60,7 +61,7 @@ public class CommunityPostController {
     }
 
     // 삭제
-    @Auth(roles = Member.MemberRole.USER)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id,
                                                   @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
