@@ -70,8 +70,7 @@ public class Member {
         member.setMemberProfile(MemberProfile.builder().build());
         member.setMemberActivity(MemberActivity.builder().build());
         member.setMemberAuth(MemberAuth.builder()
-                .phoneNumber(dto.getPhoneNumber())
-                .telecom(dto.getTelecom())
+                .email(dto.getEmail())
                 .build());
 
         return member;

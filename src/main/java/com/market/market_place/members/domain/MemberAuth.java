@@ -24,13 +24,10 @@ public class MemberAuth {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    // 사용자 전화번호 (고유 값)
-    @Column(unique = true)
-    private String phoneNumber;
+    // 사용자 이메일 (고유 값)
+    @Column(unique = true, nullable = false)
+    private String email;
 
-    // 통신사 정보를 저장하는 필드
-    private String telecom;
-
-    // 전화번호 인증 완료 시각
-    private LocalDateTime verifiedAt;
+    // 이메일 인증 완료 시각
+    private LocalDateTime emailVerifiedAt;
 }
