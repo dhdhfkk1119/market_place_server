@@ -26,7 +26,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         // 약관
                         "/api/terms",
                         "/api/terms/{id}",
-                        "/api/chat/rooms/**"
+                        "/api/chat/rooms/**",
+                        // 임시(AI 채팅)
+                        "/api/ai-agent/**"
                 );
     }
 }

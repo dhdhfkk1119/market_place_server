@@ -79,3 +79,10 @@ spring:
         default_batch_fetch_size: 10
     # data.sql 파일을 Hibernate 초기화 이후에 실행
     defer-datasource-initialization: true
+
+ai:
+  gemini:
+    key: ${GEMINI_API_KEY}
+    url:
+      mono: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent"
+      stream: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:streamGenerateContent"

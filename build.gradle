@@ -47,6 +47,15 @@ dependencies {
 	// 웹소켓
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+	// AppConfig에서 필요한 의존성
+	implementation 'org.apache.httpcomponents.client5:httpclient5'
+
+	// 토스 결제 통신시 필요한 도구
+	implementation group: 'net.minidev', name: 'json-smart', version: '2.5.2'
+
+	// WebClient 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.h2database:h2'
