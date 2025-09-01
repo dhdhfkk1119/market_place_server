@@ -35,6 +35,10 @@ public class MemberRegisterRequest {
     @Email(message = "유효한 이메일 주소를 입력해주세요.")
     private String email;
 
+    // 이메일 인증 여부
+    @NotNull(message = "이메일 인증 여부가 필요합니다.")
+    private Boolean isEmailVerified;
+
     // 동의한 약관 ID 목록
     @NotNull(message = "약관 동의가 필요합니다.")
     private Set<Long> agreedTermIds;
