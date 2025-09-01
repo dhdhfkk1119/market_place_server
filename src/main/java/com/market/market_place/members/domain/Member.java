@@ -30,7 +30,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MemberRole role;
+    private Role role; // 독립된 Role 열거형을 사용하도록 수정
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -53,9 +53,7 @@ public class Member {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    public enum MemberRole {
-        ADMIN, USER
-    }
+    // 내부 열거형 MemberRole은 삭제됨
 
     //== 정적 팩토리 메서드 ==//
     // 회원가입 요청 정보를 바탕으로 완전한 Member 객체를 생성합니다.
@@ -63,7 +61,7 @@ public class Member {
         Member member = Member.builder()
                 .loginId(dto.getLoginId())
                 .password(passwordEncoder.encode(dto.getPassword()))
-                .role(MemberRole.USER)
+                .role(Role.USER) // 독립된 Role 열거형을 사용하도록 수정
                 .status(MemberStatus.ACTIVE) // 신규 회원은 항상 활성 상태로 시작
                 .build();
 

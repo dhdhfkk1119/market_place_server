@@ -6,7 +6,7 @@ import com.market.market_place._core._exception.Exception401;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception500;
 import com.market.market_place._core._utils.JwtUtil;
-import com.market.market_place.members.domain.Member.MemberRole;
+import com.market.market_place.members.domain.Role; // 독립된 Role을 import
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +79,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     // 2. 권한(Authorization) - API에 접근 가능한 역할(Role)인지 검사하는 역할
     private void checkRole(Auth auth, JwtUtil.SessionUser sessionUser) {
         if (auth.roles().length > 0) {
-            MemberRole userRole = sessionUser.getRole();
+            Role userRole = sessionUser.getRole(); // 독립된 Role을 사용하도록 수정
             boolean isAuthorized = Arrays.stream(auth.roles())
                     .anyMatch(role -> role == userRole);
             if (!isAuthorized) {
@@ -91,7 +91,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     // 3. 소유권(Ownership) - 리소스의 소유자가 맞는지 검사하는 역할
     private void checkOwnership(Auth auth, JwtUtil.SessionUser sessionUser, HttpServletRequest request) {
         if (auth.isOwner()) {
-            if (sessionUser.getRole() == MemberRole.ADMIN) {
+            if (sessionUser.getRole() == Role.ADMIN) { // 독립된 Role을 사용하도록 수정
                 return; // 관리자는 소유자 확인을 통과
             }
 
