@@ -15,6 +15,17 @@ upload:
   root-dir: ./uploads/
   chat-dir: chat-images/
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: localcommerceproject@gmail.com
+    password: oixu rrji bwni jjkm # 중요: 일반 비밀번호가 아닌 '앱 비밀번호'를 사용해야 합니다.
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 # 로그 레벨의 개념
 # ERROR > WARN > INFO > DEBUG > TRACE
