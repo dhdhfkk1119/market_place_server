@@ -1,5 +1,6 @@
 package com.market.market_place.email.controllers;
 
+import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place.email.dtos.ConfirmVerificationRequest;
 import com.market.market_place.email.dtos.SendVerificationRequest;
@@ -35,10 +36,11 @@ public class EmailVerificationController {
     public ResponseEntity<ApiUtil.ApiResult<String>> confirmVerificationCode(
             @Valid @RequestBody ConfirmVerificationRequest request) {
         boolean isVerified = emailVerificationService.verifyCode(request.getEmail(), request.getCode());
-        if (isVerified) {
-            return ResponseEntity.ok(ApiUtil.success("이메일 인증이 성공적으로 완료되었습니다."));
-        } else {
-            return ResponseEntity.badRequest().body(ApiUtil.error("인증 코드가 유효하지 않거나 만료되었습니다.", "400"));
+
+        if (!isVerified) {
+            throw new Exception400("인증 코드가 유효하지 않거나 만료되었습니다.");
         }
+
+        return ResponseEntity.ok(ApiUtil.success("이메일 인증이 성공적으로 완료되었습니다."));
     }
 }
