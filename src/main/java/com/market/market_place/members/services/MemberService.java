@@ -2,6 +2,7 @@ package com.market.market_place.members.services;
 
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.dtos.MemberRegisterResponse;
 import com.market.market_place.members.dtos.MemberUpdateRequest;
 import com.market.market_place.members.dtos.MemberUpdateResponse;
 import com.market.market_place.members.dtos.MyInfoResponse;
@@ -41,6 +42,18 @@ public class MemberService {
     // 회원 상세 조회 (ID 기준, 다른 서비스에서 사용하기 위한 public 메서드)
     public Member findMember(Long memberId) {
         return memberRepository.findById(memberId)
+                .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
+    }
+
+    /**
+     * @deprecated 이 메서드는 MemberAdminService로 책임이 이전될 예정이며,
+     *             현재는 다른 도메인과의 호환성을 위해 임시로 유지됩니다.
+     *             새로운 기능을 구현할 경우, 이 메서드를 사용하지 마십시오.
+     *             대신 sessionUser.getId()를 사용하여 findMember(Long id)를 호출하는 것을 권장합니다.
+     */
+    @Deprecated
+    public Member findMemberByLoginId(String loginId) {
+        return memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
     }
 }
