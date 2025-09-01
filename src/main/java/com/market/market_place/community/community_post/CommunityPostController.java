@@ -6,6 +6,10 @@ import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Member;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +25,14 @@ public class CommunityPostController {
 
     // 전체조회
     @GetMapping
-    public ResponseEntity<?> findAll(){
-        List<CommunityPostResponse.ListDTO> posts = postService.findAllPosts();
+    public ResponseEntity<ApiUtil.ApiResult<List<CommunityPostResponse.ListDTO>>> list(
+            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
+        List<CommunityPostResponse.ListDTO> posts = postService.findAllPosts(pageable);
         return ResponseEntity.ok(ApiUtil.success(posts));
     }
 
     // 상세조회
-    @GetMapping("/{id}/detail")
+    @GetMapping("/{id}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityPostResponse.DetailDTO>> detail(
             @PathVariable(name = "id")Long id){
 

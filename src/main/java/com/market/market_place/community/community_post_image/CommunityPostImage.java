@@ -19,6 +19,7 @@ public class CommunityPostImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
