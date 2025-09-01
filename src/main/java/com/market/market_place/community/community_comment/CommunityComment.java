@@ -28,6 +28,8 @@ public class CommunityComment {
 
     private String content;
 
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private CommunityPost post;
@@ -42,8 +44,19 @@ public class CommunityComment {
     @CreationTimestamp
     private Timestamp createdAt;
 
-    private Boolean isSecret;
-
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityCommentLike> likes = new ArrayList<>();
+
+    public boolean isOwner(Long sessionId){
+        return this.member.getId().equals(sessionId);
+    }
+
+    // update 메서드
+    public void update(CommunityCommentRequest.UpdateDTO updateDTO) {
+        this.content = updateDTO.getContent();
+    }
+
+    public void updateLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
 }

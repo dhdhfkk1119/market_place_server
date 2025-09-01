@@ -6,12 +6,10 @@ import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Member;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +32,7 @@ public class CommunityPostController {
     // 상세조회
     @GetMapping("/{id}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityPostResponse.DetailDTO>> detail(
-            @PathVariable(name = "id")Long id){
+            @PathVariable Long id){
 
         CommunityPostResponse.DetailDTO detailDTO = postService.detail(id);
         return ResponseEntity.ok(ApiUtil.success(detailDTO));
@@ -53,7 +51,7 @@ public class CommunityPostController {
     // 수정
     @Auth(roles = Member.MemberRole.USER)
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
+    public ResponseEntity<?> update(@PathVariable Long id,
                                     @Valid @RequestBody CommunityPostRequest.UpdateDTO updateDTO,
                                     @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
 
@@ -64,7 +62,7 @@ public class CommunityPostController {
     // 삭제
     @Auth(roles = Member.MemberRole.USER)
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiUtil.ApiResult<String>> delete(@PathVariable(name = "id") Long id,
+    public ResponseEntity<?> delete(@PathVariable Long id,
                                                   @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
         postService.delete(id, sessionUser);
         return ResponseEntity.ok(ApiUtil.success("삭제 성공"));
