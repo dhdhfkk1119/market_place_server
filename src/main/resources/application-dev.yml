@@ -50,7 +50,18 @@ spring:
   h2:
     console:
       enabled: true
-
+  # (기존 다른 설정들은 그대로 두세요)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: localcommerceproject@gmail.com
+    password: oixu rrji bwni jjkm
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
   # JPA 설정
   jpa:
