@@ -2,7 +2,7 @@ package com.market.market_place.item.core;
 
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
-import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @Auth(roles = {Member.MemberRole.ADMIN, Member.MemberRole.USER})
+    @Auth(roles = {Role.ADMIN, Role.USER})
     @PostMapping
     public ResponseEntity<?> save(
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
@@ -25,7 +25,7 @@ public class ItemController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
-    @Auth(roles = {Member.MemberRole.ADMIN, Member.MemberRole.USER})
+    @Auth(roles = {Role.ADMIN, Role.USER})
     @PostMapping("/{id}")
     public ResponseEntity<ItemResponse.ItemUpdateDTO> update(
             @PathVariable Long id,
@@ -37,12 +37,13 @@ public class ItemController {
         return ResponseEntity.ok(body);
     }
 
+    @Auth(roles = {Role.ADMIN, Role.USER})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser
     ) {
-        itemService.delete(id,sessionUser.getId());
+        itemService.delete(id, sessionUser.getId());
         return ResponseEntity.noContent().build();
     }
 }

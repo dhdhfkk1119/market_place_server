@@ -41,7 +41,7 @@ public class Item {
 
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
-    @OneToMany(mappedBy = "item",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "item",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ItemFavorite> favorites = new ArrayList<>();
 
     @Builder
