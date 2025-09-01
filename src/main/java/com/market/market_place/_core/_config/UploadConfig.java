@@ -10,4 +10,5 @@ import org.springframework.context.annotation.Configuration;
 public class UploadConfig {
     private String rootDir;
     private String chatDir;
+    private String chatFileDir;
 }

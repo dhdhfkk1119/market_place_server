@@ -14,6 +14,7 @@ server:
 upload:
   root-dir: ./uploads/
   chat-dir: chat-images/
+  chat-file-dir: chat-file/
 
 # 로그 레벨의 개념
 # ERROR > WARN > INFO > DEBUG > TRACE

@@ -1,4 +1,4 @@
-package com.market.market_place._core.handler;
+package com.market.market_place.chat.handler;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,7 @@ import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.FileUploadUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.chat._enum.MessageType;
+import com.market.market_place.chat.chat_file.ChatFileRequestDTO;
 import com.market.market_place.chat.chat_image.ChatImage;
 import com.market.market_place.chat.chat_image.ChatImageRepository;
 import com.market.market_place.chat.chat_image.ChatImageRequestDTO;
@@ -42,13 +43,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final UploadConfig uploadConfig;
     private final MemberRepository memberRepository;
 
-    // 연결된 사용자 세션을 저장할 맵 (userId → session)
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        // 일단 테스트용: URL query ?userId=1 이런 식으로 전달받는다고 가정
         String token = UriComponentsBuilder.fromUri(session.getUri()).build().getQueryParams().getFirst("token");
         if (token != null && !token.isBlank()) {
             try {
@@ -59,7 +58,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 session.close(CloseStatus.BAD_DATA.withReason("Invalid JWT token."));
             }
         }
-
     }
 
     /**
@@ -101,7 +99,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
             ChatImageRequestDTO.ChatImageDTO chatImageDTO = new ChatImageRequestDTO.ChatImageDTO();
             List<String> images = msgDTO.getImages();
             for(String img : images){
-                String imageList = fileUploadUtil.uploadProfileImage(img,uploadConfig.getChatDir());
+                String imageList = fileUploadUtil.uploadImage(img,uploadConfig.getChatDir());
                 ChatImage chatImage = chatImageDTO.toEntity(imageList,chatMessage);
                 chatImageRepository.save(chatImage);
             }
@@ -109,16 +107,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
             chatMessageRepository.save(chatMessage);
         }
 
+
         // 응답 DTO 생성
         List<ChatImage> images = chatImageRepository.findByChatMessage(chatMessage);
         ChatMessageResponseDTO.MessageDTO responseDTO =
                 new ChatMessageResponseDTO.MessageDTO(chatMessage, images);
         String response = objectMapper.writeValueAsString(responseDTO);
 
-        // 1. 보낸 본인에게 전송
         session.sendMessage(new TextMessage(response));
 
-        // 2. 상대방 세션이 있으면 전송
         WebSocketSession receiverSession = sessions.get(msgDTO.getReceiveId());
         if (receiverSession != null && receiverSession.isOpen()) {
             receiverSession.sendMessage(new TextMessage(response));
@@ -131,7 +128,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         sessions.values().remove(session);
-        System.out.println("❎ 세션 종료됨");
+        System.out.println("세션 종료됨");
     }
 }
 

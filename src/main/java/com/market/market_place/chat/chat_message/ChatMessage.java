@@ -2,6 +2,8 @@ package com.market.market_place.chat.chat_message;
 
 import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.chat._enum.MessageType;
+import com.market.market_place.chat.chat_file.ChatFile;
+import com.market.market_place.chat.chat_image.ChatImage;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
@@ -12,6 +14,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Table(name = "chat_message_tb")
@@ -43,6 +47,12 @@ public class ChatMessage {
     private MessageType messageType = MessageType.TEXT; // 메세지 형식
 
     private String message;
+
+    @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chatMessage", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatFile> files = new ArrayList<>();
 
     @CreationTimestamp
     private Timestamp createdAt;
