@@ -1,6 +1,7 @@
-package com.market.market_place._core._config;
+package com.market.market_place.chat._config;
 
-import com.market.market_place._core.handler.WebSocketHandler;
+import com.market.market_place.chat.handler.JwtHandshakeInterceptor;
+import com.market.market_place.chat.handler.WebSocketHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -20,6 +21,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
         // webSocketHandler 에서 처리
         registry.addHandler(webSocketHandler,"ws-stomp")
                 // 접속 시도하는 모든 출처를 허용
+                .addInterceptors(new JwtHandshakeInterceptor())
                 .setAllowedOrigins("*");
     }
 }

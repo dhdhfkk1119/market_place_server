@@ -2,32 +2,70 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>WebSocket Test</title>
+    <title>WebSocket Test Client</title>
 </head>
 <body>
-<h2>WebSocket Chat Test</h2>
-<input id="msgInput" type="text" placeholder="메시지를 입력하세요">
-<button onclick="sendMessage()">보내기</button>
-<div id="chatLog"></div>
+<h1>WebSocket Test Client</h1>
+
+<div>
+    <input type="text" id="tokenInput" placeholder="JWT 토큰 입력">
+    <button onclick="connectWebSocket()">Connect</button>
+</div>
+
+<div>
+    <input type="text" id="messageInput" placeholder="보낼 메시지 입력">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<div>
+    <h3>Logs</h3>
+    <pre id="logs"></pre>
+</div>
 
 <script>
-    let socket = new WebSocket("ws://localhost:8080/ws-stomp");
+    let socket;
+    const logs = document.getElementById("logs");
 
-    socket.onopen = () => {
-        document.getElementById("chatLog").innerHTML += "<p>✅ 서버 연결됨</p>";
-    };
+    function log(message) {
+        logs.textContent += message + "\n";
+    }
 
-    socket.onmessage = (event) => {
-        document.getElementById("chatLog").innerHTML += "<p>📩 서버: " + event.data + "</p>";
-    };
+    // WebSocket 연결
+    function connectWebSocket() {
+        const token = document.getElementById("tokenInput").value.trim();
+        if (!token) {
+            alert("JWT 토큰을 입력하세요!");
+            return;
+        }
 
+        // 기존 연결이 있으면 종료
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+        }
+
+        // URL에 token 쿼리 파라미터로 전달
+        socket = new WebSocket("ws://localhost:8080/ws-stomp?token=" + encodeURIComponent(token));
+
+        socket.onopen = () => log("✅ Connected to server");
+        socket.onmessage = (event) => log("📩 Received: " + event.data);
+        socket.onclose = () => log("❌ Disconnected from server");
+        socket.onerror = (error) => log("⚠️ Error: " + JSON.stringify(error));
+    }
+
+    // 메시지 보내기
     function sendMessage() {
-        let msg = document.getElementById("msgInput").value;
-        socket.send(JSON.stringify({
-            sendId: 1,
-            receiveId: 2,
-            content: msg
-        }));
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            alert("WebSocket에 연결되지 않았습니다!");
+            return;
+        }
+
+        const msg = {
+            message: document.getElementById("messageInput").value,
+            receiveId: parseInt(prompt("받는 사람 ID 입력"), 10)
+        };
+
+        socket.send(JSON.stringify(msg));
+        log("📤 Sent: " + JSON.stringify(msg));
     }
 </script>
 </body>

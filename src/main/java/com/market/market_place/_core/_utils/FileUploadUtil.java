@@ -21,8 +21,8 @@ public class FileUploadUtil {
     private final UploadConfig uploadConfig;
 
 
-    /*프로필 이미지 파일을 서버에 업로드 하는 메서드*/
-    public String uploadProfileImage(String base64Image, String subDirName) throws IOException {
+    // 이미지 base64 형식으로 받기 위해서
+    public String uploadImage(String base64Image, String subDirName) throws IOException {
         // 어느 파일에 저장하지 파일 경로 설정
         String fullUploadPath = Paths.get(uploadConfig.getRootDir(), subDirName).toString();
         createUploadDirectory(fullUploadPath);
@@ -43,6 +43,35 @@ public class FileUploadUtil {
         Files.write(filePath, bytes);
 
         return uniqueFileName; // DB에는 URL 또는 파일명만 저장
+    }
+
+    // 파일 form 형식으로 받기 위함
+    public String uploadFile(MultipartFile multipartFile,String subDirName) throws IOException{
+
+        // 어느 파일에 저장하지 파일 경로 설정
+        String fullUploadPath = Paths.get(uploadConfig.getRootDir(),subDirName).toString();
+
+        // 1. 단계 : 업로드할 디렉토리(폴더)가 존재하지 않으면 생성
+        createUploadDirectory(fullUploadPath);
+        // 2. 단계 : 업로드된 파일의 원본 이름 추출
+        // DB <-- 실제 저장되는 경로, 사용자가 올린 파일명도 관리할 수 있다.
+        String originFilename = multipartFile.getOriginalFilename();
+        // 3. 단계 : 파일 확장자를 추출
+        String extension = getFileExtension(originFilename);
+
+        // 4. 단계 : 중복을 방지하기 위해 고유한 파일명 생성
+        // 현재 날짜 및 시간_파일이름.jpg 형식
+        String uniqueFileName = generateUniqueFileName(extension);
+
+        // 5. 단계  최종 저장할 파일의 전체 경로를 생성
+        // 예 : C:/uploads/profiles/20212955_123123.jpg
+        Path filePath = Paths.get(fullUploadPath,uniqueFileName);
+
+        // 6단계 : 실제로 파일을 임시 저장소에서 최종  우리가 정한 위치로 이동/복사
+        multipartFile.transferTo(filePath);
+
+        // 7단계 : 실제 바이트 단위로 받은 데이터를 서버 컴퓨터에 new File()
+        return uniqueFileName;
     }
 
 

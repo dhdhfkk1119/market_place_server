@@ -17,6 +17,7 @@ public class ChatMessageRequestDTO {
         private Long receiveId;
         private Long roomId;
         private List<String> images = new ArrayList<>();
+        private MultipartFile uploadFile;
         private String message;
 
         public ChatMessage toEntity(Member sender,Member receiver, ChatRoom chatRoom){

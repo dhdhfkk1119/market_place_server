@@ -37,7 +37,6 @@ public class ChatRoom {
     @CreationTimestamp
     private Timestamp createdAt;
 
-
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
