@@ -11,4 +11,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME) // 런타임에 이 정보를 JVM이 볼수있다
 public @interface Auth {
     MemberRole[] roles() default {}; // 역할 지정 허용
+    boolean isOwner() default false; // 리소스 소유자 확인 여부
 }

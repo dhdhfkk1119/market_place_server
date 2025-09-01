@@ -27,14 +27,16 @@ public class MemberInitializer implements CommandLineRunner {
                     .loginId("admin")
                     .password(passwordEncoder.encode("admin1234"))
                     .role(Member.MemberRole.ADMIN)
-                    .status(MemberStatus.ACTIVE) // [수정] 관리자 계정 상태 ACTIVE로 설정
+                    .status(MemberStatus.ACTIVE)
                     .build();
 
             MemberProfile adminProfile = MemberProfile.builder()
                     .name("관리자")
                     .build();
             MemberActivity adminActivity = MemberActivity.builder().build();
-            MemberAuth adminAuth = MemberAuth.builder().build();
+            MemberAuth adminAuth = MemberAuth.builder()
+                    .email("admin@market.com")
+                    .build();
 
             admin.setMemberProfile(adminProfile);
             admin.setMemberActivity(adminActivity);
@@ -49,7 +51,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .loginId("user1")
                     .password(passwordEncoder.encode("user1234"))
                     .role(Member.MemberRole.USER)
-                    .status(MemberStatus.ACTIVE) // [수정] 일반 사용자 계정 상태 ACTIVE로 설정
+                    .status(MemberStatus.ACTIVE)
                     .build();
 
             MemberProfile userProfile = MemberProfile.builder()
@@ -57,7 +59,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .build();
             MemberActivity userActivity = MemberActivity.builder().build();
             MemberAuth userAuth = MemberAuth.builder()
-                    .phoneNumber("01012345678")
+                    .email("user1@market.com")
                     .build();
 
             user.setMemberProfile(userProfile);

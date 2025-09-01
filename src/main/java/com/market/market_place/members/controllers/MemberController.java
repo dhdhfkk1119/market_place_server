@@ -1,12 +1,12 @@
 package com.market.market_place.members.controllers;
 
-import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
-import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.Member.MemberRole;
 import com.market.market_place.members.dtos.*;
+import com.market.market_place.members.services.MemberAdminService;
+import com.market.market_place.members.services.MemberAuthService;
 import com.market.market_place.members.services.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Tag(name = "Member API", description = "회원 관련 API")
 @RestController
@@ -27,108 +26,107 @@ import java.util.stream.Collectors;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberAuthService memberAuthService;
+    private final MemberAdminService memberAdminService;
 
+    // --- User / Admin 공통 API ---
+    @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
+    @SecurityRequirement(name = "jwtAuth")
+    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @GetMapping("/me")
+    public ResponseEntity<ApiUtil.ApiResult<MyInfoResponse>> getMyInfo(
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        MyInfoResponse response = memberService.getMyInfo(sessionUser.getId());
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @Operation(summary = "비밀번호 변경", description = "현재 로그인한 사용자의 비밀번호를 변경합니다.")
+    @SecurityRequirement(name = "jwtAuth")
+    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @PatchMapping("/me/password")
+    public ResponseEntity<ApiUtil.ApiResult<String>> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        memberAuthService.changePassword(sessionUser.getId(), request);
+        return ResponseEntity.ok(ApiUtil.success("비밀번호가 성공적으로 변경되었습니다."));
+    }
+
+    @Operation(summary = "내 정보 수정", description = "현재 로그인한 사용자의 닉네임 또는 프로필 이미지를 수정합니다.")
+    @SecurityRequirement(name = "jwtAuth")
+    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @PatchMapping("/me")
+    public ResponseEntity<ApiUtil.ApiResult<MemberUpdateResponse>> updateMember(
+            @Valid @RequestBody MemberUpdateRequest request,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        MemberUpdateResponse response = memberService.updateMember(sessionUser.getId(), request);
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
+    @Operation(summary = "회원 탈퇴 (논리적 삭제)", description = "현재 로그인한 사용자가 탈퇴 처리합니다. 데이터는 보존됩니다.")
+    @SecurityRequirement(name = "jwtAuth")
+    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiUtil.ApiResult<String>> withdrawMember(
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        memberService.withdrawMember(sessionUser.getId());
+        return ResponseEntity.ok(ApiUtil.success("회원 탈퇴가 정상적으로 처리되었습니다."));
+    }
+
+    // --- 인증 API (비로그인) ---
     @Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
     @PostMapping("/register")
     public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> registerMember(@Valid @RequestBody MemberRegisterRequest request) {
-        MemberRegisterResponse response = memberService.registerMember(request);
+        MemberRegisterResponse response = memberAuthService.registerMember(request);
         return new ResponseEntity<>(ApiUtil.success(response), HttpStatus.CREATED);
     }
 
     @Operation(summary = "로그인", description = "로그인 ID와 비밀번호로 인증하여 JWT 토큰을 발급받습니다.")
     @PostMapping("/login")
     public ResponseEntity<ApiUtil.ApiResult<MemberLoginResponse>> login(@RequestBody MemberLoginRequest request) {
-        Member member = memberService.login(request);
-        String token = JwtUtil.createToken(member);
-        MemberLoginResponse response = new MemberLoginResponse(member);
-
+        MemberLoginResult result = memberAuthService.login(request);
         return ResponseEntity.ok()
-                .header(JwtUtil.HEADER, JwtUtil.TOKEN_PREFIX + token)
-                .body(ApiUtil.success(response));
+                .header(JwtUtil.HEADER, JwtUtil.TOKEN_PREFIX + result.getToken())
+                .body(ApiUtil.success(result.getLoginResponse()));
     }
 
-    @Operation(summary = "회원 정보 수정", description = "회원의 닉네임 또는 프로필 이미지를 수정합니다. (USER, ADMIN 권한 필요)")
-    @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiUtil.ApiResult<MemberUpdateResponse>> updateMember(
-            @PathVariable Long id,
-            @Valid @RequestBody MemberUpdateRequest request,
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-
-        if (sessionUser.getRole() == MemberRole.USER && !sessionUser.getId().equals(id)) {
-            throw new Exception403("본인의 정보만 수정할 수 있습니다.");
-        }
-
-        Member updatedMember = memberService.updateMember(id, request);
-        MemberUpdateResponse response = new MemberUpdateResponse(updatedMember);
-        return ResponseEntity.ok(ApiUtil.success(response));
-    }
-
-    @Operation(summary = "회원 탈퇴 (논리적 삭제)", description = "회원 상태를 '탈퇴'로 변경합니다. 데이터는 보존됩니다. (USER, ADMIN 권한 필요)")
-    @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
-    @PatchMapping("/{id}/withdraw")
-    public ResponseEntity<ApiUtil.ApiResult<String>> withdrawMember(
-            @PathVariable Long id,
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-
-        if (sessionUser.getRole() == MemberRole.USER && !sessionUser.getId().equals(id)) {
-            throw new Exception403("본인만 탈퇴할 수 있습니다.");
-        }
-
-        memberService.withdrawMember(id);
-        return ResponseEntity.ok(ApiUtil.success("회원 탈퇴가 정상적으로 처리되었습니다."));
-    }
-
+    // --- 관리자(Admin) 전용 API ---
     @Operation(summary = "회원 정지 (관리자용)", description = "특정 회원의 상태를 '정지'로 변경합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = MemberRole.ADMIN)
     @PatchMapping("/{id}/ban")
-    public ResponseEntity<ApiUtil.ApiResult<String>> banMember(
-            @PathVariable Long id,
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-
-        memberService.banMember(id);
+    public ResponseEntity<ApiUtil.ApiResult<String>> banMember(@PathVariable Long id) {
+        memberAdminService.banMember(id);
         return ResponseEntity.ok(ApiUtil.success("해당 회원이 정지 처리되었습니다."));
     }
 
-    @Operation(summary = "회원 상세 조회", description = "로그인 ID로 특정 회원의 정보를 조회합니다. (USER, ADMIN 권한 필요)")
+    @Operation(summary = "회원 상세 조회 (관리자용)", description = "로그인 ID로 특정 회원의 정보를 조회합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @Auth(roles = MemberRole.ADMIN)
     @GetMapping("/{loginId}")
-    public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> getMember(
-            @PathVariable String loginId,
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-        Member member = memberService.findMemberByLoginId(loginId);
-        MemberRegisterResponse response = new MemberRegisterResponse(member);
+    public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> getMember(@PathVariable String loginId) {
+        MemberRegisterResponse response = memberAdminService.findMemberByLoginId(loginId);
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @Operation(summary = "회원 전체 조회", description = "모든 회원의 목록을 조회합니다. (ADMIN 권한 필요)")
+    @Operation(summary = "회원 전체 조회 (관리자용)", description = "모든 회원의 목록을 조회합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = MemberRole.ADMIN)
     @GetMapping
-    public ResponseEntity<ApiUtil.ApiResult<List<MemberRegisterResponse>>> getAllMembers(
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-        List<Member> members = memberService.findAllMembers();
-        List<MemberRegisterResponse> response = members.stream()
-                .map(MemberRegisterResponse::new)
-                .collect(Collectors.toList());
+    public ResponseEntity<ApiUtil.ApiResult<List<MemberRegisterResponse>>> getAllMembers() {
+        List<MemberRegisterResponse> response = memberAdminService.findAllMembers();
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @Operation(summary = "회원 삭제 (물리적 삭제)", description = "특정 회원의 정보를 시스템에서 영구적으로 삭제합니다. (ADMIN 권한 필요)")
+    @Operation(summary = "회원 삭제 (관리자용, 물리적 삭제)", description = "특정 회원의 정보를 시스템에서 영구적으로 삭제합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = MemberRole.ADMIN)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMember(
-            @PathVariable Long id,
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-        memberService.deleteMember(id);
+    public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
+        memberAdminService.deleteMember(id);
         return ResponseEntity.noContent().build();
     }
 
+    // --- Health Check API ---
     @Operation(summary = "API 상태 확인", description = "Member API 서버의 상태를 확인합니다.")
     @GetMapping("/health")
     public ResponseEntity<ApiUtil.ApiResult<String>> healthCheck() {
