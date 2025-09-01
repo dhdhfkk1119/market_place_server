@@ -1,5 +1,7 @@
 package com.market.market_place.chat.chat_room;
 
+import com.market.market_place._core.auth.Auth;
+import com.market.market_place.members.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +15,14 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     // 내가 참여한 모든 방 조회
+    @Auth(roles = {Role.ADMIN, Role.USER})
     @GetMapping
     public ResponseEntity<?> getMyRooms(@RequestParam Long userId){
         List<ChatRoomResponseDTO.ChatRoomDTO> chatRoomDTO = chatRoomService.getMyChatRooms(userId);
         return ResponseEntity.ok(chatRoomDTO);
     }
 
+    @Auth(roles = {Role.ADMIN, Role.USER})
     @DeleteMapping("/{roomId}")
     public ResponseEntity<?> deleteRoom(@PathVariable Long roomId){
         chatRoomService.deleteRoom(roomId);

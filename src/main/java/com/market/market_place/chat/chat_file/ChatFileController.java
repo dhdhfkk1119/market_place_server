@@ -9,6 +9,7 @@ import com.market.market_place.chat.chat_message.ChatMessage;
 import com.market.market_place.chat.chat_message.ChatMessageRepository;
 import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ChatFileController {
 
     private final ChatFileService chatFileService;
 
-    @Auth(roles = {Member.MemberRole.ADMIN, Member.MemberRole.USER})
+    @Auth(roles = {Role.ADMIN, Role.USER})
     @PostMapping("/{roomId}/upload")
     public ResponseEntity<?> uploadFile(
             @PathVariable Long roomId,
