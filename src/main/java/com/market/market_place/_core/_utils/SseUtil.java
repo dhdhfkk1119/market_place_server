@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,5 +44,11 @@ public class SseUtil {
                 removeEmitter(userId);
             }
         }
+    }
+
+    public void broadcast(String data) {
+        emitters.keySet().forEach((userId) -> {
+            sendToUser(userId, data);
+        });
     }
 }
