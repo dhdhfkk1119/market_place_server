@@ -3,7 +3,7 @@ package com.market.market_place.members.controllers;
 import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
-import com.market.market_place.members.domain.Member.MemberRole;
+import com.market.market_place.members.domain.Role; // 독립된 Role을 import
 import com.market.market_place.members.dtos.*;
 import com.market.market_place.members.services.MemberAdminService;
 import com.market.market_place.members.services.MemberAuthService;
@@ -32,7 +32,7 @@ public class MemberController {
     // --- User / Admin 공통 API ---
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @GetMapping("/me")
     public ResponseEntity<ApiUtil.ApiResult<MyInfoResponse>> getMyInfo(
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
@@ -42,7 +42,7 @@ public class MemberController {
 
     @Operation(summary = "비밀번호 변경", description = "현재 로그인한 사용자의 비밀번호를 변경합니다.")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @PatchMapping("/me/password")
     public ResponseEntity<ApiUtil.ApiResult<String>> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
@@ -53,7 +53,7 @@ public class MemberController {
 
     @Operation(summary = "내 정보 수정", description = "현재 로그인한 사용자의 닉네임 또는 프로필 이미지를 수정합니다.")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @PatchMapping("/me")
     public ResponseEntity<ApiUtil.ApiResult<MemberUpdateResponse>> updateMember(
             @Valid @RequestBody MemberUpdateRequest request,
@@ -64,7 +64,7 @@ public class MemberController {
 
     @Operation(summary = "회원 탈퇴 (논리적 삭제)", description = "현재 로그인한 사용자가 탈퇴 처리합니다. 데이터는 보존됩니다.")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = {MemberRole.USER, MemberRole.ADMIN})
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/me")
     public ResponseEntity<ApiUtil.ApiResult<String>> withdrawMember(
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
@@ -92,7 +92,7 @@ public class MemberController {
     // --- 관리자(Admin) 전용 API ---
     @Operation(summary = "회원 정지 (관리자용)", description = "특정 회원의 상태를 '정지'로 변경합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = MemberRole.ADMIN)
+    @Auth(roles = Role.ADMIN)
     @PatchMapping("/{id}/ban")
     public ResponseEntity<ApiUtil.ApiResult<String>> banMember(@PathVariable Long id) {
         memberAdminService.banMember(id);
@@ -101,7 +101,7 @@ public class MemberController {
 
     @Operation(summary = "회원 상세 조회 (관리자용)", description = "로그인 ID로 특정 회원의 정보를 조회합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = MemberRole.ADMIN)
+    @Auth(roles = Role.ADMIN)
     @GetMapping("/{loginId}")
     public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> getMember(@PathVariable String loginId) {
         MemberRegisterResponse response = memberAdminService.findMemberByLoginId(loginId);
@@ -110,7 +110,7 @@ public class MemberController {
 
     @Operation(summary = "회원 전체 조회 (관리자용)", description = "모든 회원의 목록을 조회합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = MemberRole.ADMIN)
+    @Auth(roles = Role.ADMIN)
     @GetMapping
     public ResponseEntity<ApiUtil.ApiResult<List<MemberRegisterResponse>>> getAllMembers() {
         List<MemberRegisterResponse> response = memberAdminService.findAllMembers();
@@ -119,7 +119,7 @@ public class MemberController {
 
     @Operation(summary = "회원 삭제 (관리자용, 물리적 삭제)", description = "특정 회원의 정보를 시스템에서 영구적으로 삭제합니다. (ADMIN 권한 필요)")
     @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = MemberRole.ADMIN)
+    @Auth(roles = Role.ADMIN)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
         memberAdminService.deleteMember(id);

@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.Member.MemberRole;
+import com.market.market_place.members.domain.Role; // 독립된 Role을 import
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
@@ -54,7 +54,7 @@ public class JwtUtil {
         return SessionUser.builder()
                 .id(id)
                 .loginId(loginId)
-                .role(MemberRole.valueOf(roleStr))
+                .role(Role.valueOf(roleStr)) // 독립된 Role을 사용하도록 수정
                 .build();
     }
 
@@ -66,6 +66,6 @@ public class JwtUtil {
         private String loginId;
         private String username;
         private String email;
-        private MemberRole role;
+        private Role role; // 독립된 Role을 사용하도록 수정
     }
 }
