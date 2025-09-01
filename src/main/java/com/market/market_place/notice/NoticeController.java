@@ -2,6 +2,7 @@ package com.market.market_place.notice;
 
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import com.market.market_place.notice.dto.NoticeRequest;
 import com.market.market_place.notice.dto.NoticeResponse;
 import org.springframework.data.domain.Page;
@@ -22,14 +23,14 @@ public class NoticeController {
         this.noticeService = noticeService;
     }
 
-    @Auth(roles = Member.MemberRole.ADMIN)
+    @Auth(roles = {Role.ADMIN})
     @PostMapping
     public ResponseEntity<NoticeResponse> createNotice(@RequestBody NoticeRequest request) {
         NoticeResponse response = noticeService.createNotice(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @Auth(roles = {Member.MemberRole.USER, Member.MemberRole.ADMIN})
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @GetMapping
     public ResponseEntity<Page<NoticeResponse>> getAllNotices(
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -37,21 +38,21 @@ public class NoticeController {
         return new ResponseEntity<>(responsePage, HttpStatus.OK);
     }
 
-    @Auth(roles = {Member.MemberRole.USER, Member.MemberRole.ADMIN})
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @GetMapping("/{id}")
     public ResponseEntity<NoticeResponse> getNoticeById(@PathVariable Long id) {
         NoticeResponse response = noticeService.getNoticeById(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Auth(roles = Member.MemberRole.ADMIN)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @PutMapping("/{id}")
     public ResponseEntity<NoticeResponse> updateNotice(@PathVariable Long id, @RequestBody NoticeRequest request) {
         NoticeResponse response = noticeService.updateNotice(id, request.toEntity());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Auth(roles = Member.MemberRole.ADMIN)
+    @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Long id) {
         noticeService.deleteNotice(id);
