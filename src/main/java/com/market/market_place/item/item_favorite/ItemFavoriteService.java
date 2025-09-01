@@ -6,13 +6,13 @@ import com.market.market_place.item.core.ItemRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ItemFavoriteService {
 
@@ -20,39 +20,45 @@ public class ItemFavoriteService {
     private final MemberRepository memberRepository;
     private final ItemFavoriteRepository itemFavoriteRepository;
 
-    public ItemFavoriteResponse toggleFavorite(Long itemId,Long sessionUserId) {
+    @Transactional
+    public ItemFavoriteResponse toggleFavorite(Long itemId, Long sessionUserId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
         Member member = memberRepository.findById(sessionUserId)
                 .orElseThrow(() -> new Exception404("회원이 존재하지 않습니다."));
 
-        Optional<ItemFavorite> ItemFavoriteOpt = itemFavoriteRepository.findByMemberIdAndItemId(member.getId(),item.getId());
+        Optional<ItemFavorite> itemFavoriteOpt =
+                itemFavoriteRepository.findByMemberIdAndItemId(member.getId(), item.getId());
 
         boolean liked;
-        if (ItemFavoriteOpt.isPresent()) {
-            itemFavoriteRepository.delete(ItemFavoriteOpt.get());
+        if (itemFavoriteOpt.isPresent()) {
+            itemFavoriteRepository.delete(itemFavoriteOpt.get());
             liked = false;
         } else {
             ItemFavorite itemFavorite = new ItemFavorite();
             itemFavorite.setMember(member);
             itemFavorite.setItem(item);
-            itemFavoriteRepository.save(itemFavorite);
-            liked = true;
+            try {
+                itemFavoriteRepository.save(itemFavorite);
+                liked = true;
+            } catch (DataIntegrityViolationException e) {
+                liked = true;
+            }
         }
 
-        Long ItemFavoriteCount = itemFavoriteRepository.countByItemId(item.getId());
-
-        return new ItemFavoriteResponse(item.getId(),liked,ItemFavoriteCount);
+        Long itemFavoriteCount = itemFavoriteRepository.countByItemId(item.getId());
+        return new ItemFavoriteResponse(item.getId(), liked, itemFavoriteCount);
     }
 
-    public ItemFavoriteResponse getFavoriteStatus(Long itemId,Long sessionUserId) {
+    @Transactional(readOnly = true)
+    public ItemFavoriteResponse getFavoriteStatus(Long itemId, Long sessionUserId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
 
-        boolean liked = itemFavoriteRepository.findByMemberIdAndItemId(sessionUserId,itemId).isPresent();
+        boolean liked = itemFavoriteRepository.findByMemberIdAndItemId(sessionUserId, itemId).isPresent();
 
         Long itemFavoriteCount = itemFavoriteRepository.countByItemId(itemId);
 
-        return new ItemFavoriteResponse(itemId,liked,itemFavoriteCount);
+        return new ItemFavoriteResponse(itemId, liked, itemFavoriteCount);
     }
 }
