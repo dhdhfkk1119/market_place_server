@@ -1,22 +1,19 @@
 package com.market.market_place.item.item_image;
 
+import com.market.market_place.item.core.Item;
 import lombok.Data;
+
+import java.awt.*;
 
 @Data
 public class ItemImageRequestDTO {
 
-    private String fileName;
-    private String imageData;
-    private String base64Image;
+    private String imageUrl;
 
-    public ItemImage toEntity() {
-
-        ItemImage itemImage = new ItemImage();
-        itemImage.setFileName(this.fileName);
-        itemImage.setImageData(this.imageData);
-        return itemImage;
-
+    public ItemImage toEntity(Item item) {
+        return ItemImage.builder()
+                .item(item)
+                .imageUrl(this.imageUrl)
+                .build();
     }
-
-
 }
