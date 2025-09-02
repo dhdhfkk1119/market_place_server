@@ -1,7 +1,9 @@
 package com.market.market_place.notice;
 
 import com.market.market_place._core.auth.Auth;
+import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.members.domain.Member;
+import lombok.RequiredArgsConstructor;
 import com.market.market_place.members.domain.Role;
 import com.market.market_place.notice.dto.NoticeRequest;
 import com.market.market_place.notice.dto.NoticeResponse;
@@ -45,17 +47,19 @@ public class NoticeController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Auth(roles = {Role.USER, Role.ADMIN})
+    @Auth(roles = {Role.ADMIN})
     @PutMapping("/{id}")
-    public ResponseEntity<NoticeResponse> updateNotice(@PathVariable Long id, @RequestBody NoticeRequest request) {
-        NoticeResponse response = noticeService.updateNotice(id, request.toEntity());
+    public ResponseEntity<NoticeResponse> updateNotice(@PathVariable Long id, @RequestBody NoticeRequest request,
+                                                       @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        NoticeResponse response = noticeService.updateNotice(id, request.toEntity(), sessionUser.getRole());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Auth(roles = {Role.USER, Role.ADMIN})
+    @Auth(roles = {Role.ADMIN})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNotice(@PathVariable Long id) {
-        noticeService.deleteNotice(id);
+    public ResponseEntity<Void> deleteNotice(@PathVariable Long id,
+                                             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        noticeService.deleteNotice(id, sessionUser.getRole());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

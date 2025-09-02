@@ -17,18 +17,19 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class QnaService {
 
     private final QnaRepository qnaRepository;
 
-    @Transactional
+
     public QnaResponse createQna(QnaRequest request, Member member) {
         Qna qna = new Qna(request.getQuestion(), member);
         Qna savedQna = qnaRepository.save(qna);
         return new QnaResponse(savedQna);
     }
 
-    @Transactional(readOnly = true)
+
     public List<QnaResponse> getAllQna() {
         return qnaRepository.findAll()
                 .stream()
@@ -36,7 +37,7 @@ public class QnaService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+
     public QnaResponse updateQna(Long id, QnaRequest request, Long memberId, Role role) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new Exception404("qna를 찾을수 없음"));
@@ -57,7 +58,6 @@ public class QnaService {
         return new QnaResponse(qna);
     }
 
-    @Transactional
     public void deleteQna(Long id, Long memberId, Role role) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new Exception404("qna를 찾을수 없음"));
