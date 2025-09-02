@@ -1,7 +1,6 @@
 package com.market.market_place.community.community_category;
 
 import com.market.market_place._core.auth.Auth;
-import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
