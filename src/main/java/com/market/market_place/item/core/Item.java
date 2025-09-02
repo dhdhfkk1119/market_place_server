@@ -44,6 +44,13 @@ public class Item {
     @OneToMany(mappedBy = "item",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ItemFavorite> favorites = new ArrayList<>();
 
+    public void addImage(ItemImage image) {
+        images.add(image); image.setItem(this); }
+    public void removeImage(ItemImage image) {
+        images.remove(image); image.setItem(null); }
+
+
+
     @Builder
     public Item(String content, List<ItemFavorite> favorites,ItemCategory itemCategory,MemberAddress memberAddress, Long price, String title) {
         this.content = content;

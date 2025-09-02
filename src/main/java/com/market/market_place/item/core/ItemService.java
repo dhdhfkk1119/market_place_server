@@ -5,16 +5,19 @@ import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
+import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.item_image.ItemImageRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberAddress;
 import com.market.market_place.members.repositories.MemberAddressRepository;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.hc.client5.http.UserTokenHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Transactional
 @RequiredArgsConstructor
@@ -40,8 +43,17 @@ public class ItemService {
         Item item = dto.toEntity(category,address);
         item.setMember(seller);
 
-        Item saved = itemRepository.save(item);
+        if (dto.getImageUrls() != null && !dto.getImageUrls().isEmpty()) {
+            dto.setImageUrls(dto.getImageUrls().stream()
+                    .filter(u -> u != null && !u.isBlank())
+                    .distinct()
+                    .toList());
+            for (String url : dto.getImageUrls()) {
+                item.addImage(ItemImage.of(url));
+            }
+        }
 
+        Item saved = itemRepository.save(item);
         return new ItemResponse.ItemSaveDTO(saved);
     }
 
@@ -70,9 +82,41 @@ public class ItemService {
             item.setMemberAddress(address);
         }
 
+        if (dto.getImageUrls() != null) {
+            List<String> cleanedNewUrls = new ArrayList<>();
+            if (dto.getImageUrls() != null) {
+                for (String u : dto.getImageUrls()) {
+                    if (u != null && !u.isBlank()) {
+                        cleanedNewUrls.add(u);
+                    }
+                }
+            }
+            LinkedHashSet<String> distinctOrderPreserved = new LinkedHashSet<>(cleanedNewUrls);
+            List<String> newUrls = new ArrayList<>(distinctOrderPreserved);
+
+            List<ItemImage> oldImages = new ArrayList<>(item.getImages());
+
+            Set<String> oldUrlSet = new HashSet<>();
+            for (ItemImage img : oldImages) {
+                oldUrlSet.add(img.getImageUrl());
+            }
+            Set<String> newUrlSet = new HashSet<>(newUrls);
+
+            for (ItemImage img : oldImages) {
+                if (!newUrlSet.contains(img.getImageUrl())) {
+                    item.removeImage(img);
+                }
+            }
+
+            for (String url : newUrls) {
+                if (!oldUrlSet.contains(url)) {
+                    item.addImage(ItemImage.of(url));
+                }
+            }
+        }
+
         return new ItemResponse.ItemUpdateDTO(item);
     }
-
 
     public void delete(Long id, Long sessionUserId) {
 
