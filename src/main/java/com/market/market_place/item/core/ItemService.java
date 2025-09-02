@@ -43,13 +43,11 @@ public class ItemService {
         Item item = dto.toEntity(category,address);
         item.setMember(seller);
 
-        if (dto.getImageUrls() != null && !dto.getImageUrls().isEmpty()) {
-            dto.setImageUrls(dto.getImageUrls().stream()
-                    .filter(u -> u != null && !u.isBlank())
-                    .distinct()
-                    .toList());
-            for (String url : dto.getImageUrls()) {
-                item.addImage(ItemImage.of(url));
+        if (dto.getBase64Images() != null && !dto.getBase64Images().isEmpty()) {
+            for (String data : dto.getBase64Images()) {
+                if (data != null && !data.isBlank()) {
+                    item.addImage(ItemImage.of(data));
+                }
             }
         }
 
@@ -82,38 +80,7 @@ public class ItemService {
             item.setMemberAddress(address);
         }
 
-        if (dto.getImageUrls() != null) {
-            List<String> cleanedNewUrls = new ArrayList<>();
-            if (dto.getImageUrls() != null) {
-                for (String u : dto.getImageUrls()) {
-                    if (u != null && !u.isBlank()) {
-                        cleanedNewUrls.add(u);
-                    }
-                }
-            }
-            LinkedHashSet<String> distinctOrderPreserved = new LinkedHashSet<>(cleanedNewUrls);
-            List<String> newUrls = new ArrayList<>(distinctOrderPreserved);
 
-            List<ItemImage> oldImages = new ArrayList<>(item.getImages());
-
-            Set<String> oldUrlSet = new HashSet<>();
-            for (ItemImage img : oldImages) {
-                oldUrlSet.add(img.getImageUrl());
-            }
-            Set<String> newUrlSet = new HashSet<>(newUrls);
-
-            for (ItemImage img : oldImages) {
-                if (!newUrlSet.contains(img.getImageUrl())) {
-                    item.removeImage(img);
-                }
-            }
-
-            for (String url : newUrls) {
-                if (!oldUrlSet.contains(url)) {
-                    item.addImage(ItemImage.of(url));
-                }
-            }
-        }
 
         return new ItemResponse.ItemUpdateDTO(item);
     }
