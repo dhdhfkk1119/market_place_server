@@ -6,7 +6,36 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
+
+
 public class ItemResponse {
+
+    @Data
+    @Builder
+    public static class ItemListDTO {
+        private String title;
+        private String content;
+        private Long price;
+
+        private String itemCategoryName;
+        private String memberAddressName;
+        private String thumbnail;
+
+        // private String status;
+        private Integer favoriteCount;
+
+        public static ItemListDTO from(Item item) {
+            return ItemListDTO.builder()
+                    .content(item.getContent())
+                    .title(item.getTitle())
+                    .price(item.getPrice())
+                    .itemCategoryName(item.getItemCategory().getName())
+                    .memberAddressName(item.getMemberAddress().getAddressBasic())
+                    .thumbnail(item.getImages().get(0).getImageUrl())
+                    .build();
+        }
+    }
 
     @Data
     public static class ItemDetailDTO {

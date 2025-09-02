@@ -13,6 +13,8 @@ import com.market.market_place.members.repositories.MemberAddressRepository;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.client5.http.UserTokenHandler;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,13 @@ public class ItemService {
     private final ItemCategoryRepository itemCategoryRepository;
     private final MemberAddressRepository memberAddressRepository;
     private final MemberRepository memberRepository;
+
+
+
+    public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
+        return itemRepository.findAll(pageable)
+                .map(ItemResponse.ItemListDTO::from);
+    }
 
     public ItemResponse.ItemSaveDTO save(Long id,ItemRequest.ItemSaveDTO dto) {
 
