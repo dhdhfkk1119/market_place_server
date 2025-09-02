@@ -24,7 +24,8 @@ public class GeminiService {
         this.webClient = webClient;
     }
 
-//    @Value("${ai.gemini.key}")
+
+    @Value("${ai.gemini.key}")
     private String apiKey;
 
     @Value("${ai.gemini.url.stream}")
