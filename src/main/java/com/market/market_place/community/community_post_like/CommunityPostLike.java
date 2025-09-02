@@ -14,7 +14,8 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "community_post_like_tb")
+@Table(name = "community_post_like_tb",
+        uniqueConstraints = {@UniqueConstraint(name = "uk_post_member", columnNames = {"post_id", "member_id"})})
 @Data
 @Entity
 public class CommunityPostLike {
@@ -30,8 +31,5 @@ public class CommunityPostLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
-    @CreationTimestamp
-    private Timestamp createdAt;
 
 }

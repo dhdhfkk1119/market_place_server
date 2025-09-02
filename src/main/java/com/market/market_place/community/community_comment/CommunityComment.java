@@ -28,6 +28,7 @@ public class CommunityComment {
 
     private String content;
 
+    @Lob
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
