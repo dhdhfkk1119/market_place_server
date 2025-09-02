@@ -3,6 +3,7 @@ package com.market.market_place.qna.services;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import com.market.market_place.qna.QnaRepository;
 import com.market.market_place.qna.domain.Qna;
 import com.market.market_place.qna.dto.QnaRequest;
@@ -16,18 +17,19 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class QnaService {
 
     private final QnaRepository qnaRepository;
 
-    @Transactional
+
     public QnaResponse createQna(QnaRequest request, Member member) {
         Qna qna = new Qna(request.getQuestion(), member);
         Qna savedQna = qnaRepository.save(qna);
         return new QnaResponse(savedQna);
     }
 
-    @Transactional(readOnly = true)
+
     public List<QnaResponse> getAllQna() {
         return qnaRepository.findAll()
                 .stream()
@@ -35,15 +37,12 @@ public class QnaService {
                 .collect(Collectors.toList());
     }
 
-    //관리자는 유저의 질문을 수정할수 있지만
-    //관리자가 답변을 다는 방식은 PUT(수정을 하는 방식)
-    //관리자가 답변을 달 경우 기존 질문이 수정이 되지 않음
-    @Transactional
-    public QnaResponse updateQna(Long id, QnaRequest request, Long memberId, Member.MemberRole role) {
+
+    public QnaResponse updateQna(Long id, QnaRequest request, Long memberId, Role role) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new Exception404("qna를 찾을수 없음"));
 
-        if (role == Member.MemberRole.ADMIN) {
+        if (role == Role.ADMIN) {
             if (request.getAnswer() != null) {
                 qna.setAnswer(request.getAnswer());
             }
@@ -59,12 +58,11 @@ public class QnaService {
         return new QnaResponse(qna);
     }
 
-    @Transactional
-    public void deleteQna(Long id, Long memberId, Member.MemberRole role) {
+    public void deleteQna(Long id, Long memberId, Role role) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new Exception404("qna를 찾을수 없음"));
 
-        if (!qna.getMember().getId().equals(memberId) && role != Member.MemberRole.ADMIN) {
+        if (!qna.getMember().getId().equals(memberId) && role != Role.ADMIN) {
             throw new Exception403("qna 삭제 권한 없음");
         }
         qnaRepository.deleteById(id);

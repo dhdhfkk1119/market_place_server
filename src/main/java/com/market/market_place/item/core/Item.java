@@ -41,7 +41,7 @@ public class Item {
 
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "item",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ItemFavorite> favorites = new ArrayList<>();
 
     @Builder
@@ -52,5 +52,12 @@ public class Item {
         this.memberAddress = memberAddress;
         this.price = price;
         this.title = title;
+    }
+
+    public void update(ItemRequest.ItemUpdateDTO dto, MemberAddress address) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.price = dto.getPrice();
+        this.memberAddress = address;
     }
 }

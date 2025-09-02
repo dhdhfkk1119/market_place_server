@@ -26,7 +26,7 @@ public class MemberInitializer implements CommandLineRunner {
             Member admin = Member.builder()
                     .loginId("admin")
                     .password(passwordEncoder.encode("admin1234"))
-                    .role(Member.MemberRole.ADMIN)
+                    .role(Role.ADMIN)
                     .status(MemberStatus.ACTIVE)
                     .build();
 
@@ -50,7 +50,7 @@ public class MemberInitializer implements CommandLineRunner {
             Member user = Member.builder()
                     .loginId("user1")
                     .password(passwordEncoder.encode("user1234"))
-                    .role(Member.MemberRole.USER)
+                    .role(Role.USER)
                     .status(MemberStatus.ACTIVE)
                     .build();
 

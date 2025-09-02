@@ -7,7 +7,7 @@ import lombok.Data;
 public class ItemRequest {
 
     @Data
-    public static class SaveDTO {
+    public static class ItemSaveDTO {
 
         private Long itemCategoryId;
         private Long memberAddressId;
@@ -26,4 +26,15 @@ public class ItemRequest {
                     .build();
         }
     }
+
+    @Data
+    public static class ItemUpdateDTO {
+
+        private Long memberAddressId;
+        private String title;
+        private String content;
+        private Long price;
+    }
+
+
 }
