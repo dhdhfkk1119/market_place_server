@@ -1,5 +1,6 @@
 package com.market.market_place.community.community_comment;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.market.market_place.community.community_comment_like.CommunityCommentLike;
 import com.market.market_place.community.community_post.CommunityPost;
 import com.market.market_place.members.domain.Member;
@@ -33,6 +34,7 @@ public class CommunityComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
+    @JsonBackReference // 순환 참조 방지
     private CommunityPost post;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,7 +60,7 @@ public class CommunityComment {
         this.imageUrl = updateDTO.getImageUrl();
     }
 
-    public void updateLikeCount(int likeCount) {
-        this.likeCount = likeCount;
+    public void updateLikeCount(int count) {
+        this.likeCount = Math.max(0, count);
     }
 }
