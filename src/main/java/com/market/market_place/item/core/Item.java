@@ -34,10 +34,6 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_address_id")
     private MemberAddress memberAddress;
-//    @Enumerated(EnumType.STRING)
-//    private ItemStatus status;
-
-
 
     private String title;
     private String content;
@@ -45,7 +41,7 @@ public class Item {
 
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
-
+    private Double averageRating;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
