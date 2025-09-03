@@ -17,7 +17,7 @@ public class ItemRequest {
         private String title;
         private String content;
         private Long price;
-        private List<String> imageUrls;
+        private List<String> base64Images;
 
 
         public Item toEntity(ItemCategory itemCategory, MemberAddress memberAddress) {
@@ -38,7 +38,7 @@ public class ItemRequest {
         private String title;
         private String content;
         private Long price;
-        private List<String> imageUrls;
+        private List<String> base64Images;
     }
 
 

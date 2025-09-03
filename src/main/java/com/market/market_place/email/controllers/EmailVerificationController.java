@@ -2,9 +2,11 @@ package com.market.market_place.email.controllers;
 
 import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._utils.ApiUtil;
+import com.market.market_place.email.VerificationPurpose;
 import com.market.market_place.email.dtos.ConfirmVerificationRequest;
 import com.market.market_place.email.dtos.SendVerificationRequest;
 import com.market.market_place.email.services.EmailVerificationService;
+import com.market.market_place.members.services.MemberAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,20 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
+    private final MemberAuthService memberAuthService; // 이메일 중복 확인을 위해 의존성 추가
 
-    @Operation(summary = "이메일 인증 코드 발송", description = "회원가입을 위해 해당 이메일로 인증 코드를 발송합니다.")
-    @PostMapping("/send-verification")
-    public ResponseEntity<ApiUtil.ApiResult<String>> sendVerificationCode(
+    @Operation(summary = "회원가입용 인증 코드 발송", description = "회원가입을 위해 해당 이메일로 인증 코드를 발송합니다.")
+    @PostMapping("/registration/send-code")
+    public ResponseEntity<ApiUtil.ApiResult<String>> sendRegistrationCode(
             @Valid @RequestBody SendVerificationRequest request) {
-        emailVerificationService.sendVerificationCode(request.getEmail());
+        // 이메일 중복 확인 로직을 컨트롤러가 아닌 서비스 계층으로 이동
+        memberAuthService.sendRegistrationCode(request.getEmail());
         return ResponseEntity.ok(ApiUtil.success("인증 코드가 성공적으로 발송되었습니다."));
     }
 
-    @Operation(summary = "이메일 인증 코드 확인", description = "발송된 인증 코드가 유효한지 확인합니다.")
-    @PostMapping("/confirm-verification")
-    public ResponseEntity<ApiUtil.ApiResult<String>> confirmVerificationCode(
+    @Operation(summary = "회원가입용 인증 코드 확인", description = "발송된 회원가입용 인증 코드가 유효한지 확인합니다.")
+    @PostMapping("/registration/confirm-code")
+    public ResponseEntity<ApiUtil.ApiResult<String>> confirmRegistrationCode(
             @Valid @RequestBody ConfirmVerificationRequest request) {
-        boolean isVerified = emailVerificationService.verifyCode(request.getEmail(), request.getCode());
+        boolean isVerified = emailVerificationService.verifyCode(request.getEmail(), VerificationPurpose.REGISTER, request.getCode());
 
         if (!isVerified) {
             throw new Exception400("인증 코드가 유효하지 않거나 만료되었습니다.");

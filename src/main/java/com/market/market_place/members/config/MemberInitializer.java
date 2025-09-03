@@ -59,7 +59,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .build();
             MemberActivity userActivity = MemberActivity.builder().build();
             MemberAuth userAuth = MemberAuth.builder()
-                    .email("user1@market.com")
+                    .email("choongecho@gmail.com")
                     .build();
 
             user.setMemberProfile(userProfile);
