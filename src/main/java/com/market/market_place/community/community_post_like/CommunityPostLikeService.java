@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
@@ -28,12 +30,12 @@ public class CommunityPostLikeService {
         Member member = memberRepository.findById(sessionUser.getId())
                 .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다"));
 
-        CommunityPostLike postLike = likeRepository.findByPostIdAndMemberId(postId, sessionUser.getId());
+        Optional<CommunityPostLike> postLike = likeRepository.findByPostIdAndMemberId(postId, sessionUser.getId());
 
         boolean liked;
-        if(postLike != null){
-            likeRepository.delete(postLike);
-            post.updateLikeCount(post.getLikeCount() -1); // 좋아요 -1
+        if(postLike.isPresent()){
+            likeRepository.delete(postLike.get());
+            post.updateLikeCount(post.getLikeCount() -1); // 좋아요 취소 -1
             liked = false;
         } else {
             CommunityPostLike like = CommunityPostLike.builder()
@@ -41,7 +43,7 @@ public class CommunityPostLikeService {
                     .member(member)
                     .build();
             likeRepository.save(like);
-            post.updateLikeCount(post.getLikeCount() + 1); // 좋아요 +1
+            post.updateLikeCount(post.getLikeCount() + 1); // 좋아요 등록 +1
             liked = true;
         }
 
