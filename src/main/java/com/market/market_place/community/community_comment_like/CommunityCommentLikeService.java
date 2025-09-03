@@ -47,7 +47,7 @@ public class CommunityCommentLikeService {
             comment.updateLikeCount(comment.getLikeCount() + 1); // 좋아요 등록
             liked = true;
         }
-        return new CommunityPostLikeResponse.ResponseDTO(liked, (long)comment.getLikeCount());
+        return new CommunityCommentLikeResponse.ResponseDTO(liked, (long)comment.getLikeCount());
     }
 
     // 좋아요 수 조회
