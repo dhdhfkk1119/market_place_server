@@ -32,11 +32,7 @@ public class GeminiRestController {
             @PathVariable String userId,
             @RequestBody GeminiRequest geminiRequest
     ) {
-        try {
             geminiService.askGeminiAndSendStreaming(userId, geminiRequest);
             return ResponseEntity.ok().build();
-        } catch (IOException e) {
-            throw new RuntimeException("AI 응답 생성 중 오류 발생: " + e);
-        }
     }
 }
