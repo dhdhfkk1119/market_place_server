@@ -328,5 +328,7 @@ $RECYCLE.BIN/
 build/
 .idea/
 
+# Q Class 무시
+src/main/generated/
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,windows,eclipse,visualstudiocode,macos,flutter
