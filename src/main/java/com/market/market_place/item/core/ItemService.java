@@ -28,9 +28,16 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCategoryRepository itemCategoryRepository;
-    private final MemberAddressRepository memberAddressRepository;
     private final MemberRepository memberRepository;
 
+
+    public ItemResponse.ItemDetailDTO findById(Long id) {
+
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new Exception404("해당 게시물을 찾을 수 없습니다"));
+
+        return new ItemResponse.ItemDetailDTO(item);
+    }
 
 
     public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {

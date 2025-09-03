@@ -19,7 +19,15 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @Auth(roles = {Role.ADMIN, Role.USER})
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemResponse.ItemDetailDTO> detail(@PathVariable Long id) {
+
+
+        ItemResponse.ItemDetailDTO item = itemService.findById(id);
+
+        return ResponseEntity.ok(item);
+    }
+
     @GetMapping("/")
     public ResponseEntity<Page<ItemResponse.ItemListDTO>> list(
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
