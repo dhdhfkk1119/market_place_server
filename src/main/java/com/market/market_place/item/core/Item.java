@@ -3,10 +3,10 @@ package com.market.market_place.item.core;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.status.ItemStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberAddress;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,20 +39,26 @@ public class Item {
     private String content;
     private Long price;
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
-    @OneToMany(mappedBy = "item",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemFavorite> favorites = new ArrayList<>();
 
     public void addImage(ItemImage image) {
-        images.add(image); image.setItem(this); }
-    public void removeImage(ItemImage image) {
-        images.remove(image); image.setItem(null); }
+        images.add(image);
+        image.setItem(this);
+    }
 
+    public void removeImage(ItemImage image) {
+        images.remove(image);
+        image.setItem(null);
+    }
 
 
     @Builder
-    public Item(String content, List<ItemFavorite> favorites,ItemCategory itemCategory,MemberAddress memberAddress, Long price, String title) {
+    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory, MemberAddress memberAddress, Long price, String title) {
         this.content = content;
         this.favorites = favorites;
         this.itemCategory = itemCategory;
