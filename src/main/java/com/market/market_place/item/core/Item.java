@@ -34,6 +34,10 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_address_id")
     private MemberAddress memberAddress;
+//    @Enumerated(EnumType.STRING)
+//    private ItemStatus status;
+
+
 
     private String title;
     private String content;
