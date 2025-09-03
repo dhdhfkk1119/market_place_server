@@ -28,6 +28,9 @@ public class Member {
     @Column(unique = true, nullable = false, length = 50)
     private String loginId;
 
+    @Column // 단일 주소 필드 추가
+    private String address;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role; // 독립된 Role 열거형을 사용하도록 수정
@@ -38,9 +41,6 @@ public class Member {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MemberProfile memberProfile;
-
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private MemberActivity memberActivity;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MemberAuth memberAuth;
@@ -61,12 +61,12 @@ public class Member {
         Member member = Member.builder()
                 .loginId(dto.getLoginId())
                 .password(passwordEncoder.encode(dto.getPassword()))
+                .address(dto.getAddress()) // 주소 정보 설정 추가
                 .role(Role.USER) // 독립된 Role 열거형을 사용하도록 수정
                 .status(MemberStatus.ACTIVE) // 신규 회원은 항상 활성 상태로 시작
                 .build();
 
         member.setMemberProfile(MemberProfile.builder().build());
-        member.setMemberActivity(MemberActivity.builder().build());
         member.setMemberAuth(MemberAuth.builder()
                 .email(dto.getEmail())
                 .build());
@@ -79,11 +79,6 @@ public class Member {
     public void setMemberProfile(MemberProfile memberProfile) {
         this.memberProfile = memberProfile;
         memberProfile.setMember(this);
-    }
-
-    public void setMemberActivity(MemberActivity memberActivity) {
-        this.memberActivity = memberActivity;
-        memberActivity.setMember(this);
     }
 
     public void setMemberAuth(MemberAuth memberAuth) {

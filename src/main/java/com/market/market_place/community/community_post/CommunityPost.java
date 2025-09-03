@@ -1,5 +1,6 @@
 package com.market.market_place.community.community_post;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.market.market_place.community.community_comment.CommunityComment;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import com.market.market_place.community.community_post_like.CommunityPostLike;
@@ -60,6 +61,7 @@ public class CommunityPost {
     private List<CommunityPostImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // 순환 참조 방지
     private List<CommunityComment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -74,7 +76,7 @@ public class CommunityPost {
     }
 
     public void updateLikeCount(int count) {
-        this.likeCount = count;
+        this.likeCount = Math.max(0, count); // 0 보다 작아지지 않도록 설정
     }
 
     public void update(CommunityPostRequest.UpdateDTO updateDTO) {
