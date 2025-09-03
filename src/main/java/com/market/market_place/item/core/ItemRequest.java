@@ -19,6 +19,7 @@ public class ItemRequest {
         private Long price;
         private List<String> base64Images;
 
+        private String tradeLocation;
 
         public Item toEntity(ItemCategory itemCategory, MemberAddress memberAddress) {
             return Item.builder()
