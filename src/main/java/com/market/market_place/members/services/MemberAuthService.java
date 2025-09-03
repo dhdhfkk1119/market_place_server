@@ -10,7 +10,6 @@ import com.market.market_place.email.services.EmailVerificationService;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberStatus;
 import com.market.market_place.members.dtos.*;
-import com.market.market_place.members.repositories.MemberAuthRepository;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.terms.dtos.AgreeTermsRequestDto;
 import com.market.market_place.terms.services.TermsService;
@@ -29,7 +28,6 @@ import java.util.Objects;
 public class MemberAuthService {
 
     private final MemberRepository memberRepository;
-    private final MemberAuthRepository memberAuthRepository;
     private final PasswordEncoder passwordEncoder;
     private final TermsService termsService;
     private final MemberService memberService;
@@ -46,7 +44,7 @@ public class MemberAuthService {
                             .isPresent()) {
             throw new Exception400("이미 사용 중인 아이디입니다.");
         }
-        if (memberAuthRepository.findByEmail(request.getEmail())
+        if (memberRepository.findByEmail(request.getEmail())
                                 .isPresent()) {
             throw new Exception400("이미 사용 중인 이메일입니다.");
         }
@@ -61,7 +59,7 @@ public class MemberAuthService {
 
     // 회원가입용 인증 코드 발송 요청 처리
     public void sendRegistrationCode(String email) {
-        if (memberAuthRepository.findByEmail(email)
+        if (memberRepository.findByEmail(email)
                                 .isPresent()) {
             throw new Exception400("이미 가입된 이메일입니다.");
         }
@@ -106,8 +104,7 @@ public class MemberAuthService {
         Member member = memberRepository.findByLoginId(request.getLoginId())
                                         .orElseThrow(() -> new Exception404("해당 아이디를 가진 회원을 찾을 수 없습니다."));
 
-        if (!Objects.equals(member.getMemberAuth()
-                                  .getEmail(), request.getEmail())) {
+        if (!Objects.equals(member.getEmail(), request.getEmail())) {
             throw new Exception400("아이디와 이메일 정보가 일치하지 않습니다.");
         }
 
@@ -123,9 +120,8 @@ public class MemberAuthService {
             throw new Exception400("인증 코드가 유효하지 않거나 만료되었습니다.");
         }
 
-        Member member = memberAuthRepository.findByEmail(request.getEmail())
-                                            .orElseThrow(() -> new Exception404("해당 이메일을 가진 회원을 찾을 수 없습니다."))
-                                            .getMember();
+        Member member = memberRepository.findByEmail(request.getEmail())
+                                            .orElseThrow(() -> new Exception404("해당 이메일을 가진 회원을 찾을 수 없습니다."));
 
         String resetToken = JwtUtil.createPasswordResetToken(member);
         log.info("비밀번호 재설정 임시 토큰 발급 완료. 사용자 ID: {}", member.getId());
@@ -148,7 +144,7 @@ public class MemberAuthService {
     //아이디 찾기를 위한 인증 코드를 이메일로 발송
     public void sendFindIdCode(String email) {
         log.info("아이디 찾기 코드 발송 요청. 이메일: {}", email);
-        if (memberAuthRepository.findByEmail(email)
+        if (memberRepository.findByEmail(email)
                                 .isEmpty()) {
             throw new Exception404("해당 이메일로 가입된 회원을 찾을 수 없습니다.");
         }
@@ -162,9 +158,8 @@ public class MemberAuthService {
         if (!isVerified) {
             throw new Exception400("인증 코드가 유효하지 않거나 만료되었습니다.");
         }
-        Member member = memberAuthRepository.findByEmail(request.getEmail())
-                                            .orElseThrow(() -> new Exception404("해당 이메일을 가진 회원을 찾을 수 없습니다."))
-                                            .getMember();
+        Member member = memberRepository.findByEmail(request.getEmail())
+                                            .orElseThrow(() -> new Exception404("해당 이메일을 가진 회원을 찾을 수 없습니다."));
         String maskedLoginId = maskLoginId(member.getLoginId());
         log.info("아이디 찾기 성공. 사용자 ID: {}", member.getId());
         return new FindIdResponse(maskedLoginId);
