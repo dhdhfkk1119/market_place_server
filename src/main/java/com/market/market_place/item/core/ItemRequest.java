@@ -21,10 +21,10 @@ public class ItemRequest {
 
         private String tradeLocation;
 
-        public Item toEntity(ItemCategory itemCategory, MemberAddress memberAddress) {
+        public Item toEntity(ItemCategory itemCategory) {
             return Item.builder()
                     .itemCategory(itemCategory)
-                    .memberAddress(memberAddress)
+                    .tradeLocation(this.tradeLocation)
                     .title(this.title)
                     .content(this.content)
                     .price(this.price)
@@ -39,8 +39,8 @@ public class ItemRequest {
         private String title;
         private String content;
         private Long price;
+        private String tradeLocation;
+
         private List<String> base64Images;
     }
-
-
 }

@@ -24,20 +24,17 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //    private Long status; // 판매상태 엔티티 생성 시 타입 변경
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member;// 판매자 정보 (user 엔티티 생성 시 타입 변경)
+    private Member member;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_category_id")
     private ItemCategory itemCategory;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_address_id")
-    private MemberAddress memberAddress;
 
     private String title;
     private String content;
     private Long price;
+    private String tradeLocation;
 
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
@@ -60,11 +57,11 @@ public class Item {
 
 
     @Builder
-    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory, MemberAddress memberAddress, Long price, String title) {
+    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory,Long price, String title,String tradeLocation) {
         this.content = content;
         this.favorites = favorites;
         this.itemCategory = itemCategory;
-        this.memberAddress = memberAddress;
+        this.tradeLocation = tradeLocation;
         this.price = price;
         this.title = title;
     }
@@ -73,6 +70,5 @@ public class Item {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.price = dto.getPrice();
-        this.memberAddress = address;
     }
 }
