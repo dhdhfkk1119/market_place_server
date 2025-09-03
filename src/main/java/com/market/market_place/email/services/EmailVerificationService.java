@@ -1,54 +1,64 @@
 package com.market.market_place.email.services;
 
-import com.market.market_place._core._exception.Exception400;
-import com.market.market_place.members.repositories.MemberAuthRepository;
+import com.market.market_place.email.VerificationPurpose;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
-@Slf4j // 로깅을 위한 어노테이션 추가
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationService {
 
     private final EmailService emailService;
-    private final VerificationCodeManager verificationCodeManager;
-    private final MemberAuthRepository memberAuthRepository;
+    private final VerificationCodeStore verificationCodeStore;
 
-    // 인증 코드 발송
-    public void sendVerificationCode(String email) {
-        log.info("이메일 인증 코드 발송 절차 시작. 수신자: {}", email);
-        // 1. 이메일 중복 확인
-        if (memberAuthRepository.findByEmail(email).isPresent()) {
-            throw new Exception400("이미 가입된 이메일입니다.");
-        }
-
-        // 2. 6자리 인증 코드 생성
+    /**
+     * 주어진 목적에 맞는 인증 코드를 생성하고 이메일로 발송합니다.
+     * 이메일 중복 확인과 같은 비즈니스 규칙 검증은 이 메서드를 호출하는 상위 서비스의 책임입니다.
+     *
+     * @param email   인증 코드를 받을 이메일 주소
+     * @param purpose 인증 목적 (회원가입, 비밀번호 재설정 등)
+     */
+    public void sendCode(String email, VerificationPurpose purpose) {
+        log.info("{} 목적의 이메일 인증 코드 발송 절차 시작. 수신자: {}", purpose, email);
+        String subject = getSubjectForPurpose(purpose);
         String code = generate6DigitCode();
+        log.info("개발용 인증 코드 (목적: {}, 이메일: {}): {}", purpose, email, code);
 
-        // 3. 개발/테스트 환경을 위한 인증 코드 로깅
-        log.info("개발용 인증 코드 ({}): {}", email, code);
+        verificationCodeStore.storeCode(email, purpose, code);
 
-        // 4. 인증 코드 임시 저장
-        verificationCodeManager.storeCode(email, code);
-
-        // 5. 이메일 발송
-        String subject = "[Market Place] 회원가입 이메일 인증 코드";
         String text = "인증 코드는 [" + code + "] 입니다. 5분 이내에 입력해주세요.";
         emailService.sendEmail(email, subject, text);
-        log.info("이메일 인증 코드 발송 절차 완료. 수신자: {}", email);
+        log.info("{} 목적의 이메일 인증 코드 발송 절차 완료. 수신자: {}", purpose, email);
     }
 
-    // 인증 코드 검증
-    public boolean verifyCode(String email, String code) {
-        boolean isVerified = verificationCodeManager.verifyCode(email, code);
-        log.info("이메일 코드 검증 요청 처리. 이메일: {}, 결과: {}", email, isVerified);
+    /**
+     * 주어진 목적의 인증 코드가 유효한지 검증합니다.
+     *
+     * @param email   사용자의 이메일 주소
+     * @param purpose 검증할 인증 목적
+     * @param code    사용자가 입력한 인증 코드
+     * @return 코드가 유효하면 true, 그렇지 않으면 false
+     */
+    public boolean verifyCode(String email, VerificationPurpose purpose, String code) {
+        boolean isVerified = verificationCodeStore.verifyCode(email, purpose, code);
+        log.info("이메일 코드 검증 요청 처리. 목적: {}, 이메일: {}, 결과: {}", purpose, email, isVerified);
         return isVerified;
     }
 
-    // 6자리 숫자 코드 생성기
+    // --- Private Helper Methods ---
+
+    private String getSubjectForPurpose(VerificationPurpose purpose) {
+        return switch (purpose) {
+            case REGISTER -> "[Market Place] 회원가입 이메일 인증 코드";
+            case RESET_PASSWORD -> "[Market Place] 비밀번호 재설정 이메일 인증 코드";
+            case FIND_ID -> "[Market Place] 아이디 찾기 이메일 인증 코드";
+        };
+    }
+
     private String generate6DigitCode() {
         Random random = new Random();
         int number = 100000 + random.nextInt(900000); // 100000 ~ 999999
