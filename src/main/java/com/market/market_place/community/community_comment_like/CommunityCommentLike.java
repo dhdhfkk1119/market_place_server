@@ -1,5 +1,6 @@
 package com.market.market_place.community.community_comment_like;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.market.market_place.community.community_comment.CommunityComment;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
@@ -29,6 +30,7 @@ public class CommunityCommentLike {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
+    @JsonBackReference // 순환 참조 방지
     private CommunityComment comment;
 
 }
