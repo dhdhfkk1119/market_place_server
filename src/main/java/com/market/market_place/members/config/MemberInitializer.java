@@ -26,6 +26,7 @@ public class MemberInitializer implements CommandLineRunner {
             Member admin = Member.builder()
                     .loginId("admin")
                     .password(passwordEncoder.encode("admin1234"))
+                    .address("서울시 강남구") // 주소 정보 추가
                     .role(Role.ADMIN)
                     .status(MemberStatus.ACTIVE)
                     .build();
@@ -33,13 +34,11 @@ public class MemberInitializer implements CommandLineRunner {
             MemberProfile adminProfile = MemberProfile.builder()
                     .name("관리자")
                     .build();
-            MemberActivity adminActivity = MemberActivity.builder().build();
             MemberAuth adminAuth = MemberAuth.builder()
                     .email("admin@market.com")
                     .build();
 
             admin.setMemberProfile(adminProfile);
-            admin.setMemberActivity(adminActivity);
             admin.setMemberAuth(adminAuth);
 
             memberRepository.save(admin);
@@ -50,6 +49,7 @@ public class MemberInitializer implements CommandLineRunner {
             Member user = Member.builder()
                     .loginId("user1")
                     .password(passwordEncoder.encode("user1234"))
+                    .address("서울시 성동구") // 주소 정보 추가
                     .role(Role.USER)
                     .status(MemberStatus.ACTIVE)
                     .build();
@@ -57,13 +57,11 @@ public class MemberInitializer implements CommandLineRunner {
             MemberProfile userProfile = MemberProfile.builder()
                     .name("테스트유저")
                     .build();
-            MemberActivity userActivity = MemberActivity.builder().build();
             MemberAuth userAuth = MemberAuth.builder()
                     .email("choongecho@gmail.com")
                     .build();
 
             user.setMemberProfile(userProfile);
-            user.setMemberActivity(userActivity);
             user.setMemberAuth(userAuth);
 
             memberRepository.save(user);
