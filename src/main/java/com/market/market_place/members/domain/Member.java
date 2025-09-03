@@ -19,21 +19,28 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // pk
 
     @Setter
     @Column(nullable = false, length = 255)
     private String password;
 
     @Column(unique = true, nullable = false, length = 50)
-    private String loginId;
+    private String loginId; //로그인용 아이디
 
-    @Column // 단일 주소 필드 추가
-    private String address;
+    @Column 
+    private String address; // 단일 주소
+
+    // 사용자 이메일 (고유 값)
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    // 이메일 인증 완료 시각
+    private LocalDateTime emailVerifiedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role; // 독립된 Role 열거형을 사용하도록 수정
+    private Role role; // 독립된 Role 열거형
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -41,9 +48,6 @@ public class Member {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MemberProfile memberProfile;
-
-    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private MemberAuth memberAuth;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -53,8 +57,6 @@ public class Member {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    // 내부 열거형 MemberRole은 삭제됨
-
     //== 정적 팩토리 메서드 ==//
     // 회원가입 요청 정보를 바탕으로 완전한 Member 객체를 생성합니다.
     public static Member from(MemberRegisterRequest dto, PasswordEncoder passwordEncoder) {
@@ -62,14 +64,12 @@ public class Member {
                 .loginId(dto.getLoginId())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .address(dto.getAddress()) // 주소 정보 설정 추가
+                .email(dto.getEmail())
                 .role(Role.USER) // 독립된 Role 열거형을 사용하도록 수정
                 .status(MemberStatus.ACTIVE) // 신규 회원은 항상 활성 상태로 시작
                 .build();
 
         member.setMemberProfile(MemberProfile.builder().build());
-        member.setMemberAuth(MemberAuth.builder()
-                .email(dto.getEmail())
-                .build());
 
         return member;
     }
@@ -79,11 +79,6 @@ public class Member {
     public void setMemberProfile(MemberProfile memberProfile) {
         this.memberProfile = memberProfile;
         memberProfile.setMember(this);
-    }
-
-    public void setMemberAuth(MemberAuth memberAuth) {
-        this.memberAuth = memberAuth;
-        memberAuth.setMember(this);
     }
 
     //== 엔티티 비즈니스 로직 ==//

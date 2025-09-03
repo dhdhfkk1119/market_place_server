@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Table(name = "member_address_tb")
-public class MemberAddress {
+public class MemberAddress { // TODO 삭제 예정
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
