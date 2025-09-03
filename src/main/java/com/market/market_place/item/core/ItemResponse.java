@@ -19,7 +19,7 @@ public class ItemResponse {
         private Long price;
 
         private String itemCategoryName;
-        private String memberAddressName;
+        private String tradeLocation;
         private String thumbnail;
 
         // private String status;
@@ -30,8 +30,8 @@ public class ItemResponse {
                     .content(item.getContent())
                     .title(item.getTitle())
                     .price(item.getPrice())
+                    .tradeLocation(item.getTradeLocation())
                     .itemCategoryName(item.getItemCategory().getName())
-                    .memberAddressName(item.getMemberAddress().getAddressBasic())
                     .thumbnail(item.getImages().get(0).getImageUrl())
                     .build();
         }
@@ -45,12 +45,13 @@ public class ItemResponse {
         private String title;
         private String content;
         private Long price;
+        private String tradeLocation;
 
         @Builder
         public ItemDetailDTO(Item item) {
             this.content = item.getContent();
             this.itemCategoryId = item.getItemCategory().getId();
-            this.memberAddressId = item.getMemberAddress().getId();
+            this.tradeLocation = item.getTradeLocation();
             this.price = item.getPrice();
             this.title = item.getTitle();
         }
@@ -59,7 +60,7 @@ public class ItemResponse {
     public static class ItemSaveDTO {
         //이미지 거래방식 추가 필요
         private Long itemCategoryId;
-        private Long memberAddressId;
+        private String tradeLocation;
         private String title;
         private String content;
         private Long price;
@@ -68,7 +69,7 @@ public class ItemResponse {
         public ItemSaveDTO(Item item) {
             this.content = item.getContent();
             this.itemCategoryId = item.getItemCategory().getId();
-            this.memberAddressId = item.getMemberAddress().getId();
+            this.tradeLocation = item.getTradeLocation();
             this.price = item.getPrice();
             this.title = item.getTitle();
         }
@@ -77,7 +78,7 @@ public class ItemResponse {
     @Data
     public static class ItemUpdateDTO {
 
-        private Long memberAddressId;
+        private String tradeLocation;
         private String title;
         private String content;
         private Long price;
@@ -85,7 +86,7 @@ public class ItemResponse {
         @Builder
         public ItemUpdateDTO(Item item) {
             this.content = item.getContent();
-            this.memberAddressId = item.getMemberAddress().getId();
+            this.tradeLocation = item.getTradeLocation();
             this.price = item.getPrice();
             this.title = item.getTitle();
         }
