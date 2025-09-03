@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.Role; // 독립된 Role을 import
+import com.market.market_place.members.domain.Role;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
@@ -23,6 +23,7 @@ public class JwtUtil {
     // 테스트 편의성을 위해 비밀 키를 다시 static 상수로 관리
     private static final String SECRET_KEY = "MySuperSecretKeyForMarketPlaceProject";
     private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24; // 24시간
+    private static final long RESET_TOKEN_EXPIRATION_TIME = 1000L * 60 * 10; // 비밀번호 재설정용 임시 토큰 유효 시간 (10분)
 
     // Member 정보를 담은 JWT 토큰을 생성
     public static String createToken(Member member) {
@@ -54,8 +55,32 @@ public class JwtUtil {
         return SessionUser.builder()
                 .id(id)
                 .loginId(loginId)
-                .role(Role.valueOf(roleStr)) // 독립된 Role을 사용하도록 수정
+                .role(Role.valueOf(roleStr))
                 .build();
+    }
+
+    // --- 신규 추가된 메서드 ---
+
+    // 비밀번호 재설정용 임시 토큰 생성
+    public static String createPasswordResetToken(Member member) {
+        Date expiresAt = new Date(System.currentTimeMillis() + RESET_TOKEN_EXPIRATION_TIME);
+        return JWT.create()
+                .withSubject("password-reset-jwt") // 용도를 명확히 구분
+                .withExpiresAt(expiresAt)
+                .withClaim("id", member.getId())
+                .withClaim("role", member.getRole().name()) // 역할 정보도 포함
+                .sign(Algorithm.HMAC512(SECRET_KEY));
+    }
+
+    // 비밀번호 재설정용 임시 토큰 검증 및 세션 정보 반환
+    public static SessionUser verifyPasswordResetToken(String jwt) throws JWTVerificationException {
+        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET_KEY))
+                .withSubject("password-reset-jwt") // 반드시 용도가 일치하는지 확인
+                .build()
+                .verify(jwt);
+        Long id = decodedJWT.getClaim("id").asLong();
+        String roleStr = decodedJWT.getClaim("role").asString();
+        return SessionUser.builder().id(id).role(Role.valueOf(roleStr)).build();
     }
 
     // JWT 토큰에서 추출한 사용자 정보를 담는 세션 사용자 객체
