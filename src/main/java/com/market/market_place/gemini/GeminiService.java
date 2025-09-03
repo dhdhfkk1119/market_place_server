@@ -1,5 +1,6 @@
 package com.market.market_place.gemini;
 
+import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._utils.SseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,26 +15,24 @@ import java.io.IOException;
 @Slf4j
 @Service
 public class GeminiService {
-    private final RestTemplate restTemplate;
     private final SseUtil sseUtil;
     private final WebClient webClient;
 
-    public GeminiService(RestTemplate restTemplate, SseUtil sseUtil, WebClient webClient) {
-        this.restTemplate = restTemplate;
+    public GeminiService(SseUtil sseUtil, WebClient webClient) {
         this.sseUtil = sseUtil;
         this.webClient = webClient;
     }
 
-    @Value("${ai.gemini.key}")
+    // @Value("${ai.gemini.key}") -> 추후에 다시 주석 해제
     private String apiKey;
 
     @Value("${ai.gemini.url.stream}")
     private String streamApiUrl;
 
     @Async
-    public void askGeminiAndSendStreaming(String userId, GeminiRequest request) throws IOException {
+    public void askGeminiAndSendStreaming(String userId, GeminiRequest request) {
         if (streamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
-            throw new IOException("API 엔드포인트 또는 API Key가 누락되었습니다. 설정을 확인해주세요.");
+            throw new Exception400("API 엔드포인트 또는 API Key가 누락된 잘못된 요청입니다. 설정을 확인해주세요.");
         }
 
         try {

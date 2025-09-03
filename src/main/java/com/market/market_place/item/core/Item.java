@@ -39,6 +39,8 @@ public class Item {
     private String content;
     private Long price;
 
+    @Enumerated(EnumType.STRING)
+    private ItemStatus status;
 
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
