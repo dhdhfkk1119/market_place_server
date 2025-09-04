@@ -42,6 +42,10 @@ public class Item {
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
 
+    private Double averageRating;
+
+
+
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
