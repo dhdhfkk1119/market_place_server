@@ -1,4 +1,4 @@
-package com.market.market_place.members.dtos;
+package com.market.market_place.terms.dtos;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

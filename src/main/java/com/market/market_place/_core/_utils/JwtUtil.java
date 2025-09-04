@@ -20,16 +20,19 @@ public class JwtUtil {
     public static final String HEADER = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    // 테스트 편의성을 위해 비밀 키를 다시 static 상수로 관리
-    private static final String SECRET_KEY = "MySuperSecretKeyForMarketPlaceProject";
-    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24; // 24시간
+    // === 토큰 만료 시간 재정의 ===
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60; // 1시간
+    public static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 14; // 14일 (public으로 변경)
     private static final long RESET_TOKEN_EXPIRATION_TIME = 1000L * 60 * 10; // 비밀번호 재설정용 임시 토큰 유효 시간 (10분)
 
-    // Member 정보를 담은 JWT 토큰을 생성
-    public static String createToken(Member member) {
-        Date expiresAt = new Date(System.currentTimeMillis() + EXPIRATION_TIME);
+    // 테스트 편의성을 위해 비밀 키를 다시 static 상수로 관리
+    private static final String SECRET_KEY = "MySuperSecretKeyForMarketPlaceProject";
+
+    // === 액세스 토큰 생성 ===
+    public static String createAccessToken(Member member) {
+        Date expiresAt = new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME);
         return JWT.create()
-                .withSubject("market-place-jwt")
+                .withSubject("access-jwt") // 용도 명확화
                 .withExpiresAt(expiresAt)
                 .withClaim("id", member.getId())
                 .withClaim("loginId", member.getLoginId())
@@ -37,16 +40,29 @@ public class JwtUtil {
                 .sign(Algorithm.HMAC512(SECRET_KEY));
     }
 
-    // JWT 토큰을 검증하고, 디코딩된 JWT 객체를 반환
+    // === 리프레시 토큰 생성 ===
+    public static String createRefreshToken(Member member) {
+        Date expiresAt = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
+        return JWT.create()
+                .withSubject("refresh-jwt") // 용도 명확화
+                .withExpiresAt(expiresAt)
+                .withClaim("id", member.getId()) // 리프레시 토큰에는 최소한의 정보만 담는다.
+                .sign(Algorithm.HMAC512(SECRET_KEY));
+    }
+
+    // JWT 토큰을 검증하고, 디코딩된 JWT 객체를 반환 (범용)
     public static DecodedJWT verify(String jwt) {
         return JWT.require(Algorithm.HMAC512(SECRET_KEY))
                 .build()
                 .verify(jwt);
     }
 
-    // JWT 토큰을 검증하고, 사용자 정보를 담은 SessionUser 객체를 반환
+    // 액세스 토큰을 검증하고, 사용자 정보를 담은 SessionUser 객체를 반환
     public static SessionUser verifyAndReturnSessionUser(String jwt) throws JWTVerificationException {
-        DecodedJWT decodedJWT = verify(jwt); // static 메서드 호출
+        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET_KEY))
+                .withSubject("access-jwt") // 반드시 용도가 access-jwt 인 토큰만 허용
+                .build()
+                .verify(jwt);
 
         Long id = decodedJWT.getClaim("id").asLong();
         String loginId = decodedJWT.getClaim("loginId").asString();
@@ -59,7 +75,16 @@ public class JwtUtil {
                 .build();
     }
 
-    // --- 신규 추가된 메서드 ---
+    // === 리프레시 토큰에서 memberId 추출 ===
+    public static Long getMemberIdFromRefreshToken(String refreshToken) throws JWTVerificationException {
+        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET_KEY))
+                .withSubject("refresh-jwt") // 반드시 용도가 refresh-jwt 인 토큰만 허용
+                .build()
+                .verify(refreshToken);
+        return decodedJWT.getClaim("id").asLong();
+    }
+
+    // --- 기존 비밀번호 재설정 관련 메서드 ---
 
     // 비밀번호 재설정용 임시 토큰 생성
     public static String createPasswordResetToken(Member member) {

@@ -1,5 +1,6 @@
 package com.market.market_place.members.services;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._exception.Exception401;
 import com.market.market_place._core._exception.Exception404;
@@ -9,8 +10,12 @@ import com.market.market_place.email.dtos.*;
 import com.market.market_place.email.services.EmailVerificationService;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberStatus;
-import com.market.market_place.members.dtos.*;
+import com.market.market_place.members.domain.RefreshToken;
+import com.market.market_place.members.dto_auth.*;
+import com.market.market_place.members.dto_token.LoginResponseWithTokens;
+import com.market.market_place.members.dto_token.TokenReissueResponse;
 import com.market.market_place.members.repositories.MemberRepository;
+import com.market.market_place.members.repositories.RefreshTokenRepository;
 import com.market.market_place.terms.dtos.AgreeTermsRequestDto;
 import com.market.market_place.terms.services.TermsService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 @Slf4j
@@ -28,6 +35,7 @@ import java.util.Objects;
 public class MemberAuthService {
 
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final TermsService termsService;
     private final MemberService memberService;
@@ -67,7 +75,8 @@ public class MemberAuthService {
     }
 
     // 로그인
-    public MemberLoginResult login(MemberLoginRequest request) {
+    @Transactional // 리프레시 토큰 저장/업데이트를 위해 트랜잭션 추가
+    public LoginResponseWithTokens login(MemberLoginRequest request) { // 반환 타입 변경
         log.info("로그인 시도. 로그인 ID: {}", request.getLoginId());
         Member member = memberRepository.findByLoginId(request.getLoginId())
                                         .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
@@ -79,10 +88,62 @@ public class MemberAuthService {
             log.warn("비밀번호 불일치. 로그인 ID: {}", request.getLoginId());
             throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
-        String jwt = JwtUtil.createToken(member);
+
+        // 1. 액세스 토큰, 리프레시 토큰 생성
+        String accessToken = JwtUtil.createAccessToken(member);
+        String refreshToken = JwtUtil.createRefreshToken(member);
+
+        // 2. 리프레시 토큰을 DB에 저장 (해싱하여 저장)
+        String hashedRefreshToken = hashToken(refreshToken);
+
+        refreshTokenRepository.findByMember(member)
+            .ifPresentOrElse(
+                rt -> rt.updateTokenValue(hashedRefreshToken), // 기존 토큰이 있으면 값 업데이트
+                () -> refreshTokenRepository.save(RefreshToken.builder().member(member).tokenValue(hashedRefreshToken).build()) // 없으면 새로 생성
+            );
+
         MemberLoginResponse responseDTO = new MemberLoginResponse(member);
         log.info("로그인 성공. 사용자 ID: {}", member.getId());
-        return new MemberLoginResult(jwt, responseDTO);
+
+        // LoginResponseWithTokens에 액세스 토큰, 리프레시 토큰, 만료 시간을 모두 담아 반환
+        return new LoginResponseWithTokens(accessToken, refreshToken, JwtUtil.REFRESH_TOKEN_EXPIRATION_TIME / 1000, responseDTO);
+    }
+
+    // 토큰 재발급
+    @Transactional
+    public TokenReissueResponse reissueTokens(String refreshToken) {
+        log.info("토큰 재발급 요청. 리프레시 토큰: {}", refreshToken);
+        Long memberId;
+        try {
+            // 1. 리프레시 토큰 유효성 검증 및 memberId 추출
+            memberId = JwtUtil.getMemberIdFromRefreshToken(refreshToken);
+        } catch (JWTVerificationException e) {
+            log.warn("유효하지 않거나 만료된 리프레시 토큰: {}", e.getMessage());
+            throw new Exception401("유효하지 않거나 만료된 리프레시 토큰입니다.");
+        }
+
+        // 2. DB에서 해당 memberId의 리프레시 토큰 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
+
+        RefreshToken storedRefreshToken = refreshTokenRepository.findByMember(member)
+                .orElseThrow(() -> new Exception401("인증되지 않은 사용자입니다. 리프레시 토큰이 존재하지 않습니다."));
+
+        // 3. 클라이언트가 보낸 토큰의 해시값과 DB에 저장된 해시값 비교
+        if (!hashToken(refreshToken).equals(storedRefreshToken.getTokenValue())) {
+            log.warn("리프레시 토큰 불일치. 사용자 ID: {}", memberId);
+            throw new Exception401("토큰 정보가 일치하지 않습니다.");
+        }
+
+        // 4. 새로운 액세스 토큰 및 리프레시 토큰 생성 (Refresh Token Rotation)
+        String newAccessToken = JwtUtil.createAccessToken(member);
+        String newRefreshToken = JwtUtil.createRefreshToken(member);
+
+        // 5. DB에 저장된 리프레시 토큰 값 업데이트
+        storedRefreshToken.updateTokenValue(hashToken(newRefreshToken));
+
+        log.info("토큰 재발급 성공. 사용자 ID: {}", memberId);
+        return new TokenReissueResponse(newAccessToken, newRefreshToken, JwtUtil.REFRESH_TOKEN_EXPIRATION_TIME / 1000); // maxAge 추가
     }
 
     // 비밀번호 변경
@@ -170,5 +231,23 @@ public class MemberAuthService {
             return loginId;
         }
         return loginId.substring(0, 3) + "***";
+    }
+
+    // SHA-256 해싱 함수
+    private String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            log.error("SHA-256 algorithm not found", e);
+            throw new RuntimeException("Failed to hash token", e);
+        }
     }
 }
