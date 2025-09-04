@@ -1,6 +1,6 @@
 package com.market.market_place.members.domain;
 
-import com.market.market_place.members.dtos.MemberRegisterRequest;
+import com.market.market_place.members.dto_auth.MemberRegisterRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
