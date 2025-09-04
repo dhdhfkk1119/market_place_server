@@ -38,5 +38,12 @@ public class CommunityPostRequest {
         private List<String> addImages;
         private List<String> deleteImages;
     }
+
+    // 검색
+    @Data
+    public static class SearchDTO {
+        private String keyword;
+        private List<String> tags;
+    }
 }
 

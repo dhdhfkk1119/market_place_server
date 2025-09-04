@@ -2,9 +2,9 @@ package com.market.market_place.members.services;
 
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.dtos.MemberUpdateRequest;
-import com.market.market_place.members.dtos.MemberUpdateResponse;
-import com.market.market_place.members.dtos.MyInfoResponse;
+import com.market.market_place.members.dto_profile.MemberUpdateRequest;
+import com.market.market_place.members.dto_profile.MemberUpdateResponse;
+import com.market.market_place.members.dto_profile.MyInfoResponse;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

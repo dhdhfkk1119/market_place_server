@@ -1,4 +1,4 @@
-package com.market.market_place.members.dtos;
+package com.market.market_place.members.dto_profile;
 
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberProfile;
@@ -6,25 +6,27 @@ import com.market.market_place.members.domain.MemberStatus;
 import lombok.Getter;
 
 @Getter
-public class MemberUpdateResponse {
+public class MyInfoResponse {
 
     private final Long id;
+    private final String loginId;
+    private final String email;
     private final String name;
+    private final String role;
     private final MemberStatus status;
-    private final String profileImageBase64; // 프로필 이미지 필드 추가
+    private final String profileImageBase64;
 
-    /**
-     * 수정된 Member 엔티티를 MemberUpdateResponse DTO로 변환합니다.
-     * @param member 수정된 Member 엔티티
-     */
-    public MemberUpdateResponse(Member member) {
+    public MyInfoResponse(Member member) {
         this.id = member.getId();
+        this.loginId = member.getLoginId();
+        this.role = member.getRole().name();
         this.status = member.getStatus();
+        this.email = member.getEmail();
 
         MemberProfile profile = member.getMemberProfile();
         if (profile != null) {
             this.name = profile.getName();
-            this.profileImageBase64 = profile.getProfileImageBase64(); // 프로필에서 Base64 이미지 가져오기
+            this.profileImageBase64 = profile.getProfileImageBase64();
         } else {
             this.name = null;
             this.profileImageBase64 = null;

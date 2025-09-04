@@ -4,7 +4,13 @@ import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role; // 독립된 Role을 import
-import com.market.market_place.members.dtos.*;
+import com.market.market_place.members.dto_auth.*;
+import com.market.market_place.members.dto_profile.MemberUpdateRequest;
+import com.market.market_place.members.dto_profile.MemberUpdateResponse;
+import com.market.market_place.members.dto_profile.MyInfoResponse;
+import com.market.market_place.members.dto_token.AccessTokenResponse;
+import com.market.market_place.members.dto_token.LoginResponseWithTokens;
+import com.market.market_place.members.dto_token.TokenReissueResponse;
 import com.market.market_place.members.services.MemberAdminService;
 import com.market.market_place.members.services.MemberAuthService;
 import com.market.market_place.members.services.MemberService;
@@ -13,7 +19,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,10 +91,40 @@ public class MemberController {
     @Operation(summary = "로그인", description = "로그인 ID와 비밀번호로 인증하여 JWT 토큰을 발급받습니다.")
     @PostMapping("/login")
     public ResponseEntity<ApiUtil.ApiResult<MemberLoginResponse>> login(@RequestBody MemberLoginRequest request) {
-        MemberLoginResult result = memberAuthService.login(request);
+        LoginResponseWithTokens result = memberAuthService.login(request); // 반환 타입 변경
+
+        // 리프레시 토큰을 HttpOnly 쿠키에 담아 반환
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", result.getRefreshToken())
+                .httpOnly(true)
+                .secure(true) // HTTPS 사용 시 true
+                .path("/")
+                .maxAge(result.getRefreshTokenMaxAgeSeconds()) // DTO에서 받은 maxAge 사용
+                .build();
+
         return ResponseEntity.ok()
-                .header(JwtUtil.HEADER, JwtUtil.TOKEN_PREFIX + result.getToken())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .header(JwtUtil.HEADER, JwtUtil.TOKEN_PREFIX + result.getAccessToken())
                 .body(ApiUtil.success(result.getLoginResponse()));
+    }
+
+    @Operation(summary = "토큰 재발급", description = "만료된 액세스 토큰을 리프레시 토큰으로 재발급합니다.")
+    @PostMapping("/reissue")
+    public ResponseEntity<ApiUtil.ApiResult<AccessTokenResponse>> reissueTokens(
+            @CookieValue(name = "refreshToken") String refreshToken) {
+
+        TokenReissueResponse response = memberAuthService.reissueTokens(refreshToken);
+
+        // 새로운 리프레시 토큰을 HttpOnly 쿠키에 담아 반환
+        ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", response.getNewRefreshToken())
+                .httpOnly(true)
+                .secure(true) // HTTPS 사용 시 true
+                .path("/")
+                .maxAge(response.getRefreshTokenMaxAgeSeconds()) // DTO에서 받은 maxAge 사용
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString())
+                .body(ApiUtil.success(new AccessTokenResponse(response.getNewAccessToken())));
     }
 
     // --- 관리자(Admin) 전용 API ---

@@ -28,9 +28,16 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCategoryRepository itemCategoryRepository;
-    private final MemberAddressRepository memberAddressRepository;
     private final MemberRepository memberRepository;
 
+
+    public ItemResponse.ItemDetailDTO findById(Long id) {
+
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new Exception404("해당 게시물을 찾을 수 없습니다"));
+
+        return new ItemResponse.ItemDetailDTO(item);
+    }
 
 
     public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
@@ -46,10 +53,7 @@ public class ItemService {
         ItemCategory category = itemCategoryRepository.findById(dto.getItemCategoryId())
                 .orElseThrow(() -> new Exception404("카테고리를 찾을 수 없습니다"));
 
-        MemberAddress address = memberAddressRepository.findById(dto.getMemberAddressId())
-                .orElseThrow(() -> new Exception404("주소가 존재하지 않습니다."));
-
-        Item item = dto.toEntity(category,address);
+        Item item = dto.toEntity(category);
         item.setMember(seller);
 
         if (dto.getBase64Images() != null && !dto.getBase64Images().isEmpty()) {
@@ -83,10 +87,8 @@ public class ItemService {
             item.setPrice(dto.getPrice());
         }
 
-        if (dto.getMemberAddressId() != null) {
-            MemberAddress address = memberAddressRepository.findById(dto.getMemberAddressId())
-                    .orElseThrow(() -> new Exception404("주소가 존재하지 않습니다."));
-            item.setMemberAddress(address);
+        if (dto.getTradeLocation() != null) {
+            item.setTradeLocation(dto.getTradeLocation());
         }
 
 

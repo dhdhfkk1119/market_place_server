@@ -1,4 +1,4 @@
-package com.market.market_place.members.dtos;
+package com.market.market_place.members.dto_profile;
 
 import jakarta.validation.constraints.Size;
 import lombok.Getter;

@@ -1,6 +1,8 @@
 package com.market.market_place.community.community_comment;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.market.market_place.community.community_comment_like.CommunityCommentLike;
 import com.market.market_place.community.community_post.CommunityPost;
 import com.market.market_place.members.domain.Member;
@@ -39,6 +41,7 @@ public class CommunityComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonIgnore // json 응답에서 제외
     private Member member;
 
     @Column(nullable = false)
@@ -48,6 +51,7 @@ public class CommunityComment {
     private Timestamp createdAt;
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // json 응답에서 제외
     private List<CommunityCommentLike> likes = new ArrayList<>();
 
     public boolean isOwner(Long sessionId){

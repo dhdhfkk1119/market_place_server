@@ -1,7 +1,7 @@
 package com.market.market_place.members.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.market.market_place.members.dtos.MemberUpdateRequest;
+import com.market.market_place.members.dto_profile.MemberUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;

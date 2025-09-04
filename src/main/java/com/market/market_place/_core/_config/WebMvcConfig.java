@@ -28,7 +28,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/terms/{id}",
                         "/api/chat/rooms/**",
                         // 임시(AI 채팅)
-                        "/api/ai-agent/**"
+                        "/api/ai-agent/**",
+                        // 토큰 재발급
+                        "/api/auth/reissue"
                 );
     }
 }

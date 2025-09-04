@@ -11,10 +11,7 @@ import com.market.market_place.chat.chat_file.ChatFileRequestDTO;
 import com.market.market_place.chat.chat_image.ChatImage;
 import com.market.market_place.chat.chat_image.ChatImageRepository;
 import com.market.market_place.chat.chat_image.ChatImageRequestDTO;
-import com.market.market_place.chat.chat_message.ChatMessage;
-import com.market.market_place.chat.chat_message.ChatMessageRepository;
-import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
-import com.market.market_place.chat.chat_message.ChatMessageResponseDTO;
+import com.market.market_place.chat.chat_message.*;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
 import com.market.market_place.members.domain.Member;
@@ -36,14 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper objectMapper;
-    private final ChatRoomRepository chatRoomRepository;
-    private final ChatMessageRepository chatMessageRepository;
-    private final ChatImageRepository chatImageRepository;
-    private final FileUploadUtil fileUploadUtil;
-    private final UploadConfig uploadConfig;
-    private final MemberRepository memberRepository;
-
+    private final ChatMessageService chatMessageService;
     private final Map<Long, WebSocketSession> sessions = new ConcurrentHashMap<>();
+
+
 
 
     @Override
@@ -68,54 +61,18 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         ChatMessageRequestDTO.Message msgDTO = objectMapper.readValue(payload, ChatMessageRequestDTO.Message.class);
 
-        Long senderId = (Long) session.getAttributes().get("userId"); // 보내는 사용자 번호
-         
+        Long senderId = (Long) session.getAttributes().get("userId");
         if (senderId == null) {
             session.close(CloseStatus.BAD_DATA.withReason("User not authenticated."));
             return;
         }
 
-        Long receiverId = msgDTO.getReceiveId(); // 받는 사용자 번호
-
-        Member sender = memberRepository.findById(senderId)
-                .orElseThrow(() -> new Exception404("해당 유저가 없습니다"));
-        Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(() -> new Exception404("해당 유저가 없습니다"));
-
-        // 방 생성 or 조회
-        ChatRoom room = chatRoomRepository.findByUserIds(senderId,receiverId)
-                .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
-                        .userId1(sender)
-                        .userId2(receiver)
-                        .build()));
-
-
-        // 메시지 저장
-        ChatMessage chatMessage = msgDTO.toEntity(sender,receiver,room);
-        chatMessage.setMessageType(MessageType.TEXT);
-        chatMessageRepository.save(chatMessage);
-
-        if(msgDTO.getImages() != null && !msgDTO.getImages().isEmpty()) {
-            ChatImageRequestDTO.ChatImageDTO chatImageDTO = new ChatImageRequestDTO.ChatImageDTO();
-            List<String> images = msgDTO.getImages();
-            for(String img : images){
-                String imageList = fileUploadUtil.uploadImage(img,uploadConfig.getChatDir());
-                ChatImage chatImage = chatImageDTO.toEntity(imageList,chatMessage);
-                chatImageRepository.save(chatImage);
-            }
-            chatMessage.setMessageType(MessageType.IMAGE);
-            chatMessageRepository.save(chatMessage);
-        }
-
-
-        // 응답 DTO 생성
-        List<ChatImage> images = chatImageRepository.findByChatMessage(chatMessage);
-        ChatMessageResponseDTO.MessageDTO responseDTO =
-                new ChatMessageResponseDTO.MessageDTO(chatMessage, images);
+        // 서비스 계층의 메서드를 호출하여 비즈니스 로직 처리
+        ChatMessageResponseDTO.MessageDTO responseDTO = chatMessageService.saveAndProcessMessage(senderId, msgDTO);
         String response = objectMapper.writeValueAsString(responseDTO);
 
+        // 메시지 전송 로직
         session.sendMessage(new TextMessage(response));
-
         WebSocketSession receiverSession = sessions.get(msgDTO.getReceiveId());
         if (receiverSession != null && receiverSession.isOpen()) {
             receiverSession.sendMessage(new TextMessage(response));

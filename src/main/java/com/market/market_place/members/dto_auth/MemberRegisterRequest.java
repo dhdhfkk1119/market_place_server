@@ -1,4 +1,4 @@
-package com.market.market_place.members.dtos;
+package com.market.market_place.members.dto_auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
