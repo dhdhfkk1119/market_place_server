@@ -35,6 +35,9 @@ public class MemberRegisterRequest {
     @Email(message = "유효한 이메일 주소를 입력해주세요.")
     private String email;
 
+    // 주소 (선택 사항)
+    private String address;
+
     // 이메일 인증 여부
     @NotNull(message = "이메일 인증 여부가 필요합니다.")
     private Boolean isEmailVerified;

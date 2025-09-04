@@ -1,5 +1,8 @@
 package com.market.market_place.community.community_comment;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.market.market_place.community.community_comment_like.CommunityCommentLike;
 import com.market.market_place.community.community_post.CommunityPost;
 import com.market.market_place.members.domain.Member;
@@ -28,12 +31,17 @@ public class CommunityComment {
 
     private String content;
 
+    @Lob
+    private String imageUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
+    @JsonBackReference // 순환 참조 방지
     private CommunityPost post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonIgnore // json 응답에서 제외
     private Member member;
 
     @Column(nullable = false)
@@ -42,8 +50,21 @@ public class CommunityComment {
     @CreationTimestamp
     private Timestamp createdAt;
 
-    private Boolean isSecret;
-
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // json 응답에서 제외
     private List<CommunityCommentLike> likes = new ArrayList<>();
+
+    public boolean isOwner(Long sessionId){
+        return this.member.getId().equals(sessionId);
+    }
+
+    // update 메서드
+    public void update(CommunityCommentRequest.UpdateDTO updateDTO) {
+        this.content = updateDTO.getContent();
+        this.imageUrl = updateDTO.getImageUrl();
+    }
+
+    public void updateLikeCount(int count) {
+        this.likeCount = Math.max(0, count);
+    }
 }

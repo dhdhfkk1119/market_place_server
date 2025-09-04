@@ -1,7 +1,6 @@
 package com.market.market_place.members.dtos;
 
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.MemberAuth;
 import com.market.market_place.members.domain.MemberProfile;
 import com.market.market_place.members.domain.MemberStatus;
 import lombok.Getter;
@@ -22,13 +21,7 @@ public class MyInfoResponse {
         this.loginId = member.getLoginId();
         this.role = member.getRole().name();
         this.status = member.getStatus();
-
-        MemberAuth auth = member.getMemberAuth();
-        if (auth != null) {
-            this.email = auth.getEmail();
-        } else {
-            this.email = null;
-        }
+        this.email = member.getEmail();
 
         MemberProfile profile = member.getMemberProfile();
         if (profile != null) {

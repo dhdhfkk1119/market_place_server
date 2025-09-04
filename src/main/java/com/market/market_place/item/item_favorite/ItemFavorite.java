@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 @Entity
-@Table(name = "item_favorite_tb")
+@Table(name = "item_favorite_tb",uniqueConstraints = @UniqueConstraint(columnNames = {"member_id","item_id"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,9 +18,12 @@ public class ItemFavorite {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member; // User 엔티티 추가 시 변경
+    @JoinColumn(name = "member_id",nullable = false)
+    private Member member;
 
-//    private Item item;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
 
 }

@@ -1,5 +1,6 @@
 package com.market.market_place.community.community_comment_like;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.market.market_place.community.community_comment.CommunityComment;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
@@ -14,8 +15,7 @@ import java.sql.Timestamp;
 @Data
 @Builder
 @Table(name = "community_comment_like_tb",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"comment_id", "member_id"})
-})
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"comment_id", "member_id"})})
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -30,9 +30,7 @@ public class CommunityCommentLike {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
+    @JsonBackReference // 순환 참조 방지
     private CommunityComment comment;
-
-    @CreationTimestamp
-    private Timestamp createdAt;
 
 }

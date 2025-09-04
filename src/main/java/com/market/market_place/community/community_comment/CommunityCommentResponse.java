@@ -14,7 +14,8 @@ public class CommunityCommentResponse {
         private String content;
         private String writerName;
         private Timestamp createdAt;
-        private Boolean isSecret;
+        private String imageUrl;
+        private int likeCount;
 
         @Builder
         public ResponseDTO(CommunityComment comment) {
@@ -22,7 +23,8 @@ public class CommunityCommentResponse {
             this.content = comment.getContent();
             this.writerName = comment.getMember().getMemberProfile().getName();
             this.createdAt = comment.getCreatedAt();
-            this.isSecret = comment.getIsSecret();
+            this.imageUrl = comment.getImageUrl();
+            this.likeCount = comment.getLikeCount();
         }
     }
 }

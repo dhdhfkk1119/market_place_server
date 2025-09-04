@@ -30,5 +30,4 @@ public class CommunityCategory {
     public void update(CommunityCategoryRequest.UpdateDTO updateDTO){
        this.name = updateDTO.getName();
     }
-
 }

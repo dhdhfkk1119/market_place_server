@@ -3,10 +3,10 @@ package com.market.market_place.item.core;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.status.ItemStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberAddress;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,33 +24,51 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //    private Long status; // 판매상태 엔티티 생성 시 타입 변경
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member;// 판매자 정보 (user 엔티티 생성 시 타입 변경)
+    private Member member;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_category_id")
     private ItemCategory itemCategory;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_address_id")
-    private MemberAddress memberAddress;
 
     private String title;
     private String content;
     private Long price;
+    private String tradeLocation;
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @Enumerated(EnumType.STRING)
+    private ItemStatus status;
+    private Double averageRating;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemFavorite> favorites = new ArrayList<>();
 
+    public void addImage(ItemImage image) {
+        images.add(image);
+        image.setItem(this);
+    }
+
+    public void removeImage(ItemImage image) {
+        images.remove(image);
+        image.setItem(null);
+    }
+
+
     @Builder
-    public Item(String content, List<ItemFavorite> favorites,ItemCategory itemCategory,MemberAddress memberAddress, Long price, String title) {
+    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory,Long price, String title,String tradeLocation) {
         this.content = content;
         this.favorites = favorites;
         this.itemCategory = itemCategory;
-        this.memberAddress = memberAddress;
+        this.tradeLocation = tradeLocation;
         this.price = price;
         this.title = title;
+    }
+
+    public void update(ItemRequest.ItemUpdateDTO dto, MemberAddress address) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
+        this.price = dto.getPrice();
     }
 }
