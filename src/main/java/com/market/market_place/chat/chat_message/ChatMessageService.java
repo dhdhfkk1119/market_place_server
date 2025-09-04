@@ -57,12 +57,11 @@ public class ChatMessageService {
                 String imageList = null;
                 try {
                     imageList = fileUploadUtil.uploadImage(img, uploadConfig.getChatDir());
+                    ChatImage chatImage = chatImageDTO.toEntity(imageList, chatMessage);
+                    chatImageRepository.save(chatImage);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
-                ChatImage chatImage = chatImageDTO.toEntity(imageList, chatMessage);
-                chatImageRepository.save(chatImage);
 
             }
             chatMessage.setMessageType(MessageType.IMAGE);
