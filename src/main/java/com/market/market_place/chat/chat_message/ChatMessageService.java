@@ -35,16 +35,12 @@ public class ChatMessageService {
     private final ChatImageRepository chatImageRepository;
     private final FileUploadUtil fileUploadUtil;
     private final UploadConfig uploadConfig;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    // 메세지 보내기 및 방 생성하기
+
     public ChatMessageResponseDTO.MessageDTO saveAndProcessMessage(Long senderId, ChatMessageRequestDTO.Message msgDTO) {
-
-        Member sender = memberRepository.findById(senderId)
-                .orElseThrow(() -> new Exception404("해당 유저가 없습니다"));
-        Member receiver = memberRepository.findById(msgDTO.getReceiveId())
-                .orElseThrow(() -> new Exception404("해당 유저가 없습니다"));
-
+        Member sender = memberService.findMember(senderId);
+        Member receiver = memberService.findMember(msgDTO.getReceiveId());
 
         ChatRoom room = chatRoomRepository.findByUserIds(senderId, msgDTO.getReceiveId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
@@ -52,12 +48,9 @@ public class ChatMessageService {
                         .userId2(receiver)
                         .build()));
 
-
         ChatMessage chatMessage = msgDTO.toEntity(sender, receiver, room);
         chatMessage.setMessageType(MessageType.TEXT);
         chatMessageRepository.save(chatMessage);
-
-
         if (msgDTO.getImages() != null && !msgDTO.getImages().isEmpty()) {
             ChatImageRequestDTO.ChatImageDTO chatImageDTO = new ChatImageRequestDTO.ChatImageDTO();
             for (String img : msgDTO.getImages()) {
@@ -67,16 +60,35 @@ public class ChatMessageService {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+
                 ChatImage chatImage = chatImageDTO.toEntity(imageList, chatMessage);
                 chatImageRepository.save(chatImage);
+
             }
             chatMessage.setMessageType(MessageType.IMAGE);
             chatMessageRepository.save(chatMessage); // 메시지 타입 업데이트
+
         }
-
-
         List<ChatImage> images = chatImageRepository.findByChatMessage(chatMessage);
         return new ChatMessageResponseDTO.MessageDTO(chatMessage, images);
+
+    }
+
+    // 메세지 보내기 및 방 생성하기
+    public ChatMessageResponseDTO.MessageDTO saveMessage(ChatMessageRequestDTO.Message dto, JwtUtil.SessionUser sessionUser) {
+        Member sender = memberService.findMember(sessionUser.getId()); // 보는 유저 번호
+        Member receive = memberService.findMember(dto.getReceiveId()); // 받는 유저 번호
+
+        // 이미 방이 있는지 없으면 새로 생성 orElseGet -> 값이 없을때만 실행
+        ChatRoom room = chatRoomRepository.findByUserIds(sessionUser.getId(), dto.getReceiveId())
+                .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
+                        .userId1(sender)
+                        .userId2(receive)
+                        .build()));
+
+        ChatMessage chatMessage = dto.toEntity(sender, receive, room);
+        chatMessageRepository.save(chatMessage);
+        return new ChatMessageResponseDTO.MessageDTO(chatMessage, Collections.emptyList());
     }
 
     // 내가 속한 한 방에 메세지 내역을 전부 가져오기
