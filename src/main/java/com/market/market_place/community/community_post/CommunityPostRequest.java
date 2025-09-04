@@ -43,7 +43,8 @@ public class CommunityPostRequest {
     @Data
     public static class SearchDTO {
         private String keyword;
-        private List<String> tags;
+        private List<String> categories;
+        private String sortType; // 인기순, 최신순, 조회순
     }
 }
 

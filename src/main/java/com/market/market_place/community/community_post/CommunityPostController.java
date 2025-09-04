@@ -63,8 +63,16 @@ public class CommunityPostController {
     @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id,
-                                                  @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
+                                    @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
         postService.delete(id, sessionUser);
         return ResponseEntity.ok(ApiUtil.success("삭제 성공"));
+    }
+
+    // 검색
+    @Auth(roles = {Role.USER, Role.ADMIN})
+    @PostMapping("/search")
+    public ResponseEntity<ApiUtil.ApiResult<List<CommunityPostResponse.ListDTO>>> searchPosts(
+            @RequestBody CommunityPostRequest.SearchDTO searchDTO) {
+        return ResponseEntity.ok(ApiUtil.success(postService.search(searchDTO)));
     }
 }
