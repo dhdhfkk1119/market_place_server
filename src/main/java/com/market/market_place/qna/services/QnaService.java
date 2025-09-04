@@ -1,11 +1,13 @@
 package com.market.market_place.qna.services;
 
+import com.market.market_place.Reply.domain.ReplyRepository;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.Role;
 import com.market.market_place.qna.QnaRepository;
 import com.market.market_place.qna.domain.Qna;
+import com.market.market_place.qna.dto.QnaAndRepliesResponse;
 import com.market.market_place.qna.dto.QnaRequest;
 import com.market.market_place.qna.dto.QnaResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 public class QnaService {
 
     private final QnaRepository qnaRepository;
-
+    private final ReplyRepository replyRepository;
 
     public QnaResponse createQna(QnaRequest request, Member member) {
         Qna qna = new Qna(request.getQuestion(), member);
@@ -37,34 +39,36 @@ public class QnaService {
                 .collect(Collectors.toList());
     }
 
-
+    @Transactional
     public QnaResponse updateQna(Long id, QnaRequest request, Long memberId, Role role) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new Exception404("qna를 찾을수 없음"));
 
-        if (role == Role.ADMIN) {
-            if (request.getAnswer() != null) {
-                qna.setAnswer(request.getAnswer());
-            }
-        }
-        else if (qna.getMember().getId().equals(memberId)) {
+        if (qna.getMember().getId().equals(memberId) || role == Role.ADMIN) {
             if (request.getQuestion() != null) {
                 qna.setQuestion(request.getQuestion());
             }
-        }
-        else {
-            throw new Exception403("qna 수정 권한 없음");
+        } else {
+            throw new Exception403("Q&A 수정 권한 없음");
         }
         return new QnaResponse(qna);
     }
 
+    @Transactional
     public void deleteQna(Long id, Long memberId, Role role) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new Exception404("qna를 찾을수 없음"));
 
         if (!qna.getMember().getId().equals(memberId) && role != Role.ADMIN) {
-            throw new Exception403("qna 삭제 권한 없음");
+            throw new Exception403("Q&A 삭제 권한 없음");
         }
         qnaRepository.deleteById(id);
     }
+
+    public QnaAndRepliesResponse getQnaWithReplies(Long qnaId) {
+        Qna qna = qnaRepository.findById(qnaId)
+                .orElseThrow(() -> new Exception404("Q&A를 찾을 수 없습니다."));
+        return new QnaAndRepliesResponse(qna);
+    }
+
 }
