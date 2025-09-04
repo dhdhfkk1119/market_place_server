@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,6 +115,14 @@ public class CommunityPostService {
             throw new Exception403("본인이 작성한 게시글만 삭제할 수 있습니다");
         }
         postRepository.delete(post);
+    }
+
+    // 검색
+    public List<CommunityPostResponse.ListDTO> search(CommunityPostRequest.SearchDTO searchDTO){
+        return postRepository.search(searchDTO.getKeyword(),searchDTO.getCategories(),searchDTO.getSortType())
+                .stream()
+                .map(CommunityPostResponse.ListDTO::new)
+                .collect(Collectors.toList());
     }
 }
 
