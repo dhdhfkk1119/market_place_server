@@ -13,13 +13,11 @@ public class QnaResponse {
     private String question;
     private String memberLoginId;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public QnaResponse(Qna qna) {
         this.id = qna.getId();
         this.question = qna.getQuestion();
         this.memberLoginId = qna.getMember().getLoginId();
         this.createdAt = qna.getCreatedAt();
-        this.updatedAt = qna.getUpdatedAt();
     }
 }

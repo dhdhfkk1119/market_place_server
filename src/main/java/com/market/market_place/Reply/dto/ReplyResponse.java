@@ -16,7 +16,6 @@ public class ReplyResponse {
     private String authorLoginId;
     private String authorRole;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public ReplyResponse(Reply reply) {
         this.id = reply.getId();
@@ -24,14 +23,12 @@ public class ReplyResponse {
         this.authorRole = reply.getMember().getRole().name();
         this.authorLoginId = reply.getMember().getLoginId();
         this.createdAt = reply.getCreatedAt();
-        this.updatedAt = reply.getUpdatedAt();
     }
 
     public ReplyResponse(Reply reply, String authorLoginId, String authorRole) {
         this.id = reply.getId();
         this.content = reply.getContent();
         this.createdAt = reply.getCreatedAt();
-        this.updatedAt = reply.getUpdatedAt();
         this.authorLoginId = authorLoginId;
         this.authorRole = authorRole;
     }

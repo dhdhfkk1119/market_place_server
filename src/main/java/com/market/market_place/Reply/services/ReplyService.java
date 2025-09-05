@@ -12,6 +12,8 @@ import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.qna.QnaRepository;
 import com.market.market_place.qna.domain.Qna;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +76,11 @@ public class ReplyService {
         Reply reply = replyRepository.findById(replyId)
                 .orElseThrow(() -> new Exception404("답변을 찾을 수 없습니다."));
         return new ReplyResponse(reply);
+    }
+
+    public Page<ReplyResponse> getRepliesByQnaId(Long qnaId, Pageable pageable) {
+        Page<Reply> replyPage = replyRepository.findAllByQna_Id(qnaId, pageable);
+        return replyPage.map(ReplyResponse::new);
     }
 
 }

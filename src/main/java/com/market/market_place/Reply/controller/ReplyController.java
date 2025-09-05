@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/qna")
+@RequestMapping("/api/qnas")
 public class ReplyController {
 
     private final ReplyService replyService;;
@@ -30,8 +30,9 @@ public class ReplyController {
     }
 
     @Auth(roles = {Role.USER, Role.ADMIN})
-    @DeleteMapping("/replies/{replyId}")
+    @DeleteMapping("/{qnaId}/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(
+            @PathVariable Long qnaId,
             @PathVariable Long replyId,
             @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser) {
         replyService.deleteReply(replyId,sessionUser.getId(), sessionUser.getRole());
@@ -39,8 +40,9 @@ public class ReplyController {
     }
 
     @Auth(roles = {Role.USER, Role.ADMIN})
-    @PutMapping("/replies/{replyId}")
+    @PutMapping("/{qnaId}/replies/{replyId}")
     public ResponseEntity<ApiUtil.ApiResult<ReplyResponse>> updateReply(
+            @PathVariable Long qnaId,
             @PathVariable Long replyId,
             @RequestBody ReplyRequest request,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
@@ -49,10 +51,11 @@ public class ReplyController {
     }
 
     @Auth(roles = {Role.USER, Role.ADMIN})
-    @GetMapping("/replies/{replyId}")
-    public ResponseEntity<ApiUtil.ApiResult<ReplyResponse>> getReplyById(@PathVariable Long replyId) {
+    @GetMapping("/{qnaId}/replies/{replyId}")
+    public ResponseEntity<ApiUtil.ApiResult<ReplyResponse>> getReplyById(
+            @PathVariable Long qnaId,
+            @PathVariable Long replyId) {
         ReplyResponse response = replyService.getReplyById(replyId);
         return ResponseEntity.ok(ApiUtil.success(response));
     }
-
 }

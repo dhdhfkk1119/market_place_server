@@ -1,6 +1,8 @@
 package com.market.market_place.qna.services;
 
+import com.market.market_place.Reply.domain.Reply;
 import com.market.market_place.Reply.domain.ReplyRepository;
+import com.market.market_place.Reply.dto.ReplyResponse;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.members.domain.Member;
@@ -11,6 +13,8 @@ import com.market.market_place.qna.dto.QnaAndRepliesResponse;
 import com.market.market_place.qna.dto.QnaRequest;
 import com.market.market_place.qna.dto.QnaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +33,6 @@ public class QnaService {
         Qna qna = new Qna(request.getQuestion(), member);
         Qna savedQna = qnaRepository.save(qna);
         return new QnaResponse(savedQna);
-    }
-
-
-    public List<QnaResponse> getAllQna() {
-        return qnaRepository.findAll()
-                .stream()
-                .map(QnaResponse::new)
-                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -69,6 +65,16 @@ public class QnaService {
         Qna qna = qnaRepository.findById(qnaId)
                 .orElseThrow(() -> new Exception404("Q&A를 찾을 수 없습니다."));
         return new QnaAndRepliesResponse(qna);
+    }
+
+    public Page<QnaResponse> getQnas(Pageable pageable) {
+        Page<Qna> qnaPage = qnaRepository.findAll(pageable);
+        return qnaPage.map(QnaResponse::new);
+    }
+
+    public Page<ReplyResponse> getRepliesByQnaId(Long qnaId, Pageable pageable) {
+        Page<Reply> replyPage = replyRepository.findAllByQna_Id(qnaId, pageable);
+        return replyPage.map(ReplyResponse::new);
     }
 
 }

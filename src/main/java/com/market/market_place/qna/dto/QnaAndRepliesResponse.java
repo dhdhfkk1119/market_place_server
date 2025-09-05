@@ -16,7 +16,6 @@ public class QnaAndRepliesResponse {
 
     private Long id;
     private String question;
-    private String status;
     private String authorLoginId;
     private LocalDateTime createdAt;
     private List<ReplyResponse> replies;
@@ -24,7 +23,6 @@ public class QnaAndRepliesResponse {
     public QnaAndRepliesResponse(Qna qna) {
         this.id = qna.getId();
         this.question = qna.getQuestion();
-        this.status = qna.getStatus();
         this.authorLoginId = qna.getMember().getLoginId();
         this.createdAt = qna.getCreatedAt();
         this.replies = qna.getReplies().stream()
