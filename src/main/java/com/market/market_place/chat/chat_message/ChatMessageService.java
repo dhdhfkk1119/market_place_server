@@ -1,6 +1,7 @@
 package com.market.market_place.chat.chat_message;
 
 import com.market.market_place._core._config.UploadConfig;
+import com.market.market_place._core._exception.Exception401;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.FileUploadUtil;
 import com.market.market_place._core._utils.JwtUtil;
@@ -37,11 +38,15 @@ public class ChatMessageService {
     private final UploadConfig uploadConfig;
     private final MemberService memberService;
 
-
+    // 메세지 저장 및 방생성 (있으면 기존 방에서)
     public ChatMessageResponseDTO.MessageDTO saveAndProcessMessage(Long senderId, ChatMessageRequestDTO.Message msgDTO) {
         Member sender = memberService.findMember(senderId);
         Member receiver = memberService.findMember(msgDTO.getReceiveId());
 
+        if (msgDTO.getMessage() == null || msgDTO.getMessage().trim().isEmpty()) {
+            throw new Exception401("메시지를 입력해주시기 바랍니다");
+        }
+        
         ChatRoom room = chatRoomRepository.findByUserIds(senderId, msgDTO.getReceiveId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
                         .userId1(sender)
