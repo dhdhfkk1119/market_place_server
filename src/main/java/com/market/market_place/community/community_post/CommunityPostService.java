@@ -36,10 +36,12 @@ public class CommunityPostService {
     }
 
     // 상세보기
+    @Transactional
     public CommunityPostResponse.DetailDTO detail(Long id) {
         CommunityPost post = postRepository.findByIdWithComments(id).orElseThrow(() ->
                 new Exception404("게시글이 없습니다"));
         post.increaseViewCount();
+        postRepository.save(post);
         return new CommunityPostResponse.DetailDTO(post);
     }
 
@@ -118,11 +120,10 @@ public class CommunityPostService {
     }
 
     // 검색
-    public List<CommunityPostResponse.ListDTO> search(CommunityPostRequest.SearchDTO searchDTO){
-        return postRepository.search(searchDTO.getKeyword(),searchDTO.getCategories(),searchDTO.getSortType())
-                .stream()
-                .map(CommunityPostResponse.ListDTO::new)
-                .collect(Collectors.toList());
+    public Page<CommunityPostResponse.ListDTO> search(CommunityPostRequest.SearchDTO searchDTO, Pageable pageable){
+        return postRepository.search(searchDTO.getKeyword(),searchDTO.getCategories(),
+                        searchDTO.getSortType(),pageable).map(CommunityPostResponse.ListDTO::new);
+
     }
 }
 

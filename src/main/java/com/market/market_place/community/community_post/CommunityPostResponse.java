@@ -22,7 +22,7 @@ public class CommunityPostResponse {
         private String thumbnail;
         private int likeCount;
         private int viewCount;
-        private Timestamp createdAt;
+        private String createdAt;
 
         @Builder
         public ListDTO(CommunityPost post) {
@@ -32,7 +32,7 @@ public class CommunityPostResponse {
             this.location = post.getLocation();
             this.likeCount = post.getLikeCount();
             this.viewCount = post.getViewCount();
-            this.createdAt = post.getCreatedAt();
+            this.createdAt = post.getTime();
             this.thumbnail = post.getImages().isEmpty() ?
                     null : post.getImages().get(0).getImageUrl(); // 첫번째 이미지만 보임
 
@@ -53,7 +53,7 @@ public class CommunityPostResponse {
         private String topic;
         private int likeCount;
         private int viewCount;
-        private Timestamp createdAt;
+        private String createdAt;
         private String location;
         private List<String> images;
         private List<CommunityComment> comments;
@@ -67,7 +67,7 @@ public class CommunityPostResponse {
             this.topic = post.getTopic().getName();
             this.likeCount = post.getLikeCount();
             this.viewCount = post.getViewCount();
-            this.createdAt = post.getCreatedAt();
+            this.createdAt = post.getTime();
             this.location = post.getLocation();
             this.images = post.getImages().stream()
                     .map(CommunityPostImage::getImageUrl).collect(Collectors.toList());

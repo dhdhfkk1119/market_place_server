@@ -6,6 +6,7 @@ import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -70,9 +71,10 @@ public class CommunityPostController {
 
     // 검색
     @Auth(roles = {Role.USER, Role.ADMIN})
-    @PostMapping("/search")
-    public ResponseEntity<ApiUtil.ApiResult<List<CommunityPostResponse.ListDTO>>> searchPosts(
-            @RequestBody CommunityPostRequest.SearchDTO searchDTO) {
-        return ResponseEntity.ok(ApiUtil.success(postService.search(searchDTO)));
+    @GetMapping("/search")
+    public ResponseEntity<ApiUtil.ApiResult<Page<CommunityPostResponse.ListDTO>>> searchPosts(
+            @ModelAttribute CommunityPostRequest.SearchDTO searchDTO, Pageable pageable) {
+        Page<CommunityPostResponse.ListDTO> result = postService.search(searchDTO, pageable);
+        return ResponseEntity.ok(ApiUtil.success(result));
     }
 }
