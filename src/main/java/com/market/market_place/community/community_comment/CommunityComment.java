@@ -3,6 +3,7 @@ package com.market.market_place.community.community_comment;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.community.community_comment_like.CommunityCommentLike;
 import com.market.market_place.community.community_post.CommunityPost;
 import com.market.market_place.members.domain.Member;
@@ -66,5 +67,9 @@ public class CommunityComment {
 
     public void updateLikeCount(int count) {
         this.likeCount = Math.max(0, count);
+    }
+
+    public String getTime(){
+        return DateUtil.dateTimeFormat(createdAt);
     }
 }

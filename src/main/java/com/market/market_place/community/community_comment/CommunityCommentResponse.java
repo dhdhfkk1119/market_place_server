@@ -13,7 +13,7 @@ public class CommunityCommentResponse {
         private Long id;
         private String content;
         private String writerName;
-        private Timestamp createdAt;
+        private String createdAt;
         private String imageUrl;
         private int likeCount;
 
@@ -22,7 +22,7 @@ public class CommunityCommentResponse {
             this.id = comment.getId();
             this.content = comment.getContent();
             this.writerName = comment.getMember().getMemberProfile().getName();
-            this.createdAt = comment.getCreatedAt();
+            this.createdAt = comment.getTime();
             this.imageUrl = comment.getImageUrl();
             this.likeCount = comment.getLikeCount();
         }

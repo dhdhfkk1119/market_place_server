@@ -30,7 +30,7 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
             "CASE WHEN :sortType = 'LATEST' THEN p.createdAt END DESC, " +
             "CASE WHEN :sortType = 'LIKES' THEN p.likeCount END DESC, " +
             "CASE WHEN :sortType = 'VIEWS' THEN p.viewCount END DESC")
-    List<CommunityPost> search(@Param("keyword") String keyword, @Param("categories") List<String> categories,
-                               @Param("sortType") String sortType);
+    Page<CommunityPost> search(@Param("keyword") String keyword, @Param("categories") List<String> categories,
+                               @Param("sortType") String sortType, Pageable pageable);
 
 }
