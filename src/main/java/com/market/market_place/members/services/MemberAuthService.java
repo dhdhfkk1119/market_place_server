@@ -80,10 +80,22 @@ public class MemberAuthService {
         log.info("로그인 시도. 로그인 ID: {}", request.getLoginId());
         Member member = memberRepository.findByLoginId(request.getLoginId())
                                         .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
-        if (member.getStatus() != MemberStatus.ACTIVE) {
-            log.warn("비활성 계정 로그인 시도. 사용자 ID: {}, 상태: {}", member.getId(), member.getStatus());
-            throw new Exception401("이미 탈퇴했거나 정지된 계정입니다.");
+
+        // [수정] 계정 상태 확인 로직 강화
+        if (member.getStatus() == MemberStatus.BANNED) {
+            log.warn("정지된 계정 로그인 시도. 사용자 ID: {}", member.getId());
+            throw new Exception401("활동이 정지된 계정입니다.");
         }
+        if (member.getStatus() == MemberStatus.WITHDRAWN) {
+            log.warn("탈퇴한 계정 로그인 시도. 사용자 ID: {}", member.getId());
+            throw new Exception401("이미 탈퇴한 계정입니다.");
+        }
+        // ACTIVE가 아닌 다른 상태가 추가될 경우를 대비한 방어 코드
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            log.error("처리되지 않은 계정 상태 로그인 시도. 사용자 ID: {}, 상태: {}", member.getId(), member.getStatus());
+            throw new Exception401("로그인할 수 없는 계정 상태입니다.");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             log.warn("비밀번호 불일치. 로그인 ID: {}", request.getLoginId());
             throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");

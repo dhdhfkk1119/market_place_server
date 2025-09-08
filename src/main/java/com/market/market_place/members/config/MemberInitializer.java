@@ -60,5 +60,62 @@ public class MemberInitializer implements CommandLineRunner {
 
             memberRepository.save(user);
         }
+
+        // 테스트용 일반 멤버 계정 2가 없으면 생성
+        if (memberRepository.findByLoginId("user2").isEmpty()) {
+            Member user2 = Member.builder()
+                    .loginId("user2")
+                    .password(passwordEncoder.encode("user1234"))
+                    .address("경기도 성남시")
+                    .email("user2@market.com")
+                    .role(Role.USER)
+                    .status(MemberStatus.ACTIVE)
+                    .build();
+
+            MemberProfile user2Profile = MemberProfile.builder()
+                    .name("테스트유저2")
+                    .build();
+
+            user2.setMemberProfile(user2Profile);
+            memberRepository.save(user2);
+        }
+
+        // 테스트용 탈퇴 멤버 계정이 없으면 생성
+        if (memberRepository.findByLoginId("withdrawn_user").isEmpty()) {
+            Member withdrawnUser = Member.builder()
+                    .loginId("withdraw")
+                    .password(passwordEncoder.encode("withdraw"))
+                    .address("서울시 마포구")
+                    .email("withdrawn@market.com")
+                    .role(Role.USER)
+                    .status(MemberStatus.WITHDRAWN) // 탈퇴 상태
+                    .build();
+
+            MemberProfile withdrawnProfile = MemberProfile.builder()
+                    .name("탈퇴한유저")
+                    .build();
+
+            withdrawnUser.setMemberProfile(withdrawnProfile);
+            memberRepository.save(withdrawnUser);
+        }
+
+        // 테스트용 정지 멤버 계정이 없으면 생성
+        if (memberRepository.findByLoginId("banned_user").isEmpty()) {
+            Member bannedUser = Member.builder()
+                    .loginId("banned")
+                    .password(passwordEncoder.encode("banned"))
+                    .address("서울시 서대문구")
+                    .email("banned@market.com")
+                    .role(Role.USER)
+                    .status(MemberStatus.BANNED) // 정지 상태
+                    .build();
+
+            MemberProfile bannedProfile = MemberProfile.builder()
+                    .name("정지된유저")
+                    .build();
+
+            bannedUser.setMemberProfile(bannedProfile);
+            memberRepository.save(bannedUser);
+        }
     }
 }

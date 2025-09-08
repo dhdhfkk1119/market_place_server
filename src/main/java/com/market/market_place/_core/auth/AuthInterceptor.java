@@ -6,9 +6,13 @@ import com.market.market_place._core._exception.Exception401;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception500;
 import com.market.market_place._core._utils.JwtUtil;
-import com.market.market_place.members.domain.Role; // 독립된 Role을 import
+import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.MemberStatus;
+import com.market.market_place.members.domain.Role;
+import com.market.market_place.members.repositories.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -21,7 +25,10 @@ import java.util.Objects;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
+
+    private final MemberRepository memberRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -37,6 +44,14 @@ public class AuthInterceptor implements HandlerInterceptor {
         try {
             // 1. 인증: 토큰 검증 및 세션 정보 생성
             JwtUtil.SessionUser sessionUser = verifyTokenAndGetSessionUser(request);
+
+            // [추가] 1.5. 계정 상태 확인: DB에서 최신 사용자 상태를 직접 확인
+            Member memberInDb = memberRepository.findById(sessionUser.getId())
+                    .orElseThrow(() -> new Exception401("@Auth: 유효하지 않은 사용자 정보입니다."));
+
+            if (memberInDb.getStatus() == MemberStatus.BANNED) {
+                throw new Exception403("@Auth: 활동이 정지된 계정입니다.");
+            }
 
             // 2. 권한: API 접근 역할 검사
             checkRole(auth, sessionUser);

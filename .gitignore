@@ -327,6 +327,7 @@ $RECYCLE.BIN/
 .gradle/
 build/
 .idea/
+/data/
 
 # Q Class 무시
 src/main/generated/
