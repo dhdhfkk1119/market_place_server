@@ -43,4 +43,10 @@ public class ItemRequest {
 
         private List<String> base64Images;
     }
+
+    @Data
+    public static class SearchDTO {
+            private String keyword;
+            private List<String> tags;
+    }
 }

@@ -2,23 +2,19 @@ package com.market.market_place.item.core;
 
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
-import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
 import com.market.market_place.item.item_image.ItemImage;
-import com.market.market_place.item.item_image.ItemImageRepository;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.MemberAddress;
-import com.market.market_place.members.repositories.MemberAddressRepository;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.hc.client5.http.UserTokenHandler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -43,6 +39,13 @@ public class ItemService {
     public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
         return itemRepository.findAll(pageable)
                 .map(ItemResponse.ItemListDTO::from);
+    }
+
+    public List<ItemResponse.ItemListDTO> search(ItemRequest.SearchDTO searchDTO) {
+        return itemRepository.search(searchDTO.getKeyword(),
+                searchDTO.getTags()).stream()
+                .map(ItemResponse.ItemListDTO::from)
+                .collect(Collectors.toList());
     }
 
     public ItemResponse.ItemSaveDTO save(Long id,ItemRequest.ItemSaveDTO dto) {
@@ -107,4 +110,5 @@ public class ItemService {
 
         itemRepository.delete(item);
     }
+
 }

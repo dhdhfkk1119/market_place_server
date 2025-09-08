@@ -2,10 +2,8 @@ package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_image.ItemImage;
-import com.market.market_place.members.domain.MemberAddress;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +75,7 @@ public class ItemResponse {
             this.title = item.getTitle();
         }
     }
+
     @Data
     public static class ItemSaveDTO {
         //이미지 거래방식 추가 필요

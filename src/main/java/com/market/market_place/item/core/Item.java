@@ -10,7 +10,13 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +31,7 @@ public class Item {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JsonIgnore
     private Member member;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_category_id")
@@ -39,6 +45,12 @@ public class Item {
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
     private Double averageRating;
+
+
+    @CreationTimestamp
+    @Column(name = "created_at",updatable = false)
+    private Timestamp createdAt;
+
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
@@ -57,7 +69,7 @@ public class Item {
 
 
     @Builder
-    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory,Long price, String title,String tradeLocation) {
+    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory, Long price, String title, String tradeLocation) {
         this.content = content;
         this.favorites = favorites;
         this.itemCategory = itemCategory;
