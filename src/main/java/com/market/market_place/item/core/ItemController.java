@@ -81,4 +81,14 @@ public class ItemController {
                 ApiUtil.success(itemService.search(searchDTO));
     }
 
+    @Auth(roles = {Role.ADMIN, Role.USER})
+    @GetMapping
+    public ResponseEntity<Page<ItemResponse.ItemListDTO>> getItems(
+            ItemSearchRequest searchRequest,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+
+        Page<ItemResponse.ItemListDTO> items = itemService.getItems(searchRequest, sessionUser);
+        return ResponseEntity.ok(items);
+    }
+
 }
