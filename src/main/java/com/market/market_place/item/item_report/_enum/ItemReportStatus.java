@@ -1,4 +1,4 @@
-package com.market.market_place.item.item_report;
+package com.market.market_place.item.item_report._enum;
 
 public enum ItemReportStatus {
     PENDING,          // 접수 됨(기본)

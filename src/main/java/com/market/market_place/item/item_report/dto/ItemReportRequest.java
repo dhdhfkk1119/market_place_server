@@ -1,6 +1,7 @@
-package com.market.market_place.item.item_report;
+package com.market.market_place.item.item_report.dto;
 
 import com.market.market_place.item.core.Item;
+import com.market.market_place.item.item_report.entity.ItemReport;
 import com.market.market_place.members.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
