@@ -1,6 +1,7 @@
-package com.market.market_place.item.item_report;
+package com.market.market_place.item.item_report.entity;
 
 import com.market.market_place.item.core.Item;
+import com.market.market_place.item.item_report._enum.ItemReportStatus;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -41,5 +41,12 @@ public class ItemReport {
 
     @CreationTimestamp
     private Timestamp createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) {
+            status = ItemReportStatus.PENDING;
+        }
+    }
 
 }

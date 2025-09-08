@@ -1,5 +1,6 @@
-package com.market.market_place.item.item_report;
+package com.market.market_place.item.item_report.repository;
 
+import com.market.market_place.item.item_report.entity.ItemReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ItemReportRepository extends JpaRepository<ItemReport,Long> {
