@@ -2,7 +2,6 @@ package com.market.market_place.chat.chat_message;
 
 import com.market.market_place._core._config.UploadConfig;
 import com.market.market_place._core._exception.Exception401;
-import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.FileUploadUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.chat._enum.MessageType;
@@ -11,21 +10,17 @@ import com.market.market_place.chat.chat_image.ChatImageRepository;
 import com.market.market_place.chat.chat_image.ChatImageRequestDTO;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
-import com.market.market_place.chat.chat_room.ChatRoomResponseDTO;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.MemberProfile;
-import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -39,6 +34,7 @@ public class ChatMessageService {
     private final MemberService memberService;
 
     // 메세지 저장 및 방생성 (있으면 기존 방에서)
+    @Transactional
     public ChatMessageResponseDTO.MessageDTO saveAndProcessMessage(Long senderId, ChatMessageRequestDTO.Message msgDTO) {
         Member sender = memberService.findMember(senderId);
         Member receiver = memberService.findMember(msgDTO.getReceiveId());
@@ -73,12 +69,16 @@ public class ChatMessageService {
             chatMessageRepository.save(chatMessage); // 메시지 타입 업데이트
 
         }
+        room.setLastMessage(chatMessage);
+        chatRoomRepository.save(room);
+
         List<ChatImage> images = chatImageRepository.findByChatMessage(chatMessage);
         return new ChatMessageResponseDTO.MessageDTO(chatMessage, images);
 
     }
 
     // 메세지 보내기 및 방 생성하기
+    @Transactional
     public ChatMessageResponseDTO.MessageDTO saveMessage(ChatMessageRequestDTO.Message dto, JwtUtil.SessionUser sessionUser) {
         Member sender = memberService.findMember(sessionUser.getId()); // 보는 유저 번호
         Member receive = memberService.findMember(dto.getReceiveId()); // 받는 유저 번호
@@ -96,12 +96,10 @@ public class ChatMessageService {
     }
 
     // 내가 속한 한 방에 메세지 내역을 전부 가져오기
-    public List<ChatMessageResponseDTO.MessageDTO> getMessagesByRoom(Long roomId) {
-        List<ChatMessage> messages = chatMessageRepository.findMessagesByChatRoomId(roomId);
+    public Slice<ChatMessageResponseDTO.MessageDTO> getMessagesByRoom(Long roomId, Pageable pageable) {
+        Slice<ChatMessage> messages = chatMessageRepository.findMessagesByChatRoomId(roomId,pageable);
 
-        return messages.stream()
-                .map(msg -> new ChatMessageResponseDTO.MessageDTO(msg, Collections.emptyList()))
-                .collect(Collectors.toList());
+        return messages.map(msg -> new ChatMessageResponseDTO.MessageDTO(msg, Collections.emptyList()));
     }
 
 }

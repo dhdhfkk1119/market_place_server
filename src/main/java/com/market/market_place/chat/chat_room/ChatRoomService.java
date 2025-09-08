@@ -1,12 +1,11 @@
 package com.market.market_place.chat.chat_room;
 
-import com.market.market_place.chat.chat_message.ChatMessage;
 import com.market.market_place.chat.chat_message.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,24 +16,22 @@ public class ChatRoomService {
     private final ChatMessageRepository chatMessageRepository;
 
     // 내가 참여한 방 목록 + 마지막 메시지
-    public List<ChatRoomResponseDTO.ChatRoomDTO> getMyChatRooms(Long userId) {
-        List<ChatRoom> chatRooms = chatRoomRepository.findAllByUser(userId);
+    public Slice<ChatRoomResponseDTO.ChatRoomDTO> getMyChatRooms(Long userId, Pageable pageable) {
+        Slice<ChatRoom> chatRooms = chatRoomRepository.findAllByUser(userId, pageable);
 
-        return chatRooms.stream().map(cr -> {
-            List<ChatMessage> messages = chatMessageRepository.findMessagesByChatRoomId(cr.getId());
-            ChatMessage lastMessage = messages.isEmpty() ? null : messages.get(0);
-
+        return chatRooms.map(cr -> {
             return ChatRoomResponseDTO.ChatRoomDTO.builder()
                     .chatRoom(cr)
-                    .lastMessage(lastMessage)
                     .loginUserId(userId)
                     .build();
 
-        }).toList();
+        });
     }
 
 
+
     // 방 나가기 -> 채팅방 삭제
+    @Transactional
     public void deleteRoom(Long roomId){
         chatRoomRepository.deleteById(roomId);
     }
