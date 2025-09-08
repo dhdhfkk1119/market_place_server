@@ -22,7 +22,7 @@ public class SseUtil {
         emitter.onTimeout(() -> removeEmitter(userId));
         emitter.onError((e) -> removeEmitter(userId));
 
-        sendToUser(userId, "성공적으로 연결되었습니다! [userId=" + userId + "]");
+        sendToUser(userId, "connect","성공적으로 연결되었습니다! [userId=" + userId + "]");
         return emitter;
     }
 
@@ -33,12 +33,12 @@ public class SseUtil {
         }
     }
 
-    public void sendToUser(String userId, String data) {
+    public void sendToUser(String userId, String eventName, String data) {
         SseEmitter emitter = emitters.get(userId);
 
         if (emitter != null) {
             try {
-                emitter.send(SseEmitter.event().name("AI Response").data(data));
+                emitter.send(SseEmitter.event().name(eventName).data(data));
             } catch (IOException e) {
                 log.error("SSE 전송 중 오류 발생! userId: {}, error: {}", userId, e.getMessage());
                 removeEmitter(userId);
@@ -48,7 +48,7 @@ public class SseUtil {
 
     public void broadcast(String data) {
         emitters.keySet().forEach((userId) -> {
-            sendToUser(userId, data);
+            sendToUser(userId, "broadcast", data);
         });
     }
 }
