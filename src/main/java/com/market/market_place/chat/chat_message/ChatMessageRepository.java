@@ -1,10 +1,11 @@
 package com.market.market_place.chat.chat_message;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
 
@@ -15,6 +16,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
             "join fetch r.memberProfile " +
             "where m.chatRoom.id = :chatRoomId " +
             "order by m.createdAt DESC")
-    List<ChatMessage> findMessagesByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+    Slice<ChatMessage> findMessagesByChatRoomId(@Param("chatRoomId") Long chatRoomId, Pageable pageable);
 
 }

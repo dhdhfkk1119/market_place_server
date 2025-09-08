@@ -2,6 +2,7 @@ package com.market.market_place.chat._config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
 @Configuration
@@ -20,6 +21,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // ws-stomp라는 엔드포인트로 STOMP 연결을 할 수 있게 함
         // SockJS를 사용하면 웹소켓을 지원하지 않는 브라우저에서도 통신 가능
-        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*").withSockJS();
     }
+
+
 }
+

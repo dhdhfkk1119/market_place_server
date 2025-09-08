@@ -1,72 +1,171 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>WebSocket Test Client</title>
+    <meta charset="UTF-8" />
+    <title>STOMP Chat (Query Token)</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 720px; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        .row { display: flex; gap: 8px; margin: 8px 0; }
+        .row > * { flex: 1; }
+        input, button { padding: 8px; }
+        .log { margin-top: 16px; height: 260px; overflow-y: auto; background:#f7f7f7; border:1px solid #ddd; padding:10px; }
+        .status { margin: 8px 0; font-weight: bold; }
+        .connected { color: green; }
+        .disconnected { color: red; }
+    </style>
 </head>
 <body>
-<h1>WebSocket Test Client</h1>
+<div class="container">
+    <h2>STOMP Chat (쿼리스트링 JWT)</h2>
 
-<div>
-    <input type="text" id="tokenInput" placeholder="JWT 토큰 입력">
-    <button onclick="connectWebSocket()">Connect</button>
-</div>
+    <div class="row">
+        <input id="jwt" placeholder="JWT 토큰을 입력하세요" />
+        <button id="connect">Connect</button>
+        <button id="disconnect" disabled>Disconnect</button>
+    </div>
 
-<div>
-    <input type="text" id="messageInput" placeholder="보낼 메시지 입력">
-    <button onclick="sendMessage()">Send</button>
-</div>
+    <div class="status">Status: <span id="status" class="disconnected">Disconnected</span></div>
 
-<div>
-    <h3>Logs</h3>
-    <pre id="logs"></pre>
+    <hr />
+
+    <div class="row">
+        <input id="receiverId" type="number" placeholder="받는 사람 ID (receiveId)" />
+        <input id="message" placeholder="메시지 내용" />
+        <button id="send" disabled>Send</button>
+    </div>
+
+    <div class="log" id="log"></div>
 </div>
 
 <script>
-    let socket;
-    const logs = document.getElementById("logs");
-
-    function log(message) {
-        logs.textContent += message + "\n";
+    const $ = (id) => document.getElementById(id);
+    const logBox = $("log");
+    function log(msg) {
+      const p = document.createElement("p");
+      p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logBox.appendChild(p);
+      logBox.scrollTop = logBox.scrollHeight;
     }
 
-    // WebSocket 연결
-    function connectWebSocket() {
-        const token = document.getElementById("tokenInput").value.trim();
-        if (!token) {
-            alert("JWT 토큰을 입력하세요!");
-            return;
-        }
+    const statusEl = $("status");
+    const connectBtn = $("connect");
+    const disconnectBtn = $("disconnect");
+    const sendBtn = $("send");
+    const jwtInput = $("jwt");
+    const receiverInput = $("receiverId");
+    const messageInput = $("message");
 
-        // 기존 연결이 있으면 종료
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.close();
-        }
+    let stompClient = null;
+    let sock = null;
 
-        // URL에 token 쿼리 파라미터로 전달
-        socket = new WebSocket("ws://localhost:8080/ws-stomp?token=" + encodeURIComponent(token));
-
-        socket.onopen = () => log("✅ Connected to server");
-        socket.onmessage = (event) => log("📩 Received: " + event.data);
-        socket.onclose = () => log("❌ Disconnected from server");
-        socket.onerror = (error) => log("⚠️ Error: " + JSON.stringify(error));
+    function setStatus(connected) {
+      if (connected) {
+        statusEl.textContent = "Connected";
+        statusEl.className = "connected";
+        connectBtn.disabled = true;
+        disconnectBtn.disabled = false;
+        sendBtn.disabled = false;
+      } else {
+        statusEl.textContent = "Disconnected";
+        statusEl.className = "disconnected";
+        connectBtn.disabled = false;
+        disconnectBtn.disabled = true;
+        sendBtn.disabled = true;
+      }
     }
 
-    // 메시지 보내기
-    function sendMessage() {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            alert("WebSocket에 연결되지 않았습니다!");
-            return;
+    connectBtn.addEventListener("click", () => {
+      const token = jwtInput.value.trim();
+      if (!token) {
+        alert("JWT 토큰을 입력하세요.");
+        return;
+      }
+
+      // ✅ 쿼리스트링으로 토큰 전달 (브라우저/SockJS 환경에서 헤더 전달 제약 회피)
+      const url = "http://localhost:8080/ws-stomp?token=" + encodeURIComponent(token);
+      sock = new SockJS(url);
+      stompClient = Stomp.over(sock);
+
+      // 선택: 콘솔 로그 줄이고 싶으면 아래 라인 활성화
+      // stompClient.debug = () => {};
+
+      // 하트비트(선택)
+      stompClient.heartbeat.outgoing = 10000; // 10s
+      stompClient.heartbeat.incoming = 10000; // 10s
+
+      stompClient.connect(
+        {}, // 헤더 비움: 쿼리스트링으로 인증
+        (frame) => {
+          log("Connected: " + frame);
+          setStatus(true);
+
+          // 본인 전용 큐 구독 (/user/queue/...)
+          stompClient.subscribe("/user/queue/chat/message", (message) => {
+            try {
+              const body = JSON.parse(message.body);
+              log("📩 Received: " + JSON.stringify(body));
+            } catch (e) {
+              log("📩 Received (raw): " + message.body);
+            }
+          });
+        },
+        (error) => {
+          log("❌ Connection error: " + error);
+          setStatus(false);
         }
+      );
+    });
 
-        const msg = {
-            message: document.getElementById("messageInput").value,
-            receiveId: parseInt(prompt("받는 사람 ID 입력"), 10)
-        };
+    disconnectBtn.addEventListener("click", () => {
+      try {
+        if (stompClient && stompClient.connected) {
+          stompClient.disconnect(() => {
+            log("Disconnected.");
+            setStatus(false);
+          });
+        } else if (sock) {
+          sock.close();
+          setStatus(false);
+        } else {
+          setStatus(false);
+        }
+      } catch (e) {
+        log("Disconnect error: " + e.message);
+        setStatus(false);
+      }
+    });
 
-        socket.send(JSON.stringify(msg));
-        log("📤 Sent: " + JSON.stringify(msg));
-    }
+    window.addEventListener("beforeunload", () => {
+      if (stompClient && stompClient.connected) {
+        stompClient.disconnect();
+      }
+    });
+
+    sendBtn.addEventListener("click", () => {
+      if (!stompClient || !stompClient.connected) {
+        log("⚠️ Not connected. Connect first.");
+        return;
+      }
+      const receiveId = receiverInput.value.trim();
+      const msg = messageInput.value.trim();
+      if (!receiveId || !msg) {
+        alert("받는 사람 ID와 메시지를 입력하세요.");
+        return;
+      }
+
+      const payload = {
+        receiveId: Number(receiveId),
+        message: msg
+      };
+
+      stompClient.send("/app/chat/sendMessage", {}, JSON.stringify(payload));
+      log("📤 Sent: " + JSON.stringify(payload));
+      messageInput.value = "";
+      messageInput.focus();
+    });
 </script>
 </body>
 </html>
