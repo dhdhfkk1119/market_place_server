@@ -46,19 +46,19 @@ public class GeminiService {
                             chunk -> {
                                 String textChunk = chunk.extractText();
                                 if (textChunk != null && !textChunk.isEmpty()) {
-                                    sseUtil.sendToUser(userId, textChunk);
+                                    sseUtil.sendToUser(userId, "AI Response", textChunk);
                                 }
                             },
                             error -> {
-                                sseUtil.sendToUser(userId, "AI 스트리밍 중 오류가 발생했습니다.");
+                                sseUtil.sendToUser(userId, "error","AI 스트리밍 중 오류가 발생했습니다.");
                             },
                             () -> {
-                                sseUtil.sendToUser(userId, "stream_end"); // -> 스트림이 끝났다는 신호
+                                sseUtil.sendToUser(userId, "final","stream_end"); // -> 스트림이 끝났다는 신호
                             }
                     );
 
         } catch (Exception e) {
-            sseUtil.sendToUser(userId, "AI 요청 처리 중 오류가 발생했습니다: " + e.getMessage());
+            sseUtil.sendToUser(userId, "error","AI 요청 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 }
