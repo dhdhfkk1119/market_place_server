@@ -1,6 +1,7 @@
 package com.market.market_place.community.community_post;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.community.community_comment.CommunityComment;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import com.market.market_place.community.community_post_like.CommunityPostLike;
@@ -39,9 +40,6 @@ public class CommunityPost {
 
     @CreationTimestamp
     private Timestamp createdAt;
-
-    @UpdateTimestamp
-    private Timestamp updatedAt;
 
     @Column(nullable = false)
     private int likeCount = 0;
@@ -84,4 +82,9 @@ public class CommunityPost {
         this.content = updateDTO.getContent();
         this.location = updateDTO.getLocation();
     }
+
+    public String getTime(){
+        return DateUtil.dateTimeFormat(createdAt);
+    }
+
 }

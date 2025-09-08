@@ -6,6 +6,7 @@ import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -63,8 +64,17 @@ public class CommunityPostController {
     @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id,
-                                                  @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
+                                    @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
         postService.delete(id, sessionUser);
         return ResponseEntity.ok(ApiUtil.success("삭제 성공"));
+    }
+
+    // 검색
+    @Auth(roles = {Role.USER, Role.ADMIN})
+    @GetMapping("/search")
+    public ResponseEntity<ApiUtil.ApiResult<Page<CommunityPostResponse.ListDTO>>> searchPosts(
+            @ModelAttribute CommunityPostRequest.SearchDTO searchDTO, Pageable pageable) {
+        Page<CommunityPostResponse.ListDTO> result = postService.search(searchDTO, pageable);
+        return ResponseEntity.ok(ApiUtil.success(result));
     }
 }

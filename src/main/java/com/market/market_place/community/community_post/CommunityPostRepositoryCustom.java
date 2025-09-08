@@ -4,5 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CommunityPostRepositoryCustom {
-    Page<CommunityPost> findBySearchOption(Pageable pageable, CommunityPostRequest.SearchDTO searchDTO);
+    Page<CommunityPost> findBySearchOption(Pageable pageable, CommunityPostRequest.SearchDTO searchDTO,
+                                           CommunityPostSortType sortType);
 }

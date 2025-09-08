@@ -3,7 +3,7 @@ package com.market.market_place.members.controllers;
 import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
-import com.market.market_place.members.domain.Role; // 독립된 Role을 import
+import com.market.market_place.members.domain.Role;
 import com.market.market_place.members.dto_auth.*;
 import com.market.market_place.members.dto_profile.MemberUpdateRequest;
 import com.market.market_place.members.dto_profile.MemberUpdateResponse;
@@ -11,7 +11,6 @@ import com.market.market_place.members.dto_profile.MyInfoResponse;
 import com.market.market_place.members.dto_token.AccessTokenResponse;
 import com.market.market_place.members.dto_token.LoginResponseWithTokens;
 import com.market.market_place.members.dto_token.TokenReissueResponse;
-import com.market.market_place.members.services.MemberAdminService;
 import com.market.market_place.members.services.MemberAuthService;
 import com.market.market_place.members.services.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +24,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@Tag(name = "Member API", description = "회원 관련 API")
+@Tag(name = "Member API 회원용", description = "회원 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
@@ -35,7 +32,6 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MemberAuthService memberAuthService;
-    private final MemberAdminService memberAdminService;
 
     // --- User / Admin 공통 API ---
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
@@ -91,14 +87,13 @@ public class MemberController {
     @Operation(summary = "로그인", description = "로그인 ID와 비밀번호로 인증하여 JWT 토큰을 발급받습니다.")
     @PostMapping("/login")
     public ResponseEntity<ApiUtil.ApiResult<MemberLoginResponse>> login(@RequestBody MemberLoginRequest request) {
-        LoginResponseWithTokens result = memberAuthService.login(request); // 반환 타입 변경
+        LoginResponseWithTokens result = memberAuthService.login(request);
 
-        // 리프레시 토큰을 HttpOnly 쿠키에 담아 반환
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", result.getRefreshToken())
                 .httpOnly(true)
-                .secure(true) // HTTPS 사용 시 true
+                .secure(true)
                 .path("/")
-                .maxAge(result.getRefreshTokenMaxAgeSeconds()) // DTO에서 받은 maxAge 사용
+                .maxAge(result.getRefreshTokenMaxAgeSeconds())
                 .build();
 
         return ResponseEntity.ok()
@@ -114,54 +109,16 @@ public class MemberController {
 
         TokenReissueResponse response = memberAuthService.reissueTokens(refreshToken);
 
-        // 새로운 리프레시 토큰을 HttpOnly 쿠키에 담아 반환
         ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", response.getNewRefreshToken())
                 .httpOnly(true)
-                .secure(true) // HTTPS 사용 시 true
+                .secure(true)
                 .path("/")
-                .maxAge(response.getRefreshTokenMaxAgeSeconds()) // DTO에서 받은 maxAge 사용
+                .maxAge(response.getRefreshTokenMaxAgeSeconds())
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString())
                 .body(ApiUtil.success(new AccessTokenResponse(response.getNewAccessToken())));
-    }
-
-    // --- 관리자(Admin) 전용 API ---
-    @Operation(summary = "회원 정지 (관리자용)", description = "특정 회원의 상태를 '정지'로 변경합니다. (ADMIN 권한 필요)")
-    @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = Role.ADMIN)
-    @PatchMapping("/{id}/ban")
-    public ResponseEntity<ApiUtil.ApiResult<String>> banMember(@PathVariable Long id) {
-        memberAdminService.banMember(id);
-        return ResponseEntity.ok(ApiUtil.success("해당 회원이 정지 처리되었습니다."));
-    }
-
-    @Operation(summary = "회원 상세 조회 (관리자용)", description = "로그인 ID로 특정 회원의 정보를 조회합니다. (ADMIN 권한 필요)")
-    @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = Role.ADMIN)
-    @GetMapping("/{loginId}")
-    public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> getMember(@PathVariable String loginId) {
-        MemberRegisterResponse response = memberAdminService.findMemberByLoginId(loginId);
-        return ResponseEntity.ok(ApiUtil.success(response));
-    }
-
-    @Operation(summary = "회원 전체 조회 (관리자용)", description = "모든 회원의 목록을 조회합니다. (ADMIN 권한 필요)")
-    @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = Role.ADMIN)
-    @GetMapping
-    public ResponseEntity<ApiUtil.ApiResult<List<MemberRegisterResponse>>> getAllMembers() {
-        List<MemberRegisterResponse> response = memberAdminService.findAllMembers();
-        return ResponseEntity.ok(ApiUtil.success(response));
-    }
-
-    @Operation(summary = "회원 삭제 (관리자용, 물리적 삭제)", description = "특정 회원의 정보를 시스템에서 영구적으로 삭제합니다. (ADMIN 권한 필요)")
-    @SecurityRequirement(name = "jwtAuth")
-    @Auth(roles = Role.ADMIN)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
-        memberAdminService.deleteMember(id);
-        return ResponseEntity.noContent().build();
     }
 
     // --- Health Check API ---
