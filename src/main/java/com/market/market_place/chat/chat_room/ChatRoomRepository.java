@@ -15,7 +15,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom,Long> {
     // 내가 들어가있는 모든 방의 정보를 가져오기
     @Query("select cr from ChatRoom cr " +
             "left join fetch cr.lastMessage " +
-            "where cr.userId1 = :userId or cr.userId2 = :userId " +
+            "where cr.userId1.id = :userId or cr.userId2.id = :userId " +
             "order by cr.lastMessage.createdAt desc")
     Slice<ChatRoom> findAllByUser(@Param("userId") Long userId, Pageable pageable);
 
