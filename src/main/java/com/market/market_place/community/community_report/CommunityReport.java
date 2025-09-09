@@ -1,7 +1,9 @@
 package com.market.market_place.community.community_report;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.community.community_post.CommunityPost;
+import com.market.market_place.community.community_report_process.CommunityReportProcess;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,9 +13,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "community_report")
+@Table(name = "community_report_tb")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,6 +45,11 @@ public class CommunityReport {
     // 신고 상태
     @Enumerated(EnumType.STRING)
     private CommunityReportStatus status = CommunityReportStatus.PENDING;
+
+    // 신고 답변
+    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // 순환 참조 방지
+    private List<CommunityReportProcess> adminComments = new ArrayList<>();
 
     @CreationTimestamp
     private Timestamp createdAt;

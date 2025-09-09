@@ -43,6 +43,8 @@ public class CommunityPostService {
         post.increaseViewCount();
         postRepository.save(post);
         return new CommunityPostResponse.DetailDTO(post);
+
+        // 댓글 최신순 등록순 정렬하기
     }
 
     // 작성

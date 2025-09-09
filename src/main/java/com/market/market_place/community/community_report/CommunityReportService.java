@@ -54,7 +54,7 @@ public class CommunityReportService {
 
     // 상세조회
     public CommunityReportResponse.DetailDTO detail(Long reportId, Long memberId){
-        CommunityReport report = reportRepository.findById(reportId)
+        CommunityReport report = reportRepository.findByIdWithAdminComments(reportId)
                 .orElseThrow(() -> new Exception404("신고 내역을 찾을 수 없습니다."));
 
         if(!report.getReporter().getId().equals(memberId)){

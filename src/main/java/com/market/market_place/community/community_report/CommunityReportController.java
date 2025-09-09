@@ -15,20 +15,20 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/community/posts/report")
+@RequestMapping("/api/community/reports")
 public class CommunityReportController {
 
     private final CommunityReportService reportService;
 
     // 등록
     @Auth(roles = Role.USER)
-    @PostMapping("save/{id}")
+    @PostMapping("/posts/{postId}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityReportResponse.CreateDTO>> reportPost(
-            @PathVariable Long id,
+            @PathVariable Long postId,
             @RequestBody CommunityReportRequest.CreateDTO createDTO,
             @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser){
 
-        CommunityReportResponse.CreateDTO response = reportService.createReport(id, sessionUser.getId(), createDTO);
+        CommunityReportResponse.CreateDTO response = reportService.createReport(postId, sessionUser.getId(), createDTO);
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
@@ -44,11 +44,11 @@ public class CommunityReportController {
 
     // 상세조회
     @Auth(roles = Role.USER)
-    @GetMapping("/detail/{id}")
+    @GetMapping("/{reportId}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityReportResponse.DetailDTO>> detail(
-            @PathVariable Long id,
+            @PathVariable Long reportId,
             @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser){
-        CommunityReportResponse.DetailDTO reportDetail = reportService.detail(id, sessionUser.getId());
+        CommunityReportResponse.DetailDTO reportDetail = reportService.detail(reportId, sessionUser.getId());
         return ResponseEntity.ok(ApiUtil.success(reportDetail));
     }
 }

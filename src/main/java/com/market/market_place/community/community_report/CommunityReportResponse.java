@@ -1,7 +1,10 @@
 package com.market.market_place.community.community_report;
 
+import com.market.market_place.community.community_report_process.CommunityReportProcess;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
 
 public class CommunityReportResponse {
 
@@ -55,6 +58,7 @@ public class CommunityReportResponse {
         private String reason;
         private CommunityReportStatus status;
         private String createdAt;
+        private List<CommunityReportProcess> adminComments;
 
         public DetailDTO(CommunityReport report) {
             this.id = report.getId();
@@ -64,6 +68,7 @@ public class CommunityReportResponse {
             this.reason = report.getReason();
             this.status = report.getStatus();
             this.createdAt = report.getTime();
+            this.adminComments = report.getAdminComments();
         }
     }
 }
