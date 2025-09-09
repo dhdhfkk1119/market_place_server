@@ -9,6 +9,8 @@ import com.market.market_place.item.item_report.support.ItemReportPolicy;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +26,9 @@ public class ItemReportProcessService {
 
     //신고상태처리
     @Transactional
-    public ItemReportProcessResponse.ItemReportProcessResponseDetailDTO process(
+    public ItemReportProcessResponse.ItemReportProcessDetailDTO process(
             Long reportId, Long adminId,
-            ItemReportProcessRequest.ItemReportProcessRequestUpdateDTO req) {
+            ItemReportProcessRequest.ItemReportProcessUpdateDTO req) {
 
         //해당 신고 찾기
         ItemReport itemReport = itemReportService.getItemReport(reportId);
@@ -46,7 +48,7 @@ public class ItemReportProcessService {
 
         itemReport.setStatus(ItemReportPolicy.toStatus(req.getResult()));
 
-        return ItemReportProcessResponse.ItemReportProcessResponseDetailDTO.builder()
+        return ItemReportProcessResponse.ItemReportProcessDetailDTO.builder()
                 .processId(process.getId())
                 .reportId(itemReport.getId())
                 .itemId(itemReport.getItem().getId())
@@ -56,5 +58,20 @@ public class ItemReportProcessService {
                 .processedAt(process.getProcessDate())
                 .finalStatus(itemReport.getStatus())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ItemReportProcessResponse.ItemReportProcessListDTO> findAll(Pageable pageable,Long adminId) {
+        memberService.findMember(adminId);
+        return itemReportProcessRepository.findAll(pageable)
+                .map(itemReportProcess -> ItemReportProcessResponse.ItemReportProcessListDTO.builder()
+                        .processId(itemReportProcess.getId())
+                        .reportId(itemReportProcess.getItemReport().getId())
+                        .itemId(itemReportProcess.getItemReport().getItem().getId())
+                        .adminId(itemReportProcess.getMember().getId())
+                        .reason(itemReportProcess.getReason())
+                        .result(itemReportProcess.getResult())
+                        .processedAt(itemReportProcess.getProcessDate())
+                        .build());
     }
 }

@@ -20,6 +20,7 @@ public class ItemCategoryController {
         return ResponseEntity.ok(categiryList);
     }
 
+
     @PostMapping("/api/itemcategories")
     public ResponseEntity<?> save(@RequestBody ItemCategoryRequest.SaveDTO dto) {
 
