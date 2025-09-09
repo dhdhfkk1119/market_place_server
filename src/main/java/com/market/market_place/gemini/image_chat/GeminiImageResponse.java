@@ -1,10 +1,10 @@
-package com.market.market_place.gemini;
+package com.market.market_place.gemini.image_chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public record GeminiResponse (
+public record GeminiImageResponse(
         List<Candidate> candidates
 ) {
     // Candidate 구조
