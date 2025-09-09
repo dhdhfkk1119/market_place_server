@@ -36,6 +36,7 @@ public class GeminiService {
         if (apiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
             throw new Exception400("API 엔드포인트 또는 API Key가 누락된 잘못된 요청입니다. 설정을 확인해주세요.");
         }
+        log.info("서비스 진입");
 
         webClient.post()
                 .uri(apiUrl + "?key=" + apiKey)
@@ -43,14 +44,22 @@ public class GeminiService {
                 .bodyValue(geminiRequest)
                 .retrieve()
                 .bodyToMono(GeminiImageResponse.class)
-                .subscribe(response -> {
+                .doOnSuccess(response -> {
+                    log.info("Gemini로부터 성공적인 응답 수신. userId: {}", userId);
                     String textResponse = response.extractText();
                     if (textResponse != null && !textResponse.isEmpty()) {
                         sseUtil.sendToUser(userId, "AI Response", textResponse);
                     } else {
-                        sseUtil.sendToUser(userId, "error","AI가 응답을 생성하지 못했습니다.");
+                        sseUtil.sendToUser(userId, "error", "AI가 응답을 생성하지 못했습니다.");
                     }
-                });
+                })
+                // 3. (에러 발생 시) WebClient 통신 중 에러가 나면, 클라이언트에게 에러 메시지를 보낸다.
+                .doOnError(error -> {
+                    log.error("Gemini API 통신 중 에러 발생! userId: {}", userId, error);
+                    sseUtil.sendToUser(userId, "error", "AI 서버와 통신 중 문제가 발생했습니다.");
+                })
+                // 4. 이 모든 리액티브 작업이 끝날 때까지 현재 @Async 스레드에서 기다린다.
+                .block();
     }
 
     @Async
