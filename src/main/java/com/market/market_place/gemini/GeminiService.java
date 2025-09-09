@@ -2,15 +2,14 @@ package com.market.market_place.gemini;
 
 import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._utils.SseUtil;
+import com.market.market_place.gemini.image_chat.GeminiImageRequest;
+import com.market.market_place.gemini.image_chat.GeminiImageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.io.IOException;
 
 @Slf4j
 @Service
@@ -26,13 +25,38 @@ public class GeminiService {
     // @Value("${ai.gemini.key}") -> 추후에 다시 주석 해제
     private String apiKey;
 
+    @Value("${ai.gemini.url.mono}")
+    private String apiUrl;
+
     @Value("${ai.gemini.url.stream}")
     private String streamApiUrl;
 
     @Async
-    public void askGeminiAndSendStreaming(String userId, GeminiRequest request) {
-        if (streamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
+    public void askImageForGemini(String userId, GeminiImageRequest geminiRequest) {
+        if (apiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
             throw new Exception400("API 엔드포인트 또는 API Key가 누락된 잘못된 요청입니다. 설정을 확인해주세요.");
+        }
+
+        webClient.post()
+                .uri(apiUrl + "?key=" + apiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(geminiRequest)
+                .retrieve()
+                .bodyToMono(GeminiImageResponse.class)
+                .subscribe(response -> {
+                    String textResponse = response.extractText();
+                    if (textResponse != null && !textResponse.isEmpty()) {
+                        sseUtil.sendToUser(userId, "AI Response", textResponse);
+                    } else {
+                        sseUtil.sendToUser(userId, "error","AI가 응답을 생성하지 못했습니다.");
+                    }
+                });
+    }
+
+    @Async
+    public void askImageForGeminiStreaming(String userId, GeminiImageRequest request) {
+        if (streamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
+            throw new Exception400("Stream API 엔드포인트 또는 API Key가 누락된 잘못된 요청입니다. 설정을 확인해주세요.");
         }
 
         try {
@@ -41,7 +65,7 @@ public class GeminiService {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(request)
                     .retrieve()
-                    .bodyToFlux(GeminiResponse.class)
+                    .bodyToFlux(GeminiImageResponse.class)
                     .subscribe(
                             chunk -> {
                                 String textChunk = chunk.extractText();
