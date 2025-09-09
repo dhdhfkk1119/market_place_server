@@ -82,7 +82,7 @@ spring:
 
 ai:
   gemini:
-    key: $1234
+    key: ${GEMINI_API_KEY}
     url:
       mono: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent"
       stream: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:streamGenerateContent"

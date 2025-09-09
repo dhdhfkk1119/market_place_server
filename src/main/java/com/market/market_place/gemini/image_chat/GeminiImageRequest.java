@@ -1,11 +1,11 @@
-package com.market.market_place.gemini;
+package com.market.market_place.gemini.image_chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Objects;
 
-public record GeminiRequest (
+public record GeminiImageRequest(
         List<Content> contents
 ) {
 

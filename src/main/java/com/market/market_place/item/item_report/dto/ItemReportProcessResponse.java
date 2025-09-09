@@ -15,7 +15,7 @@ public class ItemReportProcessResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class ItemReportProcessResponseDetailDTO {
+    public static class ItemReportProcessDetailDTO {
         private Long processId;
         private Long reportId;
         private Long itemId;
@@ -25,4 +25,21 @@ public class ItemReportProcessResponse {
         private LocalDateTime processedAt;
         private ItemReportStatus finalStatus;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ItemReportProcessListDTO {
+        private Long processId;
+        private Long reportId;
+        private Long itemId;
+        private Long adminId;
+        private String reason;
+        private ProcessResult result;
+        private LocalDateTime processedAt;
+    }
+
+
+
 }
