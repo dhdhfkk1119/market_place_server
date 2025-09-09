@@ -13,7 +13,7 @@ public class ItemReportProcessRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class ItemReportProcessRequestUpdateDTO {
+    public static class ItemReportProcessUpdateDTO {
         private String reason;
         private ProcessResult result;
     }
