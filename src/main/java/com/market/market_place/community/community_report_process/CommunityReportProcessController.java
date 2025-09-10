@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/admin/reports")
+@RequestMapping("/api/admin/community/reports")
 public class CommunityReportProcessController {
 
     private final CommunityReportProcessService processService;

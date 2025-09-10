@@ -3,6 +3,8 @@ package com.market.market_place.community.community_post;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
+import com.market.market_place.community.community_comment.CommunityComment;
+import com.market.market_place.community.community_comment.CommunityCommentService;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import com.market.market_place.community.community_post_image.CommunityPostImageRepository;
 import com.market.market_place.community.community_topic.CommunityTopic;
@@ -15,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,16 +38,15 @@ public class CommunityPostService {
                 .collect(Collectors.toList());
     }
 
-    // 상세보기
+    // 상세보기 - 댓글 인기순 등록순 정렬
     @Transactional
-    public CommunityPostResponse.DetailDTO detail(Long id) {
+    public CommunityPostResponse.DetailDTO detail(Long id,String sortType) {
         CommunityPost post = postRepository.findByIdWithComments(id).orElseThrow(() ->
                 new Exception404("게시글이 없습니다"));
         post.increaseViewCount();
         postRepository.save(post);
-        return new CommunityPostResponse.DetailDTO(post);
 
-        // 댓글 최신순 등록순 정렬하기
+        return new CommunityPostResponse.DetailDTO(post,sortType);
     }
 
     // 작성
@@ -76,7 +78,7 @@ public class CommunityPostService {
     public CommunityPostResponse.ResponseDTO update(Long id, CommunityPostRequest.UpdateDTO updateDTO,
                                                     JwtUtil.SessionUser sessionUser) {
         CommunityPost post = postRepository.findById(id).orElseThrow(() ->
-                new Exception404("해당 개시글이 없습니다"));
+                new Exception404("해당 게시글이 없습니다"));
         if (!post.isOwner(sessionUser.getId())) {
             throw new Exception403("본인이 작성한 게시글만 수정할 수 있습니다");
         }

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class CommunityPostResponse {
         private List<CommunityComment> comments;
 
         @Builder
-        public DetailDTO(CommunityPost post) {
+        public DetailDTO(CommunityPost post,String sortType) {
             this.id = post.getId();
             this.title = post.getTitle();
             this.content = post.getContent();
@@ -71,7 +72,11 @@ public class CommunityPostResponse {
             this.location = post.getLocation();
             this.images = post.getImages().stream()
                     .map(CommunityPostImage::getImageUrl).collect(Collectors.toList());
-            this.comments = post.getComments();
+            this.comments = post.getComments().stream()
+                    .sorted("likes".equals(sortType)
+                            ? Comparator.comparing(CommunityComment::getLikeCount).reversed()
+                            : Comparator.comparing(CommunityComment::getCreatedAt).reversed())
+                    .collect(Collectors.toList());
         }
     }
 
