@@ -8,6 +8,9 @@ public final class ItemReportPolicy {
     private ItemReportPolicy() {
     }
 
+
+
+
     public static boolean canTransition(ItemReportStatus current, ProcessResult result) {
         return switch (current) {
             case PENDING, IN_PROGRESS -> true;
