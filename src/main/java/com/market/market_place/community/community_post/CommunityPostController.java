@@ -36,10 +36,9 @@ public class CommunityPostController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "latest") String sortType) {
 
-        CommunityPostResponse.DetailDTO dto = postService.detail(id, sortType);
-        return ResponseEntity.ok(ApiUtil.success(dto));
+        CommunityPostResponse.DetailDTO detailPosts = postService.detail(id, sortType);
+        return ResponseEntity.ok(ApiUtil.success(detailPosts));
     }
-
 
     // 글 작성
     @Auth(roles = {Role.USER, Role.ADMIN})

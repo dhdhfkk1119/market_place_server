@@ -73,7 +73,7 @@ public class CommunityPostResponse {
             this.images = post.getImages().stream()
                     .map(CommunityPostImage::getImageUrl).collect(Collectors.toList());
             this.comments = post.getComments().stream()
-                    .sorted("popular".equals(sortType)
+                    .sorted("likes".equals(sortType)
                             ? Comparator.comparing(CommunityComment::getLikeCount).reversed()
                             : Comparator.comparing(CommunityComment::getCreatedAt).reversed())
                     .collect(Collectors.toList());
