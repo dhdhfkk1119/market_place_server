@@ -1,11 +1,13 @@
 package com.market.market_place.item.praise_category;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -20,5 +22,8 @@ public class PraiseCategory {
     private Long id;
 
     @Column(nullable = false, length = 255)
+    private String praiseName;
 
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }
