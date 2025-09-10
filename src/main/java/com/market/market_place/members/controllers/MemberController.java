@@ -102,6 +102,24 @@ public class MemberController {
                 .body(ApiUtil.success(result.getLoginResponse()));
     }
 
+    @Operation(summary = "소셜 로그인", description = "소셜 로그인 정보를 받아 인증하고 JWT 토큰을 발급합니다.")
+    @PostMapping("/login/social")
+    public ResponseEntity<ApiUtil.ApiResult<MemberLoginResponse>> socialLogin(@Valid @RequestBody SocialLoginRequest request) {
+        LoginResponseWithTokens result = memberAuthService.socialLogin(request);
+
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", result.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(result.getRefreshTokenMaxAgeSeconds())
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .header(JwtUtil.HEADER, JwtUtil.TOKEN_PREFIX + result.getAccessToken())
+                .body(ApiUtil.success(result.getLoginResponse()));
+    }
+
     @Operation(summary = "토큰 재발급", description = "만료된 액세스 토큰을 리프레시 토큰으로 재발급합니다.")
     @PostMapping("/reissue")
     public ResponseEntity<ApiUtil.ApiResult<AccessTokenResponse>> reissueTokens(
