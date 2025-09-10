@@ -43,7 +43,7 @@ spring:
       expose-request-attributes: true
   # 데이터 베이스 연결 설정 (H2 인메모리 데이터베이스)
   datasource:
-    url: jdbc:h2:file:./data/testdb
+    url: jdbc:h2:file:./data/MyDatabase
     driver-class-name: org.h2.Driver
     username: sa
     password:
