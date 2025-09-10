@@ -2,7 +2,6 @@ package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_image.ItemImage;
-import com.market.market_place.members.domain.MemberAddress;
 import lombok.Data;
 
 import java.util.List;
