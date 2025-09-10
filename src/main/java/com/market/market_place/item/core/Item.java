@@ -5,18 +5,14 @@ import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.status.ItemStatus;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.MemberAddress;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +44,7 @@ public class Item {
 
 
     @CreationTimestamp
-    @Column(name = "created_at",updatable = false)
+    @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
 
@@ -78,7 +74,7 @@ public class Item {
         this.title = title;
     }
 
-    public void update(ItemRequest.ItemUpdateDTO dto, MemberAddress address) {
+    public void update(ItemRequest.ItemUpdateDTO dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.price = dto.getPrice();
