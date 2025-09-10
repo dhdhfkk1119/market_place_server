@@ -22,10 +22,10 @@ public class Member {
     private Long id; // pk
 
     @Setter
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String password;
 
-    @Column(unique = true, nullable = false, length = 50)
+    @Column(unique = true, nullable = true, length = 50)
     private String loginId; //로그인용 아이디
 
     @Column 
@@ -34,6 +34,13 @@ public class Member {
     // 사용자 이메일 (고유 값)
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private Provider provider; // 소셜 로그인 제공자
+
+    @Column(nullable = true, length = 255)
+    private String providerId; // 소셜 로그인 제공자의 고유 ID
 
     // 이메일 인증 완료 시각
     private LocalDateTime emailVerifiedAt;

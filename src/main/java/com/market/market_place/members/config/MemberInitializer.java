@@ -30,6 +30,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .email("admin@market.com")
                     .role(Role.ADMIN)
                     .status(MemberStatus.ACTIVE)
+                    .provider(Provider.MARKIT)
                     .build();
 
             MemberProfile adminProfile = MemberProfile.builder()
@@ -50,6 +51,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .email("choongecho@gmail.com")
                     .role(Role.USER)
                     .status(MemberStatus.ACTIVE)
+                    .provider(Provider.MARKIT)
                     .build();
 
             MemberProfile userProfile = MemberProfile.builder()
@@ -70,6 +72,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .email("user2@market.com")
                     .role(Role.USER)
                     .status(MemberStatus.ACTIVE)
+                    .provider(Provider.MARKIT)
                     .build();
 
             MemberProfile user2Profile = MemberProfile.builder()
@@ -89,6 +92,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .email("withdrawn@market.com")
                     .role(Role.USER)
                     .status(MemberStatus.WITHDRAWN) // 탈퇴 상태
+                    .provider(Provider.MARKIT)
                     .build();
 
             MemberProfile withdrawnProfile = MemberProfile.builder()
@@ -108,6 +112,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .email("banned@market.com")
                     .role(Role.USER)
                     .status(MemberStatus.BANNED) // 정지 상태
+                    .provider(Provider.MARKIT)
                     .build();
 
             MemberProfile bannedProfile = MemberProfile.builder()

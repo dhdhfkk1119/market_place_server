@@ -51,16 +51,4 @@ public class MemberService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
     }
-
-//    /**
-//     * @deprecated 이 메서드의 책임은 MemberAdminService로 이전되었으나, 다른 도메인과의 호환성을 위해 임시로 남겨둡니다.
-//     *             곧 제거될 예정이므로 새로운 코드는 이 메서드를 사용하지 마세요.
-//     *             대신 sessionUser.getId()를 사용하여 findMember(Long id)를 호출하는 것을 권장합니다.
-//     */
-//    @Deprecated
-//    public Member findMemberByLoginId(String loginId) {
-//        log.warn("Deprecated 메서드 호출됨: findMemberByLoginId. 호출자: CommentController");
-//        return memberRepository.findByLoginId(loginId)
-//                .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
-//    }
 }
