@@ -11,17 +11,13 @@ import java.time.LocalDateTime;
 public class QnaResponse {
     private Long id;
     private String question;
-    private String answer;
     private String memberLoginId;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public QnaResponse(Qna qna) {
         this.id = qna.getId();
         this.question = qna.getQuestion();
-        this.answer = qna.getAnswer();
         this.memberLoginId = qna.getMember().getLoginId();
         this.createdAt = qna.getCreatedAt();
-        this.updatedAt = qna.getUpdatedAt();
     }
 }

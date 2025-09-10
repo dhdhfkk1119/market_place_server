@@ -1,8 +1,10 @@
 package com.market.market_place.item.core;
 
+import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
+import io.swagger.v3.oas.models.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +13,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -68,4 +72,23 @@ public class ItemController {
         itemService.delete(id, sessionUser.getId());
         return ResponseEntity.noContent().build();
     }
+
+    @Auth(roles = {Role.ADMIN, Role.USER})
+    @PostMapping("/search")
+    public ApiUtil.ApiResult<List<ItemResponse.ItemListDTO>> searchPosts(
+            @RequestBody ItemRequest.SearchDTO searchDTO) {
+        return
+                ApiUtil.success(itemService.search(searchDTO));
+    }
+
+    @Auth(roles = {Role.ADMIN, Role.USER})
+    @GetMapping
+    public ResponseEntity<Page<ItemResponse.ItemListDTO>> getItems(
+            ItemSearchRequest searchRequest,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+
+        Page<ItemResponse.ItemListDTO> items = itemService.getItems(searchRequest, sessionUser);
+        return ResponseEntity.ok(items);
+    }
+
 }

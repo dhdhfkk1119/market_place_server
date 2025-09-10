@@ -5,12 +5,14 @@ import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.status.ItemStatus;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.domain.MemberAddress;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +27,8 @@ public class Item {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Member member;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_category_id")
     private ItemCategory itemCategory;
@@ -39,6 +41,12 @@ public class Item {
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
     private Double averageRating;
+
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private Timestamp createdAt;
+
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemImage> images = new ArrayList<>();
@@ -57,7 +65,7 @@ public class Item {
 
 
     @Builder
-    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory,Long price, String title,String tradeLocation) {
+    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory, Long price, String title, String tradeLocation) {
         this.content = content;
         this.favorites = favorites;
         this.itemCategory = itemCategory;
@@ -66,7 +74,7 @@ public class Item {
         this.title = title;
     }
 
-    public void update(ItemRequest.ItemUpdateDTO dto, MemberAddress address) {
+    public void update(ItemRequest.ItemUpdateDTO dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.price = dto.getPrice();

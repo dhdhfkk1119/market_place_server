@@ -2,15 +2,14 @@ package com.market.market_place.gemini;
 
 import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._utils.SseUtil;
+import com.market.market_place.gemini.image_chat.GeminiImageRequest;
+import com.market.market_place.gemini.image_chat.GeminiImageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.io.IOException;
 
 @Slf4j
 @Service
@@ -26,13 +25,47 @@ public class GeminiService {
     // @Value("${ai.gemini.key}") -> 추후에 다시 주석 해제
     private String apiKey;
 
+    @Value("${ai.gemini.url.mono}")
+    private String apiUrl;
+
     @Value("${ai.gemini.url.stream}")
     private String streamApiUrl;
 
     @Async
-    public void askGeminiAndSendStreaming(String userId, GeminiRequest request) {
-        if (streamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
+    public void askImageForGemini(String userId, GeminiImageRequest geminiRequest) {
+        if (apiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
             throw new Exception400("API 엔드포인트 또는 API Key가 누락된 잘못된 요청입니다. 설정을 확인해주세요.");
+        }
+        log.info("서비스 진입");
+
+        webClient.post()
+                .uri(apiUrl + "?key=" + apiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(geminiRequest)
+                .retrieve()
+                .bodyToMono(GeminiImageResponse.class)
+                .doOnSuccess(response -> {
+                    log.info("Gemini로부터 성공적인 응답 수신. userId: {}", userId);
+                    String textResponse = response.extractText();
+                    if (textResponse != null && !textResponse.isEmpty()) {
+                        sseUtil.sendToUser(userId, "AI Response", textResponse);
+                    } else {
+                        sseUtil.sendToUser(userId, "error", "AI가 응답을 생성하지 못했습니다.");
+                    }
+                })
+                // 3. (에러 발생 시) WebClient 통신 중 에러가 나면, 클라이언트에게 에러 메시지를 보낸다.
+                .doOnError(error -> {
+                    log.error("Gemini API 통신 중 에러 발생! userId: {}", userId, error);
+                    sseUtil.sendToUser(userId, "error", "AI 서버와 통신 중 문제가 발생했습니다.");
+                })
+                // 4. 이 모든 리액티브 작업이 끝날 때까지 현재 @Async 스레드에서 기다린다.
+                .block();
+    }
+
+    @Async
+    public void askImageForGeminiStreaming(String userId, GeminiImageRequest request) {
+        if (streamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
+            throw new Exception400("Stream API 엔드포인트 또는 API Key가 누락된 잘못된 요청입니다. 설정을 확인해주세요.");
         }
 
         try {
@@ -41,24 +74,24 @@ public class GeminiService {
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(request)
                     .retrieve()
-                    .bodyToFlux(GeminiResponse.class)
+                    .bodyToFlux(GeminiImageResponse.class)
                     .subscribe(
                             chunk -> {
                                 String textChunk = chunk.extractText();
                                 if (textChunk != null && !textChunk.isEmpty()) {
-                                    sseUtil.sendToUser(userId, textChunk);
+                                    sseUtil.sendToUser(userId, "AI Response", textChunk);
                                 }
                             },
                             error -> {
-                                sseUtil.sendToUser(userId, "AI 스트리밍 중 오류가 발생했습니다.");
+                                sseUtil.sendToUser(userId, "error","AI 스트리밍 중 오류가 발생했습니다.");
                             },
                             () -> {
-                                sseUtil.sendToUser(userId, "stream_end"); // -> 스트림이 끝났다는 신호
+                                sseUtil.sendToUser(userId, "final","stream_end"); // -> 스트림이 끝났다는 신호
                             }
                     );
 
         } catch (Exception e) {
-            sseUtil.sendToUser(userId, "AI 요청 처리 중 오류가 발생했습니다: " + e.getMessage());
+            sseUtil.sendToUser(userId, "error","AI 요청 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 }
