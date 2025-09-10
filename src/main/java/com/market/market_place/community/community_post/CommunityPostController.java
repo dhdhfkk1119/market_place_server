@@ -33,11 +33,13 @@ public class CommunityPostController {
     // 상세조회
     @GetMapping("/{id}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityPostResponse.DetailDTO>> detail(
-            @PathVariable Long id){
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "latest") String sortType) {
 
-        CommunityPostResponse.DetailDTO detailDTO = postService.detail(id);
-        return ResponseEntity.ok(ApiUtil.success(detailDTO));
+        CommunityPostResponse.DetailDTO dto = postService.detail(id, sortType);
+        return ResponseEntity.ok(ApiUtil.success(dto));
     }
+
 
     // 글 작성
     @Auth(roles = {Role.USER, Role.ADMIN})
