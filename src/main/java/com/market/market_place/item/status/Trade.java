@@ -1,6 +1,7 @@
 package com.market.market_place.item.status;
 
 import com.market.market_place.item.core.Item;
+import com.market.market_place.item.praise.Praise;
 import com.market.market_place.item.review.TradeReview;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
@@ -26,6 +27,9 @@ public class Trade {
 
     @OneToMany(mappedBy = "trade", cascade = CascadeType.ALL)
     private List<TradeReview> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trade", cascade = CascadeType.ALL)
+    private List<Praise> praises = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
