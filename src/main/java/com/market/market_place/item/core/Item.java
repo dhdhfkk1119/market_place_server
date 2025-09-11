@@ -3,12 +3,13 @@ package com.market.market_place.item.core;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
-import com.market.market_place.item.status.ItemStatus;
+import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -39,7 +40,9 @@ public class Item {
     private String tradeLocation;
 
     @Enumerated(EnumType.STRING)
-    private ItemStatus status;
+    private TradeStatus status;
+    @Setter
+    @Column(name = "average_rating")
     private Double averageRating;
 
 

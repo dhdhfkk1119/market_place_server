@@ -17,8 +17,7 @@ public class PraiseController {
             @RequestBody PraiseRequest praiseRequest,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
-        Long praiserId = sessionUser.getId();
-        PraiseResponse praiseResponse = praiseService.addPraise(praiserId, praiseRequest);
+        PraiseResponse praiseResponse = praiseService.addPraise(sessionUser, praiseRequest);
         return ResponseEntity.ok(praiseResponse);
     }
 

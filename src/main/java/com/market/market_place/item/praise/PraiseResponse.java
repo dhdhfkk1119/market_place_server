@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,13 +12,15 @@ import lombok.Setter;
 public class PraiseResponse {
 
     private String message;
-    private int updatedRetransactionRate;
+    private double updatedMannerScore;
     private boolean isSuccess;
+    private List<Long> praiseCategories;
 
     @Builder
-    public PraiseResponse(String message, int updatedRetransactionRate, boolean isSuccess) {
+    public PraiseResponse(String message, double updatedMannerScore, boolean isSuccess, List<Long> praiseCategories) {
         this.message = message;
-        this.updatedRetransactionRate = updatedRetransactionRate;
+        this.updatedMannerScore = updatedMannerScore;
         this.isSuccess = isSuccess;
+        this.praiseCategories = praiseCategories;
     }
 }

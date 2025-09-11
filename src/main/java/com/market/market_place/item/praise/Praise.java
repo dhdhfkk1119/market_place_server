@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "praise_tb")
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 public class Praise {
 
     @Id
@@ -34,4 +34,16 @@ public class Praise {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    private boolean isBuyer;
+
+
+
+    public static Praise createPraise(Trade trade, Member praiser, Member praisedMember) {
+        return Praise.builder()
+                .trade(trade)
+                .praiser(praiser)
+                .praisedMember(praisedMember)
+                .build();
+    }
 }

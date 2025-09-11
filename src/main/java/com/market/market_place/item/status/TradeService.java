@@ -19,11 +19,11 @@ public class TradeService {
     @Transactional
     public TradeResponse createTrade(TradeRequest request) {
         Item item = itemRepository.findById(request.getItemId())
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다"));
         Member seller = memberRepository.findById(request.getSellerId())
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+                .orElseThrow(() -> new RuntimeException("판매자를 찾을 수 없습니다"));
         Member buyer = memberRepository.findById(request.getBuyerId())
-                .orElseThrow(() -> new RuntimeException("Buyer not found"));
+                .orElseThrow(() -> new RuntimeException("구매자를 찾을 수 없습니다"));
 
         Trade trade = request.toEntity(item, seller, buyer);
 

@@ -11,7 +11,7 @@ public class TradeReviewResponse {
 
     private Long id;
     private String content;
-    private double rating;
+    private double score;
     private String reviewerLoginId;
     private LocalDateTime createdAt;
 
@@ -19,7 +19,7 @@ public class TradeReviewResponse {
         return new TradeReviewResponse(
                 tradeReview.getId(),
                 tradeReview.getContent(),
-                tradeReview.getRating(),
+                tradeReview.getScore(),
                 tradeReview.getReviewer().getLoginId(),
                 tradeReview.getCreatedAt()
         );

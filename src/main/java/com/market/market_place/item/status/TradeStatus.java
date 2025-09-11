@@ -1,13 +1,13 @@
 package com.market.market_place.item.status;
 
-public enum ItemStatus {
+public enum TradeStatus {
     ON_SALE("판매중"),
-    RESERVED("예약중"),
+    PENDING("예약중"),
     SOLD("거래완료");
 
     private final String statusText;
 
-    ItemStatus(String statusText) {
+    TradeStatus(String statusText) {
         this.statusText = statusText;
     }
 
