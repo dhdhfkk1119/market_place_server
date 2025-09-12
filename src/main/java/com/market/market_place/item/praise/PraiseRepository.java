@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PraiseRepository extends JpaRepository<Praise, Long>, QuerydslPredicateExecutor<Praise> {
+    boolean existsByPraiserIdAndTradeId(Long praiserId, Long tradeId);
+
 
 }

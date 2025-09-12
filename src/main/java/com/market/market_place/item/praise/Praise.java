@@ -34,4 +34,7 @@ public class Praise {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Column(length = 500)
+    private String content;
 }

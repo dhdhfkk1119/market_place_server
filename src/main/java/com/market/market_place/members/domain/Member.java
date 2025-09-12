@@ -64,6 +64,10 @@ public class Member {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
+    @Setter
+    private int retransactionRate = 0;
+
     //== 정적 팩토리 메서드 ==//
     // 회원가입 요청 정보를 바탕으로 완전한 Member 객체를 생성합니다.
     public static Member from(MemberRegisterRequest dto, PasswordEncoder passwordEncoder) {
@@ -101,4 +105,10 @@ public class Member {
     public void ban() {
         this.status = MemberStatus.BANNED;
     }
+
+    public int getRetransactionRate() {
+        return this.retransactionRate;
+    }
 }
+
+

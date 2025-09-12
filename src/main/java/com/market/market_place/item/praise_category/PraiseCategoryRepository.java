@@ -1,4 +1,6 @@
 package com.market.market_place.item.praise_category;
 
-public class PraiseCategoryRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PraiseCategoryRepository extends JpaRepository<PraiseCategory, Long> {
 }
