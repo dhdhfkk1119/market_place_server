@@ -17,13 +17,13 @@ public class PraiseController {
 
     @Auth(roles = Role.USER)
     @PostMapping
-    public ResponseEntity<?> addPraise(@RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
-                                       @Valid @RequestBody PraiseRequest request) {
-        System.out.println("sessionUser: " + sessionUser);
-        Long praiserId = sessionUser.getId();
-        PraiseResponse response = praiseService.addPraise(praiserId, request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<PraiseResponse> addPraise(
+            @RequestBody PraiseRequest praiseRequest,
+            @Valid @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+
+        PraiseResponse praiseResponse = praiseService.addPraise(sessionUser.getId(), praiseRequest);
+        return ResponseEntity.ok(praiseResponse);
+
+
     }
-
-
 }

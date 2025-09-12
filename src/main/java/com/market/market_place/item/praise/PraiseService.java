@@ -32,7 +32,7 @@ public class PraiseService {
                     .build();
         }
 
-
+        // 사용자, 거래 조회
         Member praiser = memberRepository.findById(praiserId)
                 .orElseThrow(() -> new Exception404("칭찬한 사용자를 찾을 수 없습니다."));
         Member praisedMember = memberRepository.findById(request.getPraisedMemberId())
@@ -40,7 +40,7 @@ public class PraiseService {
         Trade trade = tradeRepository.findById(request.getTradeId())
                 .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다."));
 
-
+        // 👉 자동 content 생성 처리
         String finalContent = request.getContent();
         if (finalContent == null || finalContent.trim().isEmpty()) {
             List<String> topicNames = request.getPraiseCategories() == null ? List.of() :
