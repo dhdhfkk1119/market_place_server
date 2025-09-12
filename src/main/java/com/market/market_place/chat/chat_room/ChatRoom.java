@@ -27,12 +27,12 @@ public class ChatRoom {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId1")
-    private Member userId1;
+    @JoinColumn(name = "login_user")
+    private Member loginUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId2")
-    private Member userId2;
+    @JoinColumn(name = "other_user")
+    private Member otherUser;
 
     @CreationTimestamp
     private Timestamp createdAt;

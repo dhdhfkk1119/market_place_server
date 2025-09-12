@@ -68,6 +68,26 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+}
+// Querydsl 설정
+def generated = 'src/main/generated'
+
+sourceSets {
+	main {
+		java {
+			srcDirs += [ generated ]
+		}
+	}
+}
+
+tasks.withType(JavaCompile) {
+	options.generatedSourceOutputDirectory = file(generated)
+}
+
+clean.doLast {
+	file(generated).deleteDir()
 }
 
 tasks.named('test') {
