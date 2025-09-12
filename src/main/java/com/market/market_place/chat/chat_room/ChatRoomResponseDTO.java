@@ -8,10 +8,10 @@ public class ChatRoomResponseDTO {
     @Data
     public static class ChatRoomDTO {
         private Long roomId;
-        private Long userId1;
-        private String user1Name;
-        private String user2Name;
-        private Long userId2;
+        private Long loginId;
+        private String loginUserName;
+        private String otherUserName;
+        private Long otherId;
         private String message;
         private String createdAt;
 
@@ -20,12 +20,12 @@ public class ChatRoomResponseDTO {
             this.roomId = chatRoom.getId();
 
             // 로그인한 사용자를 기준으로 상대방 ID 선택
-            this.userId1 = chatRoom.getUserId1().getId().equals(loginUserId)
-                    ? chatRoom.getUserId2().getId()
-                    : chatRoom.getUserId1().getId();
+            this.loginId = chatRoom.getLoginUser().getId().equals(loginUserId)
+                    ? chatRoom.getOtherUser().getId()
+                    : chatRoom.getLoginUser().getId();
 
-            this.user1Name = chatRoom.getUserId1().getMemberProfile().getName();
-            this.user2Name = chatRoom.getUserId2().getMemberProfile().getName(); // 여기 수정 필요
+            this.loginUserName = chatRoom.getLoginUser().getMemberProfile().getName();
+            this.otherUserName = chatRoom.getOtherUser().getMemberProfile().getName(); // 여기 수정 필요
 
             ChatMessage lastMessage = chatRoom.getLastMessage();
             if (lastMessage != null) {

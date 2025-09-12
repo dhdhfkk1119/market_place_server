@@ -50,14 +50,13 @@ public class PraiseService {
         praiseRepository.save(newPraise);
 
 
-        int currentRate = praisedMember.getRetransactionRate();
-        int updatedRate = currentRate + 1;
-        praisedMember.setRetransactionRate(updatedRate);
-        memberRepository.save(praisedMember);
+//        int currentRate = praisedMember.getRetransactionRate();
+//        int updatedRate = currentRate + 1;
+//        praisedMember.setRetransactionRate(updatedRate);
+//        memberRepository.save(praisedMember);
 
         return PraiseResponse.builder()
                 .message("매너 칭찬이 완료되었습니다!")
-                .updatedRetransactionRate(updatedRate)
                 .isSuccess(true)
                 .build();
     }

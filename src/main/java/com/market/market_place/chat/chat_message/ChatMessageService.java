@@ -13,7 +13,6 @@ import com.market.market_place.chat.chat_room.ChatRoomRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -45,8 +44,8 @@ public class ChatMessageService {
         
         ChatRoom room = chatRoomRepository.findByUserIds(senderId, msgDTO.getReceiveId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
-                        .userId1(sender)
-                        .userId2(receiver)
+                        .loginUser(sender)
+                        .otherUser(receiver)
                         .build()));
 
         ChatMessage chatMessage = msgDTO.toEntity(sender, receiver, room);
@@ -86,8 +85,8 @@ public class ChatMessageService {
         // 이미 방이 있는지 없으면 새로 생성 orElseGet -> 값이 없을때만 실행
         ChatRoom room = chatRoomRepository.findByUserIds(sessionUser.getId(), dto.getReceiveId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
-                        .userId1(sender)
-                        .userId2(receive)
+                        .loginUser(sender)
+                        .otherUser(receive)
                         .build()));
 
         ChatMessage chatMessage = dto.toEntity(sender, receive, room);

@@ -1,18 +1,15 @@
 package com.market.market_place.chat.chat_file;
 
 import com.market.market_place._core._config.UploadConfig;
-import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.FileUploadUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.chat._enum.MessageType;
-import com.market.market_place.chat.chat_image.ChatImageRepository;
 import com.market.market_place.chat.chat_message.ChatMessage;
 import com.market.market_place.chat.chat_message.ChatMessageRepository;
 import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,8 +40,8 @@ public class ChatFileService {
         // 방 생성 or 조회
         ChatRoom room = chatRoomRepository.findByUserIds(sessionUser.getId(),receiverId)
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
-                        .userId1(sender)
-                        .userId2(receiver)
+                        .loginUser(sender)
+                        .otherUser(receiver)
                         .build()));
 
 
