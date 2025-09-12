@@ -41,7 +41,7 @@ public class ChatRoom {
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "last_message_id")
+    @JoinColumn(name = "last_message")
     private ChatMessage lastMessage;
 
     public String getTime(){

@@ -22,7 +22,7 @@ public class ChatRoomService {
         return chatRooms.map(cr -> {
             return ChatRoomResponseDTO.ChatRoomDTO.builder()
                     .chatRoom(cr)
-                    .loginUserId(userId)
+                    .currentUserId(userId)
                     .build();
 
         });
