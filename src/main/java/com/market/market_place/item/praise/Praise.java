@@ -35,6 +35,7 @@ public class Praise {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+<<<<<<< HEAD
     private boolean isBuyer;
 
 
@@ -47,3 +48,8 @@ public class Praise {
                 .build();
     }
 }
+=======
+    @Column(length = 500)
+    private String content;
+}
+>>>>>>> f-board
