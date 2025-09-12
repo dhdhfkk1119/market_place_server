@@ -15,6 +15,13 @@ public class DateUtil {
         return DateFormatUtils.format(currentDate, "yyyy년 MM월 dd일 HH시 mm분");
     }
 
+    public static String localDateTimeFormat(LocalDateTime dateTime) {
+        if (dateTime == null) return null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
+        return dateTime.format(formatter);
+    }
+
+
     public static String chatFormat(Timestamp startDate) {
 
         Date currentDate = new Date(startDate.getTime());
