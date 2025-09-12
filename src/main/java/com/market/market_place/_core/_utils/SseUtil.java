@@ -15,6 +15,7 @@ public class SseUtil {
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter addEmitter(String userId) {
+        log.info("연결확인");
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         this.emitters.put(userId, emitter);
 
@@ -36,6 +37,7 @@ public class SseUtil {
     public void sendToUser(String userId, String eventName, String data) {
         SseEmitter emitter = emitters.get(userId);
 
+        log.info("유저 ID : {} / eventName: {} / data: {}", userId, eventName, data);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event().name(eventName).data(data));
