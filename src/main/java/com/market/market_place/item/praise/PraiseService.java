@@ -73,6 +73,7 @@ public class PraiseService {
         praiseRepository.save(newPraise);
 
 
+<<<<<<< HEAD
         List<PraiseTopic> topics = praiseTopicRepository.findAllById(request.getPraiseCategories());
         List<PraiseHasTopic> praiseHasTopics = topics.stream()
                 .map(topic -> PraiseHasTopic.builder()
@@ -118,6 +119,12 @@ public class PraiseService {
         praisedMember.setRetransactionRate(updatedRate);
 >>>>>>> f-board
         memberRepository.save(praisedMember);
+=======
+//        int currentRate = praisedMember.getRetransactionRate();
+//        int updatedRate = currentRate + 1;
+//        praisedMember.setRetransactionRate(updatedRate);
+//        memberRepository.save(praisedMember);
+>>>>>>> 67d593895fd5aed8311e241d21b7b01517200260
 
 
         String notificationMessage = praiser.getLoginId() + " 님이 " + trade.getItem().getTitle() + " 거래에 대해 매너 칭찬을 남겼습니다.";
@@ -126,7 +133,10 @@ public class PraiseService {
         return PraiseResponse.builder()
                 .message("매너 칭찬이 완료되었습니다!")
 <<<<<<< HEAD
+<<<<<<< HEAD
                 .updatedMannerScore(praisedMember.getMannerScore())
+=======
+>>>>>>> 67d593895fd5aed8311e241d21b7b01517200260
                 .isSuccess(true)
                 .praiseCategories(request.getPraiseCategories())
 =======

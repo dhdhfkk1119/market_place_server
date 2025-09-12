@@ -46,9 +46,10 @@ public class SseUtil {
         }
     }
 
-    public void broadcast(String data) {
+    // eventName으로 알림 받을 사용자 구분!!
+    public void broadcast(String eventName, String data) {
         emitters.keySet().forEach((userId) -> {
-            sendToUser(userId, "broadcast", data);
+            sendToUser(userId, eventName, data);
         });
     }
 }
