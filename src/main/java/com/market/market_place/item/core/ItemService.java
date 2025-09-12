@@ -121,13 +121,13 @@ public class ItemService {
         QItem item = QItem.item;
         BooleanBuilder builder = new BooleanBuilder();
 
-        // 검색어 (제목 + 내용 모두 검색 가능)
+        // 1. 키워드 검색 (제목 + 내용)
         if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().isEmpty()) {
             builder.and(item.title.containsIgnoreCase(searchRequest.getKeyword())
                     .or(item.content.containsIgnoreCase(searchRequest.getKeyword())));
         }
 
-        // 가격 범위 (0~최대)
+        // 2. 가격 범위
         if (searchRequest.getMinPrice() != null) {
             builder.and(item.price.goe(searchRequest.getMinPrice()));
         }
@@ -135,35 +135,30 @@ public class ItemService {
             builder.and(item.price.loe(searchRequest.getMaxPrice()));
         }
 
-        // 카테고리
+        // 3. 카테고리 ID
         if (searchRequest.getItemCategoryId() != null) {
             builder.and(item.itemCategory.id.eq(searchRequest.getItemCategoryId()));
         }
 
-        // 위치
+        // 4. 거래 지역
         if (searchRequest.getTradeLocation() != null && !searchRequest.getTradeLocation().isEmpty()) {
-            builder.and(item.tradeLocation.eq(searchRequest.getTradeLocation()));
+            builder.and(item.tradeLocation.containsIgnoreCase(searchRequest.getTradeLocation()));
         }
 
-        // 정렬 + 페이지네이션
+        // 5. 정렬 기준 설정
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
         if ("latest".equals(searchRequest.getSortBy())) {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         } else if ("popular".equals(searchRequest.getSortBy())) {
             sort = Sort.by(Sort.Direction.DESC, "averageRating");
         }
-        if ("asc".equalsIgnoreCase(searchRequest.getSortOrder())) {
-            sort = sort.ascending();
-        } else {
-            sort = sort.descending();
-        }
 
         Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
 
-        // 엔티티 조회
+        // 6. 쿼리 실행
         Page<Item> itemPage = itemRepository.findAll(builder, pageable);
 
-
+        // 7. DTO 변환 및 반환
         return itemPage.map(ItemResponse.ItemListDTO::from);
     }
 

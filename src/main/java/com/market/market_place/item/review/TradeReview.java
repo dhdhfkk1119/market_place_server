@@ -3,10 +3,7 @@ package com.market.market_place.item.review;
 import com.market.market_place.item.status.Trade;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -14,8 +11,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "trade_review_tb")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class TradeReview {
 
@@ -34,14 +31,27 @@ public class TradeReview {
     @Lob
     private String content;
 
-    private double rating;
+    private double score;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public TradeReview update(String content, int rating) {
+    public void setTrade(Trade trade) {
+        this.trade = trade;
+    }
+
+    public TradeReview update(String content, double score) {
         this.content = content;
-        this.rating = rating;
+        this.score = score;
         return this;
+    }
+
+    public static TradeReview createReview(Trade trade, Member reviewer, String content, double score) {
+        return TradeReview.builder()
+                .trade(trade)
+                .reviewer(reviewer)
+                .content(content)
+                .score(score)
+                .build();
     }
 }

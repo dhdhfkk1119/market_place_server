@@ -25,3 +25,5 @@ INSERT INTO community_topic_tb (id, category_id, name) VALUES
 (13, 4, '일반');
 
 
+
+
