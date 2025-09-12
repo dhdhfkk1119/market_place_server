@@ -7,6 +7,7 @@ import com.market.market_place.community.community_post.CommunityPost;
 import com.market.market_place.community.community_post.CommunityPostRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
+import com.market.market_place.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class CommunityCommentService {
     private final CommunityCommentRepository commentRepository;
     private final CommunityPostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     // 저장
     @Transactional
@@ -36,6 +38,7 @@ public class CommunityCommentService {
 
         CommunityComment comment = saveDTO.toEntity(member, post);
         commentRepository.save(comment);
+        notificationService.sendComment(post.getMember().getId().toString(), post.getTitle());
         return new CommunityCommentResponse.ResponseDTO(comment);
     }
 
@@ -53,7 +56,7 @@ public class CommunityCommentService {
         CommunityComment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 댓글이 없습니다"));
         if(!comment.isOwner(sessionUser.getId())){
-            throw  new Exception403("본인이 작성한 댓글만 수정할 수 있습니다");
+            throw new Exception403("본인이 작성한 댓글만 수정할 수 있습니다");
         }
         comment.update(updateDTO);
         return new CommunityCommentResponse.ResponseDTO(comment);
@@ -62,7 +65,7 @@ public class CommunityCommentService {
 
     // 삭제
     @Transactional
-    public void delete(Long id, JwtUtil.SessionUser sessionUser){
+    public void delete(Long id, JwtUtil.SessionUser sessionUser) {
         CommunityComment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new Exception404("삭제할 댓글이 없습니다"));
 

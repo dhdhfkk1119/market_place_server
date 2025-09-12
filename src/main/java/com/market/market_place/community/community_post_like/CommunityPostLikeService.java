@@ -6,6 +6,7 @@ import com.market.market_place.community.community_post.CommunityPost;
 import com.market.market_place.community.community_post.CommunityPostRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
+import com.market.market_place.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ public class CommunityPostLikeService {
     private final CommunityPostLikeRepository likeRepository;
     private final CommunityPostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public CommunityPostLikeResponse.ResponseDTO toggleLike(Long postId, JwtUtil.SessionUser sessionUser){
@@ -46,6 +48,7 @@ public class CommunityPostLikeService {
             post.updateLikeCount(post.getLikeCount() + 1); // 좋아요 등록 +1
             liked = true;
         }
+        notificationService.sendPostLike(post.getMember().getId().toString(), post.getTitle());
 
         return new CommunityPostLikeResponse.ResponseDTO(liked, (long) post.getLikeCount());
     }
