@@ -24,6 +24,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Tag(name = "Member API 회원용", description = "회원 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -76,7 +78,13 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtil.success("회원 탈퇴가 정상적으로 처리되었습니다."));
     }
 
-    // --- 인증 API (비로그인) ---
+    @Operation(summary = "아이디 중복 확인", description = "회원가입 시 아이디의 중복 여부를 확인합니다.")
+    @GetMapping("/check-id")
+    public ResponseEntity<ApiUtil.ApiResult<Map<String, Boolean>>> checkLoginId(@RequestParam String loginId) {
+        boolean isAvailable = memberAuthService.checkLoginIdAvailability(loginId);
+        return ResponseEntity.ok(ApiUtil.success(Map.of("available", isAvailable)));
+    }
+
     @Operation(summary = "회원가입", description = "새로운 회원을 등록합니다.")
     @PostMapping("/register")
     public ResponseEntity<ApiUtil.ApiResult<MemberRegisterResponse>> registerMember(@Valid @RequestBody MemberRegisterRequest request) {
