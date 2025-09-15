@@ -113,7 +113,9 @@ public class Member {
         return this.retransactionRate;
     }
 
-    public void activate() {};
+    public void activate() {
+        this.status = MemberStatus.ACTIVE;
+    }
 }
 
 

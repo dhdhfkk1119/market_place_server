@@ -11,6 +11,8 @@ import com.market.market_place.members.dto_token.LoginResponseWithTokens;
 import com.market.market_place.members.dto_token.TokenReissueResponse;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.members.repositories.RefreshTokenRepository;
+import com.market.market_place.moderation.sanction.item_sanction.ItemSanction;
+import com.market.market_place.moderation.sanction.item_sanction.ItemSanctionRepository;
 import com.market.market_place.terms.dtos.AgreeTermsRequestDto;
 import com.market.market_place.terms.services.TermsService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class MemberAuthService {
     private final PasswordEncoder passwordEncoder;
     private final TermsService termsService;
     private final MemberService memberService;
+    private final ItemSanctionRepository itemSanctionRepository;
 
     // 일반 회원가입 처리
     @Transactional
@@ -164,8 +167,10 @@ public class MemberAuthService {
     // 계정 상태 (정지, 탈퇴 등) 검증
     private void checkAccountStatus(Member member) {
         if (member.getStatus() == MemberStatus.BANNED) {
+            ItemSanction itemSanction = itemSanctionRepository.findFirstByMember_IdOrderByIdDesc(member.getId())
+                    .orElseThrow(() -> new Exception404("해당 유저의 제재 내역을 찾지 못하였습니다."));
             log.warn("정지된 계정 로그인 시도. 사용자 ID: {}", member.getId());
-            throw new Exception401("활동이 정지된 계정입니다.");
+            throw new Exception401("활동이 정지된 계정입니다.해당 계정에" + itemSanction.getTime() + "까지 이용제한 조치가 이루어졌습니다..");
         }
         if (member.getStatus() == MemberStatus.WITHDRAWN) {
             log.warn("탈퇴한 계정 로그인 시도. 사용자 ID: {}", member.getId());
