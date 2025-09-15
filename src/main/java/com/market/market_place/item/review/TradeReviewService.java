@@ -1,5 +1,6 @@
 package com.market.market_place.item.review;
 
+import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
 import com.market.market_place.item.status.Trade;
@@ -21,23 +22,29 @@ public class TradeReviewService {
 
     @Transactional
     public void createReview(Long tradeId, Long reviewerId, TradeReviewRequest dto) {
+        // 1. 거래 및 회원 엔티티 조회
         Trade trade = tradeRepository.findById(tradeId)
-                .orElseThrow(() -> new IllegalArgumentException("거래를 찾을 수 없습니다."));
+                .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다.")); // 예외 유형 변경
         Member reviewer = memberRepository.findById(reviewerId)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new Exception404("회원을 찾을 수 없습니다.")); // 예외 유형 변경
 
-        Member praisedMember = reviewer.equals(trade.getBuyer()) ? trade.getSeller() : trade.getBuyer();
+        // 2. 후기 작성 권한 및 중복 여부 확인
         validateReviewer(trade, reviewer);
-        TradeReview tradeReview = TradeReview.createReview(trade, reviewer, dto.getContent(), dto.getScore());
-        praisedMember.addReviewScore(dto.getScore());
-        trade.markAsReviewed(reviewer);
 
+        // 3. TradeReview 엔티티 생성 및 저장
+        TradeReview review = TradeReview.builder()
+                .trade(trade)
+                .reviewer(reviewer)
+                .content(dto.getContent())
+                .rating(dto.getRating())
+                .build();
+        tradeReviewRepository.save(review);
 
-        tradeReviewRepository.save(tradeReview);
-        memberRepository.save(praisedMember);
-        tradeRepository.save(trade);
+        // 4. 아이템 평점 업데이트
+        updateItemAverageRating(trade.getItem());
     }
 
+    // 후기 작성 권한 검증 및 중복 체크
     private void validateReviewer(Trade trade, Member reviewer) {
         if (reviewer.getId().equals(trade.getBuyer().getId())) {
             if (trade.isBuyerReviewed()) {
@@ -54,12 +61,12 @@ public class TradeReviewService {
         }
     }
 
-
+    // 아이템의 평균 평점 업데이트
     private void updateItemAverageRating(Item item) {
-        Double averageRating = tradeRepository.findAverageRatingByItemId(item.getId());
+        Double averageRating = tradeReviewRepository.findAverageRatingByItemId(item.getId());
         if (averageRating != null) {
             item.setAverageRating(averageRating);
-            itemRepository.save(item);
+
         }
     }
 }

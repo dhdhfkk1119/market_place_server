@@ -9,20 +9,17 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class PraiseRequest {
-<<<<<<< HEAD
-   private Long tradeId;
-   private boolean isBuyer;
-   private List<Long> praiseCategories;
-=======
-
-    @NotNull(message = "칭찬받은 사용자 ID는 필수입니다.")
-    private Long praisedMemberId;
 
     @NotNull(message = "거래 ID는 필수입니다.")
     private Long tradeId;
 
+    @NotNull(message = "칭찬받은 사용자 ID는 필수입니다.")
+    private Long praisedMemberId;
+
     private List<Long> praiseCategories;
 
+    private boolean isBuyer;
+
     private String content;
->>>>>>> f-board
+
 }

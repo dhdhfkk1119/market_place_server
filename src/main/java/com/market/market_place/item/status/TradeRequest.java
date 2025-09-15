@@ -2,28 +2,30 @@ package com.market.market_place.item.status;
 
 import com.market.market_place.item.core.Item;
 import com.market.market_place.members.domain.Member;
-import lombok.Getter;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Builder;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class TradeRequest {
-
+    @NotNull(message = "아이템 ID는 필수입니다.")
     private Long itemId;
+
+    @NotNull(message = "판매자 ID는 필수입니다.")
     private Long sellerId;
+
+    @NotNull(message = "구매자 ID는 필수입니다.")
     private Long buyerId;
 
-    @Builder
-    public TradeRequest(Long itemId, Long sellerId, Long buyerId) {
-        this.itemId = itemId;
-        this.sellerId = sellerId;
-        this.buyerId = buyerId;
-    }
 
     public Trade toEntity(Item item, Member seller, Member buyer) {
-        return Trade.createTrade(item, seller, buyer);
+        return Trade.builder()
+                .item(item)
+                .seller(seller)
+                .buyer(buyer)
+                .buyerReviewed(false)
+                .sellerReviewed(false)
+                .build();
     }
 }

@@ -5,7 +5,10 @@ import com.market.market_place.item.praise.Praise;
 import com.market.market_place.item.review.TradeReview;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +16,8 @@ import java.util.List;
 @Entity
 @Table(name = "trade_tb")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Trade {
 
@@ -40,53 +43,16 @@ public class Trade {
     @JoinColumn(name = "buyer_id")
     private Member buyer;
 
-    @Setter
     private boolean buyerReviewed;
-    @Setter
     private boolean sellerReviewed;
 
-    private double averageScore;
-
-    @Enumerated(EnumType.STRING)
-    private TradeStatus tradeStatus;
-
-    public static Trade createTrade(Item item, Member seller, Member buyer) {
-        return Trade.builder()
-                .item(item)
-                .seller(seller)
-                .buyer(buyer)
-                .buyerReviewed(false)
-                .sellerReviewed(false)
-                .averageScore(0.0)
-                .tradeStatus(TradeStatus.PENDING)
-                .build();
+    public void setBuyerReviewed(boolean buyerReviewed) {
+        this.buyerReviewed = buyerReviewed;
     }
 
-    public void addReview(TradeReview review) {
-        this.reviews.add(review);
-        review.setTrade(this);
-        calculateAverageScore();
+    public void setSellerReviewed(boolean sellerReviewed) {
+        this.sellerReviewed = sellerReviewed;
     }
 
-    public void calculateAverageScore() {
-        if (reviews.isEmpty()) {
-            this.averageScore = 0.0;
-            return;
-        }
 
-        double totalScore = reviews.stream().mapToDouble(TradeReview::getScore).sum();
-        this.averageScore = totalScore / reviews.size();
-    }
-
-    public void markAsReviewed(Member reviewer) {
-        if (reviewer.equals(this.buyer)) {
-            this.buyerReviewed = true;
-        } else if (reviewer.equals(this.seller)) {
-            this.sellerReviewed = true;
-        }
-
-        if (this.buyerReviewed && this.sellerReviewed) {
-            this.tradeStatus = TradeStatus.SOLD;
-        }
-    }
 }

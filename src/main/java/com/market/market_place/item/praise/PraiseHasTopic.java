@@ -1,6 +1,6 @@
 package com.market.market_place.item.praise;
 
-import com.market.market_place.item.praise_category.PraiseTopic;
+import com.market.market_place.item.PraiseTopic.PraiseTopic;
 import jakarta.persistence.*;
 import lombok.*;
 
