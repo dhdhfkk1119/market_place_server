@@ -170,7 +170,7 @@ public class MemberAuthService {
             ItemSanction itemSanction = itemSanctionRepository.findFirstByMember_IdOrderByIdDesc(member.getId())
                     .orElseThrow(() -> new Exception404("해당 유저의 제재 내역을 찾지 못하였습니다."));
             log.warn("정지된 계정 로그인 시도. 사용자 ID: {}", member.getId());
-            throw new Exception401("활동이 정지된 계정입니다.해당 계정에" + itemSanction.getTime() + "까지 이용제한 조치가 이루어졌습니다..");
+            throw new Exception401("활동이 정지된 계정입니다.해당 계정에" + itemSanction.getTime() + "까지 이용제한 조치가 이루어졌습니다.");
         }
         if (member.getStatus() == MemberStatus.WITHDRAWN) {
             log.warn("탈퇴한 계정 로그인 시도. 사용자 ID: {}", member.getId());
