@@ -74,8 +74,22 @@ public class CommunityPostController {
     @Auth(roles = {Role.USER, Role.ADMIN})
     @GetMapping("/search")
     public ResponseEntity<ApiUtil.ApiResult<Page<CommunityPostResponse.ListDTO>>> searchPosts(
-            @ModelAttribute CommunityPostRequest.SearchDTO searchDTO, Pageable pageable) {
-        Page<CommunityPostResponse.ListDTO> result = postService.search(searchDTO, pageable);
-        return ResponseEntity.ok(ApiUtil.success(result));
+            @ModelAttribute CommunityPostRequest.SearchDTO searchDTO,
+            @RequestParam(value = "sortType", required = false, defaultValue = "LATEST") String sortType,
+            Pageable pageable,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+
+        // 서비스에 검색 조건 + 정렬 정보 전달
+        Page<CommunityPost> postsPage = postService.search(
+                searchDTO.getKeyword(),
+                searchDTO.getCategories(),
+                sortType,
+                pageable
+        );
+
+        // 엔티티 -> DTO 변환
+        Page<CommunityPostResponse.ListDTO> resultPage = postsPage.map(CommunityPostResponse.ListDTO::new);
+
+        return ResponseEntity.ok(ApiUtil.success(resultPage));
     }
 }

@@ -13,7 +13,9 @@ import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -124,10 +126,18 @@ public class CommunityPostService {
     }
 
     // 검색
-    public Page<CommunityPostResponse.ListDTO> search(CommunityPostRequest.SearchDTO searchDTO, Pageable pageable){
-        return postRepository.search(searchDTO.getKeyword(),searchDTO.getCategories(),
-                        searchDTO.getSortType(),pageable).map(CommunityPostResponse.ListDTO::new);
+    public Page<CommunityPost> search(String keyword, List<String> categories, String sortType, Pageable pageable) {
+        Pageable sortedPageable = pageable;
 
+        if ("LATEST".equals(sortType)) {
+            sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        } else if ("LIKES".equals(sortType)) {
+            sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "likeCount"));
+        } else if ("VIEWS".equals(sortType)) {
+            sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "viewCount"));
+        }
+
+        return postRepository.search(keyword, categories, sortedPageable);
     }
 }
 

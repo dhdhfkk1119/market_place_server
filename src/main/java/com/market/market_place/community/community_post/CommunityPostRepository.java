@@ -25,12 +25,9 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
     @Query("SELECT DISTINCT p FROM CommunityPost p " +
             "LEFT JOIN p.topic t " +
             "WHERE (:keyword IS NULL OR p.title LIKE %:keyword% OR p.content LIKE %:keyword%) " +
-            "AND (:categories IS NULL OR t.name IN :categories)" +
-            "ORDER BY " +
-            "CASE WHEN :sortType = 'LATEST' THEN p.createdAt END DESC, " +
-            "CASE WHEN :sortType = 'LIKES' THEN p.likeCount END DESC, " +
-            "CASE WHEN :sortType = 'VIEWS' THEN p.viewCount END DESC")
-    Page<CommunityPost> search(@Param("keyword") String keyword, @Param("categories") List<String> categories,
-                               @Param("sortType") String sortType, Pageable pageable);
+            "AND (:categories IS NULL OR t.name IN :categories)")
+    Page<CommunityPost> search(@Param("keyword") String keyword,
+                               @Param("categories") List<String> categories,
+                               Pageable pageable);
 
 }
