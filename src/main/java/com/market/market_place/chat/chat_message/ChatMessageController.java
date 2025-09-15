@@ -41,7 +41,14 @@ public class ChatMessageController {
     public ResponseEntity<Slice<ChatMessageResponseDTO.MessageDTO>> getMessages(@PathVariable Long roomId,
                                                                                @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser,
                                                                                Pageable pageable) {
+
+        log.info("[Backend Log] getMessages 요청: roomId={}, userId={}, pageable={}",
+                roomId, sessionUser.getId(), pageable);
+
         Slice<ChatMessageResponseDTO.MessageDTO> messages = chatMessageService.getMessagesByRoom(roomId,pageable);
+
+        log.info("[Backend Log] 조회된 메시지 개수: {}", messages.getNumberOfElements());
+
         return ResponseEntity.ok(messages);
     }
 
@@ -76,18 +83,8 @@ public class ChatMessageController {
 
             // 메시지 브로커를 통해 메시지 전송
             // 상대방에게 메시지 전송
-            messagingTemplate.convertAndSendToUser(
-                    String.valueOf(msgDTO.getReceiveId()),
-                    "/queue/chat/message",
-                    responseDTO
-            );
+            messagingTemplate.convertAndSend("/topic/chat/room/" + responseDTO.getRoomId(), responseDTO);
 
-            // 발신자에게도 메시지 전송
-            messagingTemplate.convertAndSendToUser(
-                    String.valueOf(senderId),
-                    "/queue/chat/message",
-                    responseDTO
-            );
 
         } catch (Exception e) {
             // 원인 로그를 찍어야 정확한 문제 파악 가능
