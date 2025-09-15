@@ -8,10 +8,16 @@ package com.market.market_place._core._exception;
  */
 public class Exception404 extends RuntimeException {
 
+    private final String errorCode = "NOT_FOUND";
+
     /**
      * @param message 예외 발생의 원인이 되는 메시지
      */
     public Exception404(String message) {
         super(message);
+    }
+
+    public String getErrorCode() {
+        return errorCode;
     }
 }
