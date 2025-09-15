@@ -30,14 +30,20 @@ public class CommunitySanction {
     @JoinColumn(name = "report_id",nullable = false,updatable = false)
     private CommunityReport report;
 
+    @Column(length = 500)
     private String reason;
 
-
+    @Column(nullable = false)
     private int sanctionCount;
 
+    @Column(nullable = false)
     private LocalDateTime startAt;
+
+    @Column(nullable = false)
     private LocalDateTime endAt;
 
+    @Column(nullable = false)
+    private Boolean active = true;
 
 
 }
