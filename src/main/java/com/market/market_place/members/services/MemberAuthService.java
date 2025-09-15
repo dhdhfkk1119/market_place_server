@@ -37,6 +37,11 @@ public class MemberAuthService {
     private final MemberService memberService;
     private final ItemSanctionRepository itemSanctionRepository;
 
+    // 아이디 중복 확인
+    public boolean checkLoginIdAvailability(String loginId) {
+        return !memberRepository.existsByLoginId(loginId);
+    }
+
     // 일반 회원가입 처리
     @Transactional
     public MemberRegisterResponse registerMember(MemberRegisterRequest request) {
