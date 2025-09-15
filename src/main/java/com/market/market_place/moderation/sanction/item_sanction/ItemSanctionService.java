@@ -9,12 +9,14 @@ import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.moderation.policy.ModerationPolicy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemSanctionService {
@@ -24,27 +26,27 @@ public class ItemSanctionService {
     private final ItemReportProcessRepository itemReportProcessRepository;
     private final ItemReportRepository itemReportRepository;
 
-
     @Transactional
     public ItemSanctionResponse issueSanction(ItemSanctionRequest request) {
+        log.info("[issueSanction] request={}", request);
 
         if (request.getProcessResult() != ProcessResult.ACCEPTED) {
+            log.info("[issueSanction] SKIP: processResult != ACCEPTED -> {}", request.getProcessResult());
             return ItemSanctionResponse.none(request.getReportedMemberId());
         }
 
         Member member = memberRepository.findById(request.getReportedMemberId())
                 .orElseThrow(() -> new Exception404("해당 회원을 찾을 수 없습니다."));
-
         ItemReport report = itemReportRepository.findById(request.getReportId())
                 .orElseThrow(() -> new Exception404("해당 신고를 찾을 수 없습니다."));
 
         long acceptedCountLong = itemReportProcessRepository
                 .countByItemReport_Item_Member_IdAndResult(request.getReportedMemberId(), ProcessResult.ACCEPTED);
         int acceptedCount = (int) acceptedCountLong;
+        log.info("[issueSanction] acceptedCount={}", acceptedCount);
 
         if (acceptedCount >= 5) {
             LocalDateTime nowPerm = LocalDateTime.now();
-
             ItemSanction perm = ItemSanction.builder()
                     .member(member)
                     .report(report)
@@ -55,20 +57,22 @@ public class ItemSanctionService {
                     .active(true)
                     .build();
 
-            itemSanctionRepository.save(perm);
+            ItemSanction saved = itemSanctionRepository.saveAndFlush(perm); // flush 강제
+            log.info("[issueSanction] PERM_BAN inserted id={}", saved.getId());
 
             member.ban();
-
-            return ItemSanctionResponse.from(perm);
+            return ItemSanctionResponse.from(saved);
         }
 
         Duration duration = ModerationPolicy.tempBanDurationByAcceptedCount(acceptedCount);
+        log.info("[issueSanction] tempBan duration={}", duration);
+
         if (duration.isZero()) {
+            log.info("[issueSanction] SKIP: duration is zero");
             return ItemSanctionResponse.none(request.getReportedMemberId());
         }
 
         LocalDateTime now = LocalDateTime.now();
-
         ItemSanction temp = ItemSanction.builder()
                 .member(member)
                 .report(report)
@@ -80,11 +84,11 @@ public class ItemSanctionService {
                 .active(true)
                 .build();
 
-        itemSanctionRepository.save(temp);
+        ItemSanction saved = itemSanctionRepository.saveAndFlush(temp); // flush 강제
+        log.info("[issueSanction] TEMP_BAN inserted id={}", saved.getId());
 
         member.ban();
-
-        return ItemSanctionResponse.from(temp);
+        return ItemSanctionResponse.from(saved);
     }
 
     @Transactional
