@@ -1,24 +1,23 @@
 package com.market.market_place.item.status;
 
 import com.market.market_place.item.core.Item;
-import com.market.market_place.item.review.TradeReview;
 import com.market.market_place.members.domain.Member;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 public class TradeRequest {
-
+    @NotNull(message = "아이템 ID는 필수입니다.")
     private Long itemId;
+
+    @NotNull(message = "판매자 ID는 필수입니다.")
     private Long sellerId;
+
+    @NotNull(message = "구매자 ID는 필수입니다.")
     private Long buyerId;
-    private List<TradeReview> reviews = new ArrayList<>();
+
 
     public Trade toEntity(Item item, Member seller, Member buyer) {
         return Trade.builder()

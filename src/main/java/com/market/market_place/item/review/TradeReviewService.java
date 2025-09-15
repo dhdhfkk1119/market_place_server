@@ -1,5 +1,6 @@
 package com.market.market_place.item.review;
 
+import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
 import com.market.market_place.item.status.Trade;
@@ -23,9 +24,9 @@ public class TradeReviewService {
     public void createReview(Long tradeId, Long reviewerId, TradeReviewRequest dto) {
         // 1. 거래 및 회원 엔티티 조회
         Trade trade = tradeRepository.findById(tradeId)
-                .orElseThrow(() -> new IllegalArgumentException("거래를 찾을 수 없습니다."));
+                .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다.")); // 예외 유형 변경
         Member reviewer = memberRepository.findById(reviewerId)
-                .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new Exception404("회원을 찾을 수 없습니다.")); // 예외 유형 변경
 
         // 2. 후기 작성 권한 및 중복 여부 확인
         validateReviewer(trade, reviewer);
@@ -62,10 +63,10 @@ public class TradeReviewService {
 
     // 아이템의 평균 평점 업데이트
     private void updateItemAverageRating(Item item) {
-        Double averageRating = tradeReviewRepository.findAverageRatingByTradeId(item.getId());
+        Double averageRating = tradeReviewRepository.findAverageRatingByItemId(item.getId());
         if (averageRating != null) {
             item.setAverageRating(averageRating);
-            itemRepository.save(item);
+
         }
     }
 }

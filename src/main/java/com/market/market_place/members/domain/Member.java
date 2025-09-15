@@ -68,6 +68,9 @@ public class Member {
     @Setter
     private int retransactionRate = 0;
 
+    private double mannerScore;
+
+
     //== 정적 팩토리 메서드 ==//
     // 회원가입 요청 정보를 바탕으로 완전한 Member 객체를 생성합니다.
     public static Member from(MemberRegisterRequest dto, PasswordEncoder passwordEncoder) {

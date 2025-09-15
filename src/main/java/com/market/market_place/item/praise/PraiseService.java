@@ -23,16 +23,14 @@ public class PraiseService {
 
     @Transactional
     public PraiseResponse addPraise(Long praiserId, PraiseRequest request) {
-        // 중복 칭찬 여부 확인
         boolean alreadyPraised = praiseRepository.existsByPraiserIdAndTradeId(praiserId, request.getTradeId());
         if (alreadyPraised) {
             return PraiseResponse.builder()
                     .message("이미 해당 거래를 칭찬하셨습니다.")
-                    .success(false)
+                    .isSuccess(false)
                     .build();
         }
 
-        // 사용자, 거래 조회
         Member praiser = memberRepository.findById(praiserId)
                 .orElseThrow(() -> new Exception404("칭찬한 사용자를 찾을 수 없습니다."));
         Member praisedMember = memberRepository.findById(request.getPraisedMemberId())
@@ -40,7 +38,6 @@ public class PraiseService {
         Trade trade = tradeRepository.findById(request.getTradeId())
                 .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다."));
 
-        // 👉 자동 content 생성 처리
         String finalContent = request.getContent();
         if (finalContent == null || finalContent.trim().isEmpty()) {
             List<String> topicNames = request.getPraiseCategories() == null ? List.of() :
@@ -48,28 +45,29 @@ public class PraiseService {
                             .stream()
                             .map(pc -> pc.getPraiseName())
                             .toList();
-
             finalContent = PraiseContentGenerator.generateContentFromTopic(topicNames);
         }
 
-        // 저장
-        Praise newPraise = Praise.builder()
-                .praiser(praiser)
-                .praisedMember(praisedMember)
-                .trade(trade)
-                .content(finalContent)
-                .build();
+        Praise newPraise = Praise.createPraise(
+                trade,
+                praiser,
+                praisedMember,
+                finalContent,
+                request.isBuyer()
+        );
         praiseRepository.save(newPraise);
 
-        // 재거래율 증가
+
         int updatedRate = praisedMember.getRetransactionRate() + 1;
         praisedMember.setRetransactionRate(updatedRate);
         memberRepository.save(praisedMember);
 
+
         return PraiseResponse.builder()
                 .message("매너 칭찬이 완료되었습니다!")
                 .updatedRetransactionRate(updatedRate)
-                .success(true)
+                .isSuccess(true)
+                .updatedMannerScore(praisedMember.getMannerScore())
                 .build();
     }
 }

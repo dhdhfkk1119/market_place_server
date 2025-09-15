@@ -40,7 +40,6 @@ public class Praise {
     private boolean isBuyer;
 
 
-
     public static Praise createPraise(Trade trade, Member praiser, Member praisedMember, String content, boolean isBuyer) {
         return Praise.builder()
                 .trade(trade)
