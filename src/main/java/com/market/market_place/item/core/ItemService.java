@@ -44,13 +44,6 @@ public class ItemService {
                 .map(ItemResponse.ItemListDTO::from);
     }
 
-    public List<ItemResponse.ItemListDTO> search(ItemRequest.SearchDTO searchDTO) {
-        return itemRepository.search(searchDTO.getKeyword(),
-                searchDTO.getTags()).stream()
-                .map(ItemResponse.ItemListDTO::from)
-                .collect(Collectors.toList());
-    }
-
     public ItemResponse.ItemSaveDTO save(Long id,ItemRequest.ItemSaveDTO dto) {
 
         Member seller = memberRepository.findById(id)
@@ -115,7 +108,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ItemResponse.ItemListDTO> getItems(ItemSearchRequest searchRequest, JwtUtil.SessionUser sessionUser) {
+    public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest, JwtUtil.SessionUser sessionUser) {
 
         QItem item = QItem.item;
         BooleanBuilder builder = new BooleanBuilder();
@@ -150,6 +143,11 @@ public class ItemService {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         } else if ("popular".equals(searchRequest.getSortBy())) {
             sort = Sort.by(Sort.Direction.DESC, "averageRating");
+        }
+        if ("asc".equalsIgnoreCase(searchRequest.getSortOrder())) {
+            sort = sort.ascending();
+        } else {
+            sort = sort.descending();
         }
 
         Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);

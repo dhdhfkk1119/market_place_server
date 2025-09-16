@@ -73,17 +73,9 @@ public class ItemController {
     }
 
     @Auth(roles = {Role.ADMIN, Role.USER})
-    @PostMapping("/search")
-    public ApiUtil.ApiResult<List<ItemResponse.ItemListDTO>> searchPosts(
-            @RequestBody ItemRequest.SearchDTO searchDTO) {
-        return
-                ApiUtil.success(itemService.search(searchDTO));
-    }
-
-    @Auth(roles = {Role.ADMIN, Role.USER})
     @GetMapping
     public ResponseEntity<Page<ItemResponse.ItemListDTO>> getItems(
-            ItemSearchRequest searchRequest,
+            ItemRequest.SearchDTO searchRequest,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
         Page<ItemResponse.ItemListDTO> items = itemService.getItems(searchRequest, sessionUser);

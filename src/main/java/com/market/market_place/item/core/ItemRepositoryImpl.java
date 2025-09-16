@@ -17,7 +17,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Item> findBySearchOption(Pageable pageable, ItemSearchRequest searchDTO) {
+    public Page<Item> findBySearchOption(Pageable pageable, ItemRequest.SearchDTO searchDTO) {
         QItem item = QItem.item;
         QItemCategory itemCategory = QItemCategory.itemCategory;
 
