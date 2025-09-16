@@ -73,6 +73,8 @@ public class ItemResponse {
         private List<String> base64Images;
         private Integer favoriteCount;
         private String sellerProfileUrl;
+        private String sellerAddress;
+        private int retransactionRate;
 
         public static ItemDetailDTO from(Item item) {
             return ItemDetailDTO.builder()
@@ -95,6 +97,8 @@ public class ItemResponse {
                     .sellerId(item.getMember().getId())
                     .sellerName(item.getMember().getMemberProfile().getName())
                     .sellerProfileUrl(item.getMember().getMemberProfile().getProfileImageBase64())
+                    .sellerAddress(item.getMember().getAddress())
+                    .retransactionRate(item.getMember().getRetransactionRate())
                     .build();
         }
     }
