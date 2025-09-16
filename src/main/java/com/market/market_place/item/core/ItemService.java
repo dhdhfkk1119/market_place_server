@@ -32,11 +32,10 @@ public class ItemService {
 
 
     public ItemResponse.ItemDetailDTO findById(Long id) {
-
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 게시물을 찾을 수 없습니다"));
 
-        return new ItemResponse.ItemDetailDTO(item);
+        return ItemResponse.ItemDetailDTO.from(item);
     }
 
 

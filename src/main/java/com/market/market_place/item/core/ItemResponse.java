@@ -15,6 +15,7 @@ public class ItemResponse {
     @Data
     @Builder
     public static class ItemListDTO {
+        private Long id;
         private String title;
         private String content;
         private Long price;
@@ -46,6 +47,7 @@ public class ItemResponse {
                     .orElse(0);
 
             return ItemListDTO.builder()
+                    .id(item.getId())
                     .title(item.getTitle())
                     .content(item.getContent())
                     .price(item.getPrice())
@@ -58,21 +60,42 @@ public class ItemResponse {
     }
 
     @Data
+    @Builder
     public static class ItemDetailDTO {
-        //이미지 거래방식 추가 필요
+        private Long id;
         private Long itemCategoryId;
+        private Long sellerId;
         private String title;
         private String content;
         private Long price;
+        private String sellerName;
         private String tradeLocation;
+        private List<String> base64Images;
+        private Integer favoriteCount;
+        private String sellerProfileUrl;
 
-        @Builder
-        public ItemDetailDTO(Item item) {
-            this.content = item.getContent();
-            this.itemCategoryId = item.getItemCategory().getId();
-            this.tradeLocation = item.getTradeLocation();
-            this.price = item.getPrice();
-            this.title = item.getTitle();
+        public static ItemDetailDTO from(Item item) {
+            return ItemDetailDTO.builder()
+                    .id(item.getId())
+                    .itemCategoryId(item.getItemCategory().getId())
+                    .sellerId(item.getMember().getId())
+                    .title(item.getTitle())
+                    .content(item.getContent())
+                    .price(item.getPrice())
+                    .sellerName(item.getMember().getMemberProfile().getName())
+                    .tradeLocation(item.getTradeLocation())
+                    .base64Images(
+                            item.getImages().stream()
+                                    .map(ItemImage::getImageUrl)
+                                    .toList()
+                    )
+                    .favoriteCount(Optional.ofNullable(item.getFavorites())
+                            .map(List::size)
+                            .orElse(0))
+                    .sellerId(item.getMember().getId())
+                    .sellerName(item.getMember().getMemberProfile().getName())
+                    .sellerProfileUrl(item.getMember().getMemberProfile().getProfileImageBase64())
+                    .build();
         }
     }
 

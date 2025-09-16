@@ -7,6 +7,7 @@ import com.market.market_place.community.community_report.CommunityReportStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.moderation.sanction.community_sanction.CommunitySanctionRequest;
+import com.market.market_place.moderation.sanction.community_sanction.CommunitySanctionResponse;
 import com.market.market_place.moderation.sanction.community_sanction.CommunitySanctionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -47,8 +48,12 @@ public class CommunityReportProcessService {
                     .reason(requestDTO.getAdminComment())
                     .build();
 
-        }
+            Long reportedMemberId = report.getPost().getMember().getId();
 
+            CommunitySanctionResponse sanctionResponse =
+                    communitySanctionService.issueOnReportProcessed(reportedMemberId,reportId,communitySanctionRequest);
+
+        }
 
         return new CommunityReportProcessResponse.ListDTO(process);
     }
