@@ -13,8 +13,8 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
 
     // 전체조회 페이징처리
-    @Query("SELECT p FROM CommunityPost p JOIN FETCH p.topic")
-    Page<CommunityPost> findAllWithTopic(Pageable pageable);
+    @Query("SELECT DISTINCT p FROM CommunityPost p JOIN FETCH p.topic LEFT JOIN FETCH p.comments")
+    Page<CommunityPost> findAllWithTopicAndComments(Pageable pageable);
 
 
     // 댓글과 사용자 한번에 조회

@@ -24,6 +24,7 @@ public class CommunityPostResponse {
         private int likeCount;
         private int viewCount;
         private String createdAt;
+        private int commentCount;
 
         @Builder
         public ListDTO(CommunityPost post) {
@@ -36,6 +37,7 @@ public class CommunityPostResponse {
             this.createdAt = post.getTime();
             this.thumbnail = post.getImages().isEmpty() ?
                     null : post.getImages().get(0).getImageUrl(); // 첫번째 이미지만 보임
+            this.commentCount = post.getComments() == null ? 0 : post.getComments().size();
 
             // 내용 30줄 미리보기
             String content = post.getContent();
@@ -58,6 +60,7 @@ public class CommunityPostResponse {
         private String location;
         private List<String> images;
         private List<CommunityComment> comments;
+        private int commentCount;
 
         @Builder
         public DetailDTO(CommunityPost post,String sortType) {
@@ -77,6 +80,7 @@ public class CommunityPostResponse {
                             ? Comparator.comparing(CommunityComment::getLikeCount).reversed()
                             : Comparator.comparing(CommunityComment::getCreatedAt).reversed())
                     .collect(Collectors.toList());
+            this.commentCount = post.getComments() == null ? 0 : post.getComments().size();
         }
     }
 

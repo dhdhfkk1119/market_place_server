@@ -32,7 +32,7 @@ public class CommunityPostService {
 
     // 전체 조회
     public List<CommunityPostResponse.ListDTO> findAllPosts(Pageable pageable) {
-        Page<CommunityPost> posts = postRepository.findAllWithTopic(pageable);
+        Page<CommunityPost> posts = postRepository.findAllWithTopicAndComments(pageable);
         return posts.stream().map(CommunityPostResponse.ListDTO::new)
                 .collect(Collectors.toList());
     }
