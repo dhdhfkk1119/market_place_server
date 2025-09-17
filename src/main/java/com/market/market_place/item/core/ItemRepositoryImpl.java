@@ -30,7 +30,9 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                         keywordContains(searchDTO.getKeyword()),
                         categoryEq(searchDTO.getItemCategoryId()),
                         locationContains(searchDTO.getTradeLocation()),
-                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange())
+                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange()),
+                        tagsIn(searchDTO.getTags(), itemCategory)
+
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -45,7 +47,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                         keywordContains(searchDTO.getKeyword()),
                         categoryEq(searchDTO.getItemCategoryId()),
                         locationContains(searchDTO.getTradeLocation()),
-                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange())
+                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange()),
+                        tagsIn(searchDTO.getTags(), itemCategory)
                 )
                 .fetchOne();
 
@@ -105,11 +108,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 long max = Long.parseLong(parts[1]);
                 return item.price.between(min, max);
             }
-        } catch (NumberFormatException ignored) {
-
-        }
+        } catch (NumberFormatException ignored) {}
         return null;
     }
+
+    private BooleanExpression tagsIn(List<String> tags, QItemCategory itemCategory) {
+        if (tags == null || tags.isEmpty()) return null;
+        return itemCategory.name.in(tags);
+    }
+
 }
 
 

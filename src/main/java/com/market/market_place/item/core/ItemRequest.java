@@ -52,6 +52,7 @@ public class ItemRequest {
     public static class SearchDTO {
         private String keyword;
         private String sortBy;
+        private List<String> tags;
         private String sortOrder;
         private Long minPrice;
         private Long maxPrice;
