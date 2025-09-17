@@ -1,5 +1,4 @@
 package com.market.market_place.item.core;
-
 import com.market.market_place.item.item_category.QItemCategory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -7,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,8 +17,6 @@ public class ItemRepositoryImpl implements
     public Page<Item> findBySearchOption(Pageable pageable, ItemRequest.SearchDTO searchDTO) {
         QItem item = QItem.item;
         QItemCategory itemCategory = QItemCategory.itemCategory;
-
-
         List<Item> items = queryFactory
                 .select(item).distinct()
                 .from(item)
@@ -33,7 +29,6 @@ public class ItemRepositoryImpl implements
                 .limit(pageable.getPageSize())
                 .orderBy(item.createdAt.desc())
                 .fetch();
-
         Long total = queryFactory
                 .select(item.countDistinct())
                 .from(item)
@@ -43,7 +38,6 @@ public class ItemRepositoryImpl implements
                         tagsIn(searchDTO.getTags())
                 )
                 .fetchOne();
-
         return new PageImpl<>(items, pageable, total);
     }
 

@@ -6,6 +6,8 @@ import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.item_report._enum.ItemReportStatus;
+import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -47,12 +49,12 @@ public class ItemService {
 
     public List<ItemResponse.ItemListDTO> search(ItemRequest.SearchDTO searchDTO) {
         return itemRepository.search(searchDTO.getKeyword(),
-                searchDTO.getTags()).stream()
+                        searchDTO.getTags()).stream()
                 .map(ItemResponse.ItemListDTO::from)
                 .collect(Collectors.toList());
     }
 
-    public ItemResponse.ItemSaveDTO save(Long id,ItemRequest.ItemSaveDTO dto) {
+    public ItemResponse.ItemSaveDTO save(Long id, ItemRequest.ItemSaveDTO dto) {
 
         Member seller = memberRepository.findById(id)
                 .orElseThrow(() -> new Exception404("회원이 존재하지 않습니다"));
@@ -73,14 +75,15 @@ public class ItemService {
 
         Item saved = itemRepository.save(item);
         return new ItemResponse.ItemSaveDTO(saved);
+
     }
 
-    public ItemResponse.ItemUpdateDTO update(Long id,Long sessionUserId,ItemRequest.ItemUpdateDTO dto) {
+    public ItemResponse.ItemUpdateDTO update(Long id, Long sessionUserId, ItemRequest.ItemUpdateDTO dto) {
 
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
 
-        if (!Objects.equals(item.getMember().getId(),sessionUserId)){
+        if (!Objects.equals(item.getMember().getId(), sessionUserId)) {
             throw new Exception403("수정 권한이 없습니다.");
         }
 
@@ -99,7 +102,6 @@ public class ItemService {
         }
 
 
-
         return new ItemResponse.ItemUpdateDTO(item);
     }
 
@@ -108,7 +110,7 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
 
-        if (!Objects.equals(item.getMember().getId(),sessionUserId)) {
+        if (!Objects.equals(item.getMember().getId(), sessionUserId)) {
             throw new Exception403("삭제 권한이 없습니다.");
         }
 
@@ -123,8 +125,11 @@ public class ItemService {
 
         // 1. 키워드 검색 (제목 + 내용)
         if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().isEmpty()) {
-            builder.and(item.title.containsIgnoreCase(searchRequest.getKeyword())
-                    .or(item.content.containsIgnoreCase(searchRequest.getKeyword())));
+            String keyword = searchRequest.getKeyword().trim();
+            builder.and(
+                    item.title.containsIgnoreCase(keyword)
+                            .or(item.content.containsIgnoreCase(keyword))
+            );
         }
 
         // 2. 가격 범위
@@ -140,10 +145,14 @@ public class ItemService {
             builder.and(item.itemCategory.id.eq(searchRequest.getItemCategoryId()));
         }
 
-        // 4. 거래 지역
+        // 4. 거래 지역 (수정된 부분)
         if (searchRequest.getTradeLocation() != null && !searchRequest.getTradeLocation().isEmpty()) {
-            builder.and(item.tradeLocation.containsIgnoreCase(searchRequest.getTradeLocation()));
+            String tradeLocation = searchRequest.getTradeLocation().trim();
+            builder.and(item.tradeLocation.containsIgnoreCase(tradeLocation));
         }
+
+        // 판매중인 상품만 조회
+        builder.and(item.status.eq(TradeStatus.ON_SALE));
 
         // 5. 정렬 기준 설정
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");

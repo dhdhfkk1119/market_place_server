@@ -1,7 +1,6 @@
 package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
-import com.market.market_place.item.item_image.ItemImage;
 import lombok.Data;
 
 import java.util.List;
@@ -39,13 +38,12 @@ public class ItemRequest {
         private String content;
         private Long price;
         private String tradeLocation;
-
         private List<String> base64Images;
     }
 
     @Data
     public static class SearchDTO {
-            private String keyword;
-            private List<String> tags;
+        private String keyword;
+        private List<String> tags;
     }
 }

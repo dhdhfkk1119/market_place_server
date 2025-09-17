@@ -22,4 +22,12 @@ public class PraiseRequest {
 
     private String content;
 
+    public boolean hasCustomContent() {
+        return content != null && !content.trim().isEmpty();
+    }
+
+    public boolean hasPraiseCategories() {
+        return praiseCategories != null && !praiseCategories.isEmpty();
+    }
+
 }
