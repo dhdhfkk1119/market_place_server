@@ -6,8 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface ItemFavoriteRepository extends JpaRepository<ItemFavorite,Long> {
-    Optional<ItemFavorite> findByMemberIdAndItemId(Long memberId,Long itemId);
+public interface ItemFavoriteRepository extends JpaRepository<ItemFavorite, Long> {
+    Optional<ItemFavorite> findByMemberIdAndItemId(Long memberId, Long itemId);
+
     Long countByItemId(Long itemId);
 
     boolean existsByItemAndMember(Item item, Member member);

@@ -39,10 +39,8 @@ public class ItemReportProcessController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "processDate,desc") String sort,
-            @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser
-            )
-
-    {
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser
+    ) {
 
         String[] sortParams = sort.split(",");
         Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("asc")
@@ -51,7 +49,7 @@ public class ItemReportProcessController {
         Sort s = Sort.by(direction, sortParams[0]);
 
         Pageable pageable = PageRequest.of(page, size, s);
-        Page<ItemReportProcessResponse.ItemReportProcessListDTO> itemReportProcessList = itemReportProcessService.findAll(pageable,sessionUser.getId());
+        Page<ItemReportProcessResponse.ItemReportProcessListDTO> itemReportProcessList = itemReportProcessService.findAll(pageable, sessionUser.getId());
         return ResponseEntity.ok(itemReportProcessList);
     }
 }

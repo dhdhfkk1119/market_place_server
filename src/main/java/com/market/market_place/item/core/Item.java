@@ -7,7 +7,6 @@ import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;

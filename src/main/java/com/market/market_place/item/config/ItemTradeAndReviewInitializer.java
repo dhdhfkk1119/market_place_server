@@ -29,7 +29,6 @@ public class ItemTradeAndReviewInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        // 아이템: 5~14번에 해당하는 제목(위 이니셜라이저가 만든 것과 동일하게 맞춤)
         Item i5  = getItem("델노트북");
         Item i6  = getItem("사무용의자");
         Item i7  = getItem("원목의자");
@@ -52,7 +51,6 @@ public class ItemTradeAndReviewInitializer implements CommandLineRunner {
         Member user9  = getMember("user9");
         Member user10 = getMember("user10");
 
-        // ===== 거래 더미 (보내주신 SQL과 동일 순서/의미) =====
         Trade t1  = upsertTrade(i5,  user1,  user6,  true,  true);
         Trade t2  = upsertTrade(i6,  user2,  user7,  true,  false);
         Trade t3  = upsertTrade(i7,  user3,  user8,  false, true);
@@ -64,7 +62,6 @@ public class ItemTradeAndReviewInitializer implements CommandLineRunner {
         Trade t9  = upsertTrade(i13, user4,  user10, true,  false);
         Trade t10 = upsertTrade(i14, user5,  user6,  true,  true);
 
-        // ===== 거래 리뷰 더미 (보내주신 SQL 그대로) =====
         upsertReview(t1,  user6,  "좋은 거래였습니다. 감사합니다!", 5.0);
         upsertReview(t1,  user1,  "구매자분이 친절했습니다.",        4.8);
         upsertReview(t2,  user7,  "상품 상태가 설명과 같아요.",      4.5);

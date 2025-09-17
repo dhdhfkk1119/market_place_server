@@ -51,7 +51,7 @@ public class ItemCategoryService {
     public void deleteById(Long id) {
 
         ItemCategory itemCategory = itemCategoryRepository.findById(id).orElseThrow(() ->
-                new  IllegalArgumentException("삭제 하려는 카테고리가 존재하지 않습니다"));
+                new IllegalArgumentException("삭제 하려는 카테고리가 존재하지 않습니다"));
 
         itemCategoryRepository.delete(itemCategory);
     }
