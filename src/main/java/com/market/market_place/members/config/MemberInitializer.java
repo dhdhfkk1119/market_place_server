@@ -61,4 +61,7 @@ public class MemberInitializer implements CommandLineRunner {
             memberRepository.save(member);
         }
     }
+
+
+
 }

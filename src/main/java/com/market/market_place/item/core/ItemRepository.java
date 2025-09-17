@@ -7,6 +7,7 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom,QuerydslPredicateExecutor<Item> {
 
@@ -15,5 +16,5 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
             "AND (:tags IS NULL OR c.name IN :tags) ORDER BY i.createdAt DESC")
     List<Item> search(@Param("keyword") String keyword, @Param("tags") List<String> tags);
 
-
+    Optional<Item> findByTitle(String title);
 }

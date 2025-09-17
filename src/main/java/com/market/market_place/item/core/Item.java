@@ -6,10 +6,7 @@ import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -20,7 +17,9 @@ import java.util.List;
 @Entity
 @Table(name = "item_tb")
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Item {
 
     @Id
@@ -28,8 +27,9 @@ public class Item {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JoinColumn(name = "member_id")
     private Member member;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_category_id")
     private ItemCategory itemCategory;
@@ -64,17 +64,6 @@ public class Item {
     public void removeImage(ItemImage image) {
         images.remove(image);
         image.setItem(null);
-    }
-
-
-    @Builder
-    public Item(String content, List<ItemFavorite> favorites, ItemCategory itemCategory, Long price, String title, String tradeLocation) {
-        this.content = content;
-        this.favorites = favorites;
-        this.itemCategory = itemCategory;
-        this.tradeLocation = tradeLocation;
-        this.price = price;
-        this.title = title;
     }
 
     public void update(ItemRequest.ItemUpdateDTO dto) {

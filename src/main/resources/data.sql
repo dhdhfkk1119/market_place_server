@@ -20,4 +20,3 @@ INSERT INTO community_topic_tb (id, category_id, name) VALUES
 (11, 3, '동네사건사고'),
 (12, 3, '공공소식'),
 (13, 4, '일반');
-
