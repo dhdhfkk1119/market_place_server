@@ -22,7 +22,7 @@ public class GeminiService {
         this.webClient = webClient;
     }
 
-    // @Value("${ai.gemini.key}") -> 추후에 다시 주석 해제
+    @Value("${ai.gemini.key}") // -> 추후에 다시 주석 해제
     private String apiKey;
 
     @Value("${ai.gemini.url.mono}")
