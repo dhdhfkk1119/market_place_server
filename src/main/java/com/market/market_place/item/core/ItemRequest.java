@@ -1,7 +1,6 @@
 package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
-import com.market.market_place.item.item_image.ItemImage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
