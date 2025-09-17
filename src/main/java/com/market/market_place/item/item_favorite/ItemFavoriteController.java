@@ -30,7 +30,7 @@ public class ItemFavoriteController {
             @PathVariable Long itemId,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser
     ) {
-        ItemFavoriteResponse body = itemFavoriteService.getFavoriteStatus(itemId,sessionUser.getId());
+        ItemFavoriteResponse body = itemFavoriteService.getFavoriteStatus(itemId, sessionUser.getId());
         return ResponseEntity.ok(body);
     }
 }
