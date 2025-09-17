@@ -21,19 +21,19 @@ public class EmailAccountFinderController {
 
     private final EmailAccountService emailAccountService;
 
-    // --- 아이디 찾기 ---
-    @Operation(summary = "아이디 찾기용 인증 코드 발송", description = "아이디 찾기를 위해 이메일로 인증코드를 발송합니다.")
-    @PostMapping("/find-id/send-code")
-    public ResponseEntity<ApiUtil.ApiResult<String>> sendFindIdCode(@Valid @RequestBody SendVerificationRequest request) {
-        emailAccountService.sendFindIdCode(request.getEmail());
-        return ResponseEntity.ok(ApiUtil.success("인증 코드가 성공적으로 발송되었습니다."));
+    // --- 아이디 찾기 (신규 로직) ---
+    @Operation(summary = "마스킹된 아이디 조회", description = "이메일을 전송하여 마스킹된 아이디를 조회합니다.")
+    @PostMapping("/find-id/masked")
+    public ResponseEntity<ApiUtil.ApiResult<FindIdResponse>> getMaskedId(@Valid @RequestBody SendVerificationRequest request) {
+        FindIdResponse response = emailAccountService.getMaskedLoginId(request.getEmail());
+        return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    @Operation(summary = "아이디 찾기용 인증 코드 확인", description = "인증코드를 검증하고 마스킹된 아이디를 반환합니다.")
-    @PostMapping("/find-id/confirm-code")
-    public ResponseEntity<ApiUtil.ApiResult<FindIdResponse>> findLoginIdByEmail(@Valid @RequestBody ConfirmVerificationRequest request) {
-        FindIdResponse response = emailAccountService.findLoginIdByEmail(request);
-        return ResponseEntity.ok(ApiUtil.success(response));
+    @Operation(summary = "전체 아이디 이메일 발송", description = "이메일로 전체 아이디를 발송합니다.")
+    @PostMapping("/find-id/send-email")
+    public ResponseEntity<ApiUtil.ApiResult<String>> sendFullIdToEmail(@Valid @RequestBody SendVerificationRequest request) {
+        emailAccountService.sendFullLoginIdToEmail(request.getEmail());
+        return ResponseEntity.ok(ApiUtil.success("아이디가 이메일로 성공적으로 발송되었습니다."));
     }
 
     // --- 비밀번호 재설정 ---
