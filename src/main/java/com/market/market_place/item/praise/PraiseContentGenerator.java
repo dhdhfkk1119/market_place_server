@@ -8,18 +8,12 @@ public class PraiseContentGenerator {
         if (topicNames == null || topicNames.isEmpty()) {
             return "좋은 거래 감사합니다!";
         }
-
-        StringBuilder stringBuilder = new StringBuilder("다음과 같은 이유로 칭찬 드려요:");
-
-        for (int i = 0; i < topicNames.size(); i++) {
-            stringBuilder.append(topicNames.get(i));
-            if (i < topicNames.size() - 2) {
-                stringBuilder.append(", ");
-            } else if (i == topicNames.size() - 2) {
-                stringBuilder.append("그리고");
-            }
+        if (topicNames.size() == 1) {
+            return "다음과 같은 이유로 칭찬 드려요 : " + topicNames.get(0) + " . ";
         }
-        stringBuilder.append(".");
-        return stringBuilder.toString();
+        String result = String.join(", ", topicNames.subList(0, topicNames.size() - 1))
+                + " 그리고 " + topicNames.get(topicNames.size() - 1);
+
+        return "다음과 같은 이유로 칭찬 드려요 : " + result + " . ";
     }
 }

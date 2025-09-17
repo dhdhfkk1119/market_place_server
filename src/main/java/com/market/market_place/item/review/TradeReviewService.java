@@ -24,9 +24,9 @@ public class TradeReviewService {
     public void createReview(Long tradeId, Long reviewerId, TradeReviewRequest dto) {
         // 1. 거래 및 회원 엔티티 조회
         Trade trade = tradeRepository.findById(tradeId)
-                .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다.")); // 예외 유형 변경
+                .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다."));
         Member reviewer = memberRepository.findById(reviewerId)
-                .orElseThrow(() -> new Exception404("회원을 찾을 수 없습니다.")); // 예외 유형 변경
+                .orElseThrow(() -> new Exception404("회원을 찾을 수 없습니다."));
 
         // 2. 후기 작성 권한 및 중복 여부 확인
         validateReviewer(trade, reviewer);

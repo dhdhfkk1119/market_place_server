@@ -6,6 +6,7 @@ import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/community/posts")
 @RequiredArgsConstructor
+@Slf4j
 public class CommunityPostController {
 
     private final CommunityPostService postService;
@@ -25,8 +27,9 @@ public class CommunityPostController {
     // 전체조회
     @GetMapping
     public ResponseEntity<ApiUtil.ApiResult<List<CommunityPostResponse.ListDTO>>> list(
-            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
         List<CommunityPostResponse.ListDTO> posts = postService.findAllPosts(pageable);
+        log.info("전체 조회에 접속 했습니다 posts = {}" , posts);
         return ResponseEntity.ok(ApiUtil.success(posts));
     }
 

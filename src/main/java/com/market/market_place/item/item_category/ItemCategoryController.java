@@ -9,19 +9,19 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-//@RequestMapping("/api/itemcategories")
+@RequestMapping("/api/item-categories")
 public class ItemCategoryController {
 
     private final ItemCategoryService itemCategoryService;
 
-    @GetMapping("/api/itemcategories")
+    @GetMapping
     public ResponseEntity<?> index() {
         List<ItemCategoryResponse.ItemCategoryListDTO> categiryList = itemCategoryService.findAll();
         return ResponseEntity.ok(categiryList);
     }
 
 
-    @PostMapping("/api/itemcategories")
+    @PostMapping
     public ResponseEntity<?> save(@RequestBody ItemCategoryRequest.SaveDTO dto) {
 
         ItemCategoryResponse.ItemCategorySaveDTO saved = itemCategoryService.save(dto);

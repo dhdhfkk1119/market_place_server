@@ -4,5 +4,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ItemRepositoryCustom {
-    Page<Item> findBySearchOption(Pageable pageable, ItemSearchRequest searchDTO);
+    Page<Item> findBySearchOption(Pageable pageable, ItemRequest.SearchDTO searchDTO);
 }

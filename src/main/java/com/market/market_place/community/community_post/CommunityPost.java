@@ -13,9 +13,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// 모든 조회에서 deleted_at 이 null 인 행만 자동 조회되도록 전역 필터 적용
+@Where(clause = "deleted_at is null")
 public class CommunityPost {
 
     @Id
@@ -55,6 +58,10 @@ public class CommunityPost {
     @JoinColumn(name = "topic_id")
     private CommunityTopic topic;
 
+    // 관리자가 논리적인 삭제를 하기 위해 추가한 컬럼
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityPostImage> images = new ArrayList<>();
 
@@ -83,7 +90,7 @@ public class CommunityPost {
         this.location = updateDTO.getLocation();
     }
 
-    public String getTime(){
+    public String getTime() {
         return DateUtil.dateTimeFormat(createdAt);
     }
 

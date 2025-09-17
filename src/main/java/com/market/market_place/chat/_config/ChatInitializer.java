@@ -5,11 +5,13 @@ import com.market.market_place.chat.chat_message.ChatMessageRepository;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Role;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,60 +20,70 @@ import java.util.Optional;
 
 @Profile({"dev", "local"})
 @Component
+@Order(2) // MemberInitializer(1) 다음에 실행
 @RequiredArgsConstructor
 @Slf4j
 public class ChatInitializer implements CommandLineRunner {
 
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
-    private final ChatMessageRepository chatMessageRepository; // 메시지 리포지토리 주입
+    private final ChatMessageRepository chatMessageRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // 사용자 ID 1과 2 사이의 채팅방이 없는 경우에만 생성
-        if (chatRoomRepository.findByUserIds(1L, 2L).isEmpty()) {
-            Optional<Member> user1Opt = memberRepository.findById(1L);
-            Optional<Member> user2Opt = memberRepository.findById(2L);
-
-            if (user1Opt.isPresent() && user2Opt.isPresent()) {
-                Member user1 = user1Opt.get(); // 관리자 (ID: 1)
-                Member user2 = user2Opt.get(); // 테스트유저 (ID: 2)
-
-                // 1. 채팅방 생성 및 저장
-                ChatRoom newChatRoom = ChatRoom.builder()
-                        .loginUser(user1)
-                        .otherUser(user2)
-                        .build();
-                ChatRoom savedChatRoom = chatRoomRepository.save(newChatRoom);
-                log.info("초기 데이터: 사용자 '{}'와 '{}' 간의 채팅방 생성 완료", user1.getLoginId(), user2.getLoginId());
-
-                // 2. 초기 대화 내용 생성
-                ChatMessage message1 = ChatMessage.builder()
-                        .chatRoom(savedChatRoom)
-                        .sender(user1)
-                        .receiver(user2)
-                        .message("마킷! 관리자입니다. 무엇을 도와드릴까요?")
-                        .build();
-
-                ChatMessage message2 = ChatMessage.builder()
-                        .chatRoom(savedChatRoom)
-                        .sender(user2)
-                        .receiver(user1)
-                        .message("네 궁금한 게 있어서요.")
-                        .build();
-
-                List<ChatMessage> messages = chatMessageRepository.saveAll(List.of(message1, message2));
-                log.info("초기 데이터: 채팅방에 초기 메시지 2건 생성 완료");
-
-                // 3. 채팅방의 마지막 메시지 업데이트
-                savedChatRoom.setLastMessage(messages.get(messages.size() - 1));
-                chatRoomRepository.save(savedChatRoom); // 변경 사항 저장
-                log.info("초기 데이터: 채팅방의 마지막 메시지 정보 업데이트 완료");
-
-            } else {
-                log.warn("초기 데이터: 채팅방을 생성하기 위한 사용자(ID 1 또는 2)를 찾을 수 없습니다.");
-            }
+        // 1. 관리자 계정 조회
+        Optional<Member> adminOpt = memberRepository.findByLoginId("admin");
+        if (adminOpt.isEmpty()) {
+            log.warn("관리자(admin) 계정을 찾을 수 없어 채팅방 초기화를 건너뜁니다.");
+            return;
         }
+        Member admin = adminOpt.get();
+
+        // 2. 관리자를 제외한 모든 일반 유저 조회
+        List<Member> users = memberRepository.findAll().stream()
+                .filter(member -> member.getRole() == Role.USER)
+                .toList();
+
+        if (users.isEmpty()) {
+            log.info("초기화할 일반 사용자가 없어 채팅방 초기화를 건너뜁니다.");
+            return;
+        }
+
+        log.info("관리자와 {}명의 일반 사용자 간의 채팅방 초기화를 시작합니다...", users.size());
+
+        // 3. 각 유저와 관리자 간의 채팅방 생성
+        for (Member user : users) {
+            createChatRoomWithAdmin(admin, user);
+        }
+    }
+
+    private void createChatRoomWithAdmin(Member admin, Member user) {
+        // 이미 채팅방이 있는지 확인
+        if (chatRoomRepository.findByUserIds(admin.getId(), user.getId()).isPresent()) {
+            return; // 이미 존재하면 건너뛰기
+        }
+
+        // 1. 채팅방 생성 및 저장
+        ChatRoom newChatRoom = ChatRoom.builder()
+                .loginUser(admin) // 편의상 관리자를 loginUser로 고정
+                .otherUser(user)
+                .build();
+        ChatRoom savedChatRoom = chatRoomRepository.save(newChatRoom);
+        log.info("  - 사용자 '{}'와 '{}' 간의 채팅방 생성 완료 (ID: {})", admin.getLoginId(), user.getLoginId(), savedChatRoom.getId());
+
+        // 2. 관리자의 첫 메시지만 생성
+        ChatMessage adminMessage = ChatMessage.builder()
+                .chatRoom(savedChatRoom)
+                .sender(admin)
+                .receiver(user)
+                .message("안녕하세요, " + user.getMemberProfile().getName() + "님! 마켓잇 관리자입니다. 무엇이든 물어보세요.")
+                .build();
+
+        ChatMessage savedMessage = chatMessageRepository.save(adminMessage);
+
+        // 3. 채팅방의 마지막 메시지 업데이트
+        savedChatRoom.setLastMessage(savedMessage);
+        chatRoomRepository.save(savedChatRoom);
     }
 }

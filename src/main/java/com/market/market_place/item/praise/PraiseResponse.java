@@ -22,4 +22,21 @@ public class PraiseResponse {
         this.praiseCategories = praiseCategories;
         this.updatedRetransactionRate = updatedRetransactionRate;
     }
+
+    public static PraiseResponse success(String msg, double mannerScore, int reRate, List<Long> categories) {
+        return PraiseResponse.builder()
+                .message(msg)
+                .isSuccess(true)
+                .updatedMannerScore(mannerScore)
+                .updatedRetransactionRate(reRate)
+                .praiseCategories(categories)
+                .build();
+    }
+
+    public static PraiseResponse alreadyPraised() {
+        return PraiseResponse.builder()
+                .message("이미 해당 거래를 칭찬 하셨습니다")
+                .isSuccess(false)
+                .build();
+    }
 }

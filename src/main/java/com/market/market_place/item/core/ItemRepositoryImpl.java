@@ -17,7 +17,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Item> findBySearchOption(Pageable pageable, ItemSearchRequest searchDTO) {
+    public Page<Item> findBySearchOption(Pageable pageable, ItemRequest.SearchDTO searchDTO) {
         QItem item = QItem.item;
         QItemCategory itemCategory = QItemCategory.itemCategory;
 
@@ -30,7 +30,9 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                         keywordContains(searchDTO.getKeyword()),
                         categoryEq(searchDTO.getItemCategoryId()),
                         locationContains(searchDTO.getTradeLocation()),
-                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange())
+                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange()),
+                        tagsIn(searchDTO.getTags(), itemCategory)
+
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -45,7 +47,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                         keywordContains(searchDTO.getKeyword()),
                         categoryEq(searchDTO.getItemCategoryId()),
                         locationContains(searchDTO.getTradeLocation()),
-                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange())
+                        priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange()),
+                        tagsIn(searchDTO.getTags(), itemCategory)
                 )
                 .fetchOne();
 
@@ -106,10 +109,15 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 return item.price.between(min, max);
             }
         } catch (NumberFormatException ignored) {
-
         }
         return null;
     }
+
+    private BooleanExpression tagsIn(List<String> tags, QItemCategory itemCategory) {
+        if (tags == null || tags.isEmpty()) return null;
+        return itemCategory.name.in(tags);
+    }
+
 }
 
 
