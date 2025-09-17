@@ -17,9 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Transactional
 @RequiredArgsConstructor
@@ -44,7 +42,7 @@ public class ItemService {
                 .map(ItemResponse.ItemListDTO::from);
     }
 
-    public ItemResponse.ItemSaveDTO save(Long id,ItemRequest.ItemSaveDTO dto) {
+    public ItemResponse.ItemSaveDTO save(Long id, ItemRequest.ItemSaveDTO dto) {
 
         Member seller = memberRepository.findById(id)
                 .orElseThrow(() -> new Exception404("회원이 존재하지 않습니다"));
@@ -67,12 +65,12 @@ public class ItemService {
         return new ItemResponse.ItemSaveDTO(saved);
     }
 
-    public ItemResponse.ItemUpdateDTO update(Long id,Long sessionUserId,ItemRequest.ItemUpdateDTO dto) {
+    public ItemResponse.ItemUpdateDTO update(Long id, Long sessionUserId, ItemRequest.ItemUpdateDTO dto) {
 
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
 
-        if (!Objects.equals(item.getMember().getId(),sessionUserId)){
+        if (!Objects.equals(item.getMember().getId(), sessionUserId)) {
             throw new Exception403("수정 권한이 없습니다.");
         }
 
@@ -91,7 +89,6 @@ public class ItemService {
         }
 
 
-
         return new ItemResponse.ItemUpdateDTO(item);
     }
 
@@ -100,7 +97,7 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
 
-        if (!Objects.equals(item.getMember().getId(),sessionUserId)) {
+        if (!Objects.equals(item.getMember().getId(), sessionUserId)) {
             throw new Exception403("삭제 권한이 없습니다.");
         }
 

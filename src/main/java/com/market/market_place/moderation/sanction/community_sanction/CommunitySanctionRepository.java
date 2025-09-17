@@ -16,4 +16,7 @@ public interface CommunitySanctionRepository extends JpaRepository<CommunitySanc
     List<CommunitySanction> findByMember_IdAndActiveTrueAndEndAtAfter(Long memberId, LocalDateTime now);
 
     List<CommunitySanction> findByActiveTrueAndEndAtBefore(LocalDateTime now);
+
+    boolean existsByMember_IdAndActiveTrueAndEndAtAfter(Long memberId, LocalDateTime now);
+
 }

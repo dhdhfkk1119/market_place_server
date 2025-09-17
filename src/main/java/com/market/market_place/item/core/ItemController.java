@@ -1,6 +1,5 @@
 package com.market.market_place.item.core;
 
-import com.market.market_place._core._utils.ApiUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
@@ -12,8 +11,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -81,5 +78,4 @@ public class ItemController {
         Page<ItemResponse.ItemListDTO> items = itemService.getItems(searchRequest, sessionUser);
         return ResponseEntity.ok(items);
     }
-
 }
