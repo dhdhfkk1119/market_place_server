@@ -1,14 +1,10 @@
 package com.market.market_place.item.item_category;
 
-import com.market.market_place.item.core.Item;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "item_category_tb")

@@ -65,13 +65,13 @@ public class ItemReportService {
 
     public ItemReportResponse.ItemReportDetailDTO getReportDetail(Long reportId, Long memberId) {
 
-        ItemReport report = itemReportRepository.findByIdAndReporter_Id(reportId,memberId)
+        ItemReport report = itemReportRepository.findByIdAndReporter_Id(reportId, memberId)
                 .orElseThrow(() -> new Exception404("해당 신고를 찾을 수 없습니다."));
 
         return ItemReportResponse.ItemReportDetailDTO.from(report);
     }
 
-    public ItemReportResponse.ItemReportResultDTO getProcessResult(Long reportId,Long memberId) {
+    public ItemReportResponse.ItemReportResultDTO getProcessResult(Long reportId, Long memberId) {
 
         ItemReport report = getItemReport(reportId);
 

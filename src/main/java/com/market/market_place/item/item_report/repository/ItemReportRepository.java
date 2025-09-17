@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface ItemReportRepository extends JpaRepository<ItemReport, Long> {
     Page<ItemReport> findByReporter_Id(Long reporterId, Pageable pageable);
+
     Optional<ItemReport> findByIdAndReporter_Id(Long id, Long reporterId);
 
 }

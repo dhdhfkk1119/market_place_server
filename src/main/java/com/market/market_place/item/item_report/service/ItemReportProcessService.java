@@ -83,8 +83,9 @@ public class ItemReportProcessService {
                 .finalStatus(itemReport.getStatus())
                 .build();
     }
+
     @Transactional(readOnly = true)
-    public Page<ItemReportProcessResponse.ItemReportProcessListDTO> findAll(Pageable pageable,Long adminId) {
+    public Page<ItemReportProcessResponse.ItemReportProcessListDTO> findAll(Pageable pageable, Long adminId) {
         memberService.findMember(adminId);
         return itemReportProcessRepository.findAll(pageable)
                 .map(itemReportProcess -> ItemReportProcessResponse.ItemReportProcessListDTO.builder()
