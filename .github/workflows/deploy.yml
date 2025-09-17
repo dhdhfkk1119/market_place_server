@@ -1,0 +1,42 @@
+name: Deploy to Cloudtype
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Connect to Cloudtype
+        uses: cloudtype-github-actions/connect@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          ghtoken: ${{ secrets.GHP_TOKEN }}
+
+      - name: Deploy to Cloudtype
+        uses: cloudtype-github-actions/deploy@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          project: ysb5397/flowise
+          stage: main
+          yaml: |
+            name: market-place-server
+            app: java@21
+            options:
+              ports: 8080
+              preset: java-springboot
+              env:
+                - name: GEMINI_API_KEY
+                  secret: GEMINI_API_KEY
+                - name: API_URL
+                  value: https://app.cloudtype.io/@ysb5397/flowise
+              # ✨ 에러 메시지가 요구한 대로 options 안에 git 정보를 추가!
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
