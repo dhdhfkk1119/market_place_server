@@ -16,6 +16,19 @@ public class EmailVerificationService {
     private final VerificationCodeStore verificationCodeStore;
 
     /**
+     * 요청받은 이메일 주소로 전체 아이디를 발송합니다.
+     * @param email 수신자 이메일
+     * @param loginId 발송할 로그인 아이디
+     */
+    public void sendLoginId(String email, String loginId) {
+        log.info("아이디 찾기 이메일 발송 절차 시작. 수신자: {}", email);
+        String subject = "[Market Place] 요청하신 아이디 안내입니다.";
+        String text = "회원님의 아이디는 [ " + loginId + " ] 입니다.";
+        emailService.sendEmail(email, subject, text);
+        log.info("아이디 찾기 이메일 발송 절차 완료. 수신자: {}", email);
+    }
+
+    /**
      * 주어진 목적에 맞는 인증 코드를 생성하고 이메일로 발송합니다.
      * 이메일 중복 확인과 같은 비즈니스 규칙 검증은 이 메서드를 호출하는 상위 서비스의 책임입니다.
      *

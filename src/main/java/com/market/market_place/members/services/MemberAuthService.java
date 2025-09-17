@@ -70,22 +70,22 @@ public class MemberAuthService {
     // 일반 로그인 처리
     @Transactional
     public LoginResponseWithTokens login(MemberLoginRequest request) {
-        String identity = request.getIdentity();
-        log.info("로그인 시도. 입력: {}", identity);
+        String loginId = request.getLoginId();
+        log.info("로그인 시도. 입력: {}", loginId);
 
         // 이메일 또는 아이디로 회원 조회
         Member member;
-        if (identity.contains("@")) {
-            member = memberRepository.findByEmail(identity)
+        if (loginId.contains("@")) {
+            member = memberRepository.findByEmail(loginId)
                     .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
         } else {
-            member = memberRepository.findByLoginId(identity)
+            member = memberRepository.findByLoginId(loginId)
                     .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
         }
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            log.warn("비밀번호 불일치. 입력: {}", identity);
+            log.warn("비밀번호 불일치. 입력: {}", loginId);
             throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
