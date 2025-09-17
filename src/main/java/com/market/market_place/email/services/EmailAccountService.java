@@ -31,7 +31,33 @@ public class EmailAccountService {
     private final MemberService memberService;
     private final PasswordEncoder passwordEncoder;
 
-    // 회원가입용 인증 코드 발송 요청 처리
+    // --- 아이디 찾기 V2 (신규 로직) ---
+
+    /**
+     * 이메일로 사용자를 찾아 마스킹된 아이디를 반환합니다.
+     * @param email 사용자 이메일
+     * @return 마스킹된 아이디가 담긴 응답 DTO
+     */
+    public FindIdResponse getMaskedLoginId(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception404("해당 이메일로 가입된 회원을 찾을 수 없습니다."));
+        String maskedLoginId = maskLoginId(member.getLoginId());
+        return new FindIdResponse(maskedLoginId);
+    }
+
+    /**
+     * 이메일로 사용자를 찾아 해당 이메일 주소로 전체 아이디를 발송합니다.
+     * @param email 사용자 이메일
+     */
+    public void sendFullLoginIdToEmail(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new Exception404("해당 이메일로 가입된 회원을 찾을 수 없습니다."));
+        // EmailVerificationService에 아이디 전송을 위한 새 메서드를 호출 (추가 구현 필요)
+        emailVerificationService.sendLoginId(email, member.getLoginId());
+        log.info("전체 아이디 이메일 발송 완료. 이메일: {}, 아이디: {}", email, member.getLoginId());
+    }
+
+    // --- 회원가입 ---
     public void sendRegistrationCode(String email) {
         if (memberRepository.existsByEmail(email)) {
             throw new Exception400("이미 가입된 이메일입니다.");
@@ -39,30 +65,7 @@ public class EmailAccountService {
         emailVerificationService.sendCode(email, VerificationPurpose.REGISTER);
     }
 
-    // 아이디 찾기를 위한 인증 코드를 이메일로 발송
-    public void sendFindIdCode(String email) {
-        log.info("아이디 찾기 코드 발송 요청. 이메일: {}", email);
-        if (!memberRepository.existsByEmail(email)) {
-            throw new Exception404("해당 이메일로 가입된 회원을 찾을 수 없습니다.");
-        }
-        emailVerificationService.sendCode(email, VerificationPurpose.FIND_ID);
-    }
-
-    // 이메일로 받은 인증 코드를 검증하고, 성공 시 마스킹 처리된 아이디를 반환
-    public FindIdResponse findLoginIdByEmail(ConfirmVerificationRequest request) {
-        log.info("아이디 찾기 코드 검증 요청. 이메일: {}", request.getEmail());
-        boolean isVerified = emailVerificationService.verifyCode(request.getEmail(), VerificationPurpose.FIND_ID, request.getCode());
-        if (!isVerified) {
-            throw new Exception400("인증 코드가 유효하지 않거나 만료되었습니다.");
-        }
-        Member member = memberRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new Exception404("해당 이메일을 가진 회원을 찾을 수 없습니다."));
-        String maskedLoginId = maskLoginId(member.getLoginId());
-        log.info("아이디 찾기 성공. 사용자 ID: {}", member.getId());
-        return new FindIdResponse(maskedLoginId);
-    }
-
-    // 비밀번호 재설정을 위한 인증 코드를 이메일로 발송합니다.
+    // --- 비밀번호 재설정 ---
     public void sendPasswordResetCode(SendPasswordResetCodeRequest request) {
         log.info("비밀번호 재설정 코드 발송 요청. 로그인 ID: {}", request.getLoginId());
         Member member = memberRepository.findByLoginId(request.getLoginId())
@@ -75,7 +78,6 @@ public class EmailAccountService {
         emailVerificationService.sendCode(request.getEmail(), VerificationPurpose.RESET_PASSWORD);
     }
 
-    // 이메일로 받은 인증 코드를 검증하고, 성공 시 비밀번호 재설정용 임시 토큰을 발급합니다.
     public PasswordResetTokenResponse confirmPasswordResetCode(ConfirmVerificationRequest request) {
         log.info("비밀번호 재설정 코드 검증 요청. 이메일: {}", request.getEmail());
         boolean isVerified = emailVerificationService.verifyCode(request.getEmail(), VerificationPurpose.RESET_PASSWORD, request.getCode());
@@ -93,7 +95,6 @@ public class EmailAccountService {
         return new PasswordResetTokenResponse(resetToken);
     }
 
-    // 발급받은 임시 토큰을 사용하여 최종적으로 비밀번호를 재설정합니다.
     @Transactional
     public void resetPassword(PasswordResetRequest request) {
         log.info("최종 비밀번호 재설정 요청.");

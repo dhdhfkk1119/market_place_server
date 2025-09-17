@@ -20,4 +20,15 @@ public class CommunitySanctionResponse {
     private LocalDateTime startAt;
     private LocalDateTime endAt;
 
+    public static CommunitySanctionResponse from(CommunitySanction communitySanction) {
+        return CommunitySanctionResponse.builder()
+                .id(communitySanction.getId())
+                .memberId(communitySanction.getMember().getId())
+                .reportId(communitySanction.getReport().getId())
+                .sanctionCount(communitySanction.getSanctionCount())
+                .startAt(communitySanction.getStartAt())
+                .endAt(communitySanction.getEndAt())
+                .build();
+    }
+
 }

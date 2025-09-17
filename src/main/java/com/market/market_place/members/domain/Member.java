@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +28,7 @@ public class Member {
     @Column(unique = true, nullable = true, length = 50)
     private String loginId; //로그인용 아이디
 
-    @Column 
+    @Column
     private String address; // 단일 주소
 
     // 사용자 이메일 (고유 값)

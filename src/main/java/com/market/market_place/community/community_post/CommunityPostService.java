@@ -3,15 +3,15 @@ package com.market.market_place.community.community_post;
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
-import com.market.market_place.community.community_comment.CommunityComment;
-import com.market.market_place.community.community_comment.CommunityCommentService;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import com.market.market_place.community.community_post_image.CommunityPostImageRepository;
 import com.market.market_place.community.community_topic.CommunityTopic;
 import com.market.market_place.community.community_topic.CommunityTopicRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
+import com.market.market_place.moderation.sanction.community_sanction.CommunitySanctionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +19,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,9 +34,11 @@ public class CommunityPostService {
     private final CommunityTopicRepository topicRepository;
     private final CommunityPostImageRepository imageRepository;
 
+    private final CommunitySanctionService communitySanctionService;
+
     // 전체 조회
     public List<CommunityPostResponse.ListDTO> findAllPosts(Pageable pageable) {
-        Page<CommunityPost> posts = postRepository.findAllWithTopic(pageable);
+        Page<CommunityPost> posts = postRepository.findAllWithTopicAndComments(pageable);
         return posts.stream().map(CommunityPostResponse.ListDTO::new)
                 .collect(Collectors.toList());
     }
@@ -55,6 +58,9 @@ public class CommunityPostService {
     @Transactional
     public CommunityPostResponse.ResponseDTO save(CommunityPostRequest.SaveDTO saveDTO,
                                                   JwtUtil.SessionUser sessionUser) {
+
+        communitySanctionService.ensurePostAllowed(sessionUser.getId());
+
         Member member = memberRepository.findById(sessionUser.getId())
                 .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다"));
 
@@ -139,5 +145,21 @@ public class CommunityPostService {
 
         return postRepository.search(keyword, categories, sortedPageable);
     }
+
+    // 제재/관리자 전용 강제 삭제 (소프트 삭제)
+    @Transactional
+    public void forceDelete(Long id, String reason) {
+        CommunityPost post = postRepository.findById(id)
+                .orElseThrow(() -> new Exception404("삭제하려는 게시글이 없습니다"));
+
+        // 실제 삭제 대신 삭제 시각 기록
+        post.setDeletedAt(LocalDateTime.now());
+
+        // 필요하면 삭제 사유 로깅
+        log.info("[ForceDelete] postId={} 이유={}",id,reason);
+    }
+
+
+
 }
 

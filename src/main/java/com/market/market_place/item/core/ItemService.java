@@ -6,8 +6,6 @@ import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
 import com.market.market_place.item.item_image.ItemImage;
-import com.market.market_place.item.item_report._enum.ItemReportStatus;
-import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -19,9 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Transactional
 @RequiredArgsConstructor
@@ -34,24 +30,16 @@ public class ItemService {
 
 
     public ItemResponse.ItemDetailDTO findById(Long id) {
-
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 게시물을 찾을 수 없습니다"));
 
-        return new ItemResponse.ItemDetailDTO(item);
+        return ItemResponse.ItemDetailDTO.from(item);
     }
 
 
     public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
         return itemRepository.findAll(pageable)
                 .map(ItemResponse.ItemListDTO::from);
-    }
-
-    public List<ItemResponse.ItemListDTO> search(ItemRequest.SearchDTO searchDTO) {
-        return itemRepository.search(searchDTO.getKeyword(),
-                        searchDTO.getTags()).stream()
-                .map(ItemResponse.ItemListDTO::from)
-                .collect(Collectors.toList());
     }
 
     public ItemResponse.ItemSaveDTO save(Long id, ItemRequest.ItemSaveDTO dto) {
@@ -75,7 +63,6 @@ public class ItemService {
 
         Item saved = itemRepository.save(item);
         return new ItemResponse.ItemSaveDTO(saved);
-
     }
 
     public ItemResponse.ItemUpdateDTO update(Long id, Long sessionUserId, ItemRequest.ItemUpdateDTO dto) {
@@ -118,18 +105,15 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ItemResponse.ItemListDTO> getItems(ItemSearchRequest searchRequest, JwtUtil.SessionUser sessionUser) {
+    public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest, JwtUtil.SessionUser sessionUser) {
 
         QItem item = QItem.item;
         BooleanBuilder builder = new BooleanBuilder();
 
         // 1. 키워드 검색 (제목 + 내용)
         if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().isEmpty()) {
-            String keyword = searchRequest.getKeyword().trim();
-            builder.and(
-                    item.title.containsIgnoreCase(keyword)
-                            .or(item.content.containsIgnoreCase(keyword))
-            );
+            builder.and(item.title.containsIgnoreCase(searchRequest.getKeyword())
+                    .or(item.content.containsIgnoreCase(searchRequest.getKeyword())));
         }
 
         // 2. 가격 범위
@@ -145,14 +129,10 @@ public class ItemService {
             builder.and(item.itemCategory.id.eq(searchRequest.getItemCategoryId()));
         }
 
-        // 4. 거래 지역 (수정된 부분)
+        // 4. 거래 지역
         if (searchRequest.getTradeLocation() != null && !searchRequest.getTradeLocation().isEmpty()) {
-            String tradeLocation = searchRequest.getTradeLocation().trim();
-            builder.and(item.tradeLocation.containsIgnoreCase(tradeLocation));
+            builder.and(item.tradeLocation.containsIgnoreCase(searchRequest.getTradeLocation()));
         }
-
-        // 판매중인 상품만 조회
-        builder.and(item.status.eq(TradeStatus.ON_SALE));
 
         // 5. 정렬 기준 설정
         Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
@@ -160,6 +140,11 @@ public class ItemService {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         } else if ("popular".equals(searchRequest.getSortBy())) {
             sort = Sort.by(Sort.Direction.DESC, "averageRating");
+        }
+        if ("asc".equalsIgnoreCase(searchRequest.getSortOrder())) {
+            sort = sort.ascending();
+        } else {
+            sort = sort.descending();
         }
 
         Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);

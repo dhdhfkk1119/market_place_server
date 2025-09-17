@@ -6,6 +6,9 @@ import com.market.market_place.community.community_report.CommunityReportReposit
 import com.market.market_place.community.community_report.CommunityReportStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
+import com.market.market_place.moderation.sanction.community_sanction.CommunitySanctionRequest;
+import com.market.market_place.moderation.sanction.community_sanction.CommunitySanctionResponse;
+import com.market.market_place.moderation.sanction.community_sanction.CommunitySanctionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,8 @@ public class CommunityReportProcessService {
     private final CommunityReportProcessRepository processRepository;
     private final MemberRepository memberRepository;
 
+    private final CommunitySanctionService communitySanctionService;
+
     // 신고 상태 처리
     @Transactional
     public CommunityReportProcessResponse.ListDTO updateStatus(Long reportId, Long adminId, CommunityReportProcessRequest.RequestDTO requestDTO){
@@ -35,6 +40,20 @@ public class CommunityReportProcessService {
         report.setStatus(requestDTO.getStatus());
 
         CommunityReportProcess process = processRepository.save(requestDTO.toEntity(report, admin));
+
+        if (requestDTO.getStatus() == CommunityReportStatus.APPROVED) {
+
+            CommunitySanctionRequest communitySanctionRequest = CommunitySanctionRequest.builder()
+                    .status(CommunityReportStatus.APPROVED)
+                    .reason(requestDTO.getAdminComment())
+                    .build();
+
+            Long reportedMemberId = report.getPost().getMember().getId();
+
+            CommunitySanctionResponse sanctionResponse =
+                    communitySanctionService.issueOnReportProcessed(reportedMemberId,reportId,communitySanctionRequest);
+
+        }
 
         return new CommunityReportProcessResponse.ListDTO(process);
     }

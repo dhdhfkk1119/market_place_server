@@ -37,6 +37,11 @@ public class MemberAuthService {
     private final MemberService memberService;
     private final ItemSanctionRepository itemSanctionRepository;
 
+    // 아이디 중복 확인
+    public boolean checkLoginIdAvailability(String loginId) {
+        return !memberRepository.existsByLoginId(loginId);
+    }
+
     // 일반 회원가입 처리
     @Transactional
     public MemberRegisterResponse registerMember(MemberRegisterRequest request) {
@@ -65,14 +70,22 @@ public class MemberAuthService {
     // 일반 로그인 처리
     @Transactional
     public LoginResponseWithTokens login(MemberLoginRequest request) {
-        log.info("로그인 시도. 로그인 ID: {}", request.getLoginId());
-        // 아이디로 회원 조회
-        Member member = memberRepository.findByLoginId(request.getLoginId())
-                .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
+        String loginId = request.getLoginId();
+        log.info("로그인 시도. 입력: {}", loginId);
+
+        // 이메일 또는 아이디로 회원 조회
+        Member member;
+        if (loginId.contains("@")) {
+            member = memberRepository.findByEmail(loginId)
+                    .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
+        } else {
+            member = memberRepository.findByLoginId(loginId)
+                    .orElseThrow(() -> new Exception401("아이디 또는 비밀번호가 일치하지 않습니다."));
+        }
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            log.warn("비밀번호 불일치. 로그인 ID: {}", request.getLoginId());
+            log.warn("비밀번호 불일치. 입력: {}", loginId);
             throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
@@ -170,7 +183,7 @@ public class MemberAuthService {
             ItemSanction itemSanction = itemSanctionRepository.findFirstByMember_IdOrderByIdDesc(member.getId())
                     .orElseThrow(() -> new Exception404("해당 유저의 제재 내역을 찾지 못하였습니다."));
             log.warn("정지된 계정 로그인 시도. 사용자 ID: {}", member.getId());
-            throw new Exception401("활동이 정지된 계정입니다.해당 계정에" + itemSanction.getTime() + "까지 이용제한 조치가 이루어졌습니다..");
+            throw new Exception401("활동이 정지된 계정입니다.해당 계정에" + itemSanction.getTime() + "까지 이용제한 조치가 이루어졌습니다.");
         }
         if (member.getStatus() == MemberStatus.WITHDRAWN) {
             log.warn("탈퇴한 계정 로그인 시도. 사용자 ID: {}", member.getId());

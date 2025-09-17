@@ -37,7 +37,6 @@ public class Item {
     private String title;
     private String content;
     private Long price;
-    @Column(name = "trade_location")
     private String tradeLocation;
 
     @Enumerated(EnumType.STRING)

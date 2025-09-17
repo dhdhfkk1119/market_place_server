@@ -13,6 +13,7 @@ import com.market.market_place.chat.chat_room.ChatRoomRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class ChatMessageService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -96,7 +98,12 @@ public class ChatMessageService {
 
     // 내가 속한 한 방에 메세지 내역을 전부 가져오기
     public Slice<ChatMessageResponseDTO.MessageDTO> getMessagesByRoom(Long roomId, Pageable pageable) {
+
+
         Slice<ChatMessage> messages = chatMessageRepository.findMessagesByChatRoomId(roomId,pageable);
+
+        log.info("[Backend Log] DB에서 가져온 메시지 개수={}, roomId={}",
+                messages.getNumberOfElements(), roomId);
 
         return messages.map(msg -> new ChatMessageResponseDTO.MessageDTO(msg, Collections.emptyList()));
     }

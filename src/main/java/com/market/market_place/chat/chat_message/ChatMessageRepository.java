@@ -15,7 +15,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
             "join fetch m.receiver r " +
             "join fetch r.memberProfile " +
             "where m.chatRoom.id = :chatRoomId " +
-            "order by m.createdAt DESC")
+            "order by m.createdAt ASC")
     Slice<ChatMessage> findMessagesByChatRoomId(@Param("chatRoomId") Long chatRoomId, Pageable pageable);
 
 }

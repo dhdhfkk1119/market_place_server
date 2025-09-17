@@ -24,8 +24,9 @@ public class ChatRoomController {
     // 내가 참여한 모든 방 조회
     @Auth(roles = {Role.ADMIN, Role.USER})
     @GetMapping
-    public ResponseEntity<?> getMyRooms(@RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser, Pageable pageable){
-        log.info("채팅방 목록 요청: userId = {}, pageable = {}", sessionUser.getId(), pageable); // <-- 여기에 로그 추가
+    public ResponseEntity<?> getMyRooms(@RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser,
+                                        Pageable pageable){
+        log.info("채팅방 목록 요청: userId = {}, pageable = {}", sessionUser.getId(), pageable);
 
         Slice<ChatRoomResponseDTO.ChatRoomDTO> chatRoomDTO = chatRoomService.getMyChatRooms(sessionUser.getId(),pageable);
         return ResponseEntity.ok(chatRoomDTO);
