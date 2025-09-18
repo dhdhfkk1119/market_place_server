@@ -1,0 +1,28 @@
+name: Deploy to Cloudtype
+
+on:
+  push:
+    branches:
+      - dev  # 코드가 해당 브랜치에 푸시될 때 워크플로우 실행
+  workflow_dispatch: # 수동으로 워크플로우를 실행할 수 있도록 허용
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Connect to Cloudtype
+        uses: cloudtype-github-actions/connect@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }} # 클라우드타입 API 키
+          ghtoken: ${{ secrets.GHP_TOKEN }}     # GitHub Personal Token (비공개 저장소에 필요)
+          
+      - name: Deploy to Cloudtype
+        uses: cloudtype-github-actions/deploy@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          host: https://api.cloudtype.io
+          project: ${{ secrets.MARKIT_PLACE_SERVER }} # 클라우드타입 프로젝트 이름
+          profile: development # 배포 환경 프로필 (예: production, development 등)
