@@ -27,7 +27,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // ws-stomp라는 엔드포인트로 STOMP 연결을 할 수 있게 함
         // SockJS를 사용하면 웹소켓을 지원하지 않는 브라우저에서도 통신 가능
-        registry.addEndpoint("api/ws-stomp").setAllowedOriginPatterns("*")
+        registry.addEndpoint("/api/ws-stomp").setAllowedOriginPatterns("*")
                 .addInterceptors(jwtHandshakeInterceptor) // <--- 이 부분을 추가합니다.
                 .withSockJS();
     }

@@ -5,6 +5,7 @@ import com.market.market_place.chat._enum.MessageType;
 import com.market.market_place.chat.chat_file.ChatFile;
 import com.market.market_place.chat.chat_image.ChatImage;
 import com.market.market_place.chat.chat_room.ChatRoom;
+import com.market.market_place.item.core.Item;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,10 @@ public class ChatMessage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom; // 채팅 방
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_item_id")
+    private Item item; // 상품 정보
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

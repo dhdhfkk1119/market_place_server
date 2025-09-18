@@ -2,6 +2,10 @@ package com.market.market_place.chat.chat_room;
 
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
+import com.market.market_place.chat.chat_message.ChatMessage;
+import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
+import com.market.market_place.chat.chat_message.ChatMessageResponseDTO;
+import com.market.market_place.chat.chat_message.ChatMessageService;
 import com.market.market_place.members.domain.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +24,7 @@ import java.util.List;
 @Slf4j
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
 
     // 내가 참여한 모든 방 조회
     @Auth(roles = {Role.ADMIN, Role.USER})
@@ -39,5 +44,17 @@ public class ChatRoomController {
         chatRoomService.deleteRoom(roomId);
         return ResponseEntity.ok("정상적으로 방이 삭제되었습니다");
     }
-    
+
+
+    @Auth(roles = {Role.ADMIN, Role.USER})
+    @PostMapping("/create")
+    public ResponseEntity<?> createRoomWithMessage(
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
+            @RequestBody ChatMessageRequestDTO.Message msgDTO) {
+
+        ChatMessageResponseDTO.MessageDTO response = chatMessageService.saveAndProcessMessage(sessionUser.getId(), msgDTO);
+        return ResponseEntity.ok(response);
+    }
+
+
 }

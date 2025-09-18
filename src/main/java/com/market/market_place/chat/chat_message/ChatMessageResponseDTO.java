@@ -22,6 +22,7 @@ public class ChatMessageResponseDTO {
         private String message;
         private List<String> imageUrls;
         private String createdAt;
+        private Long itemId;
 
         @Builder
         public MessageDTO(ChatMessage chatMessage, List<ChatImage> chatImage){
@@ -35,6 +36,7 @@ public class ChatMessageResponseDTO {
             this.message = chatMessage.getMessage();
             this.imageUrls = chatImage.stream().map(ChatImage::getImageUrl).collect(Collectors.toList());
             this.createdAt = chatMessage.getTime();
+            this.itemId = chatMessage.getItem().getId();
         }
     }
 }

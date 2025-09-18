@@ -23,7 +23,11 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom,Long> {
     // 방 생성 및 조회 -> 1번 유저가 3번한테 보냄 방없으면 생성 역순도 똑같음 둘다 유저를 비교
     // 하나의 방만 생김
     @Query("select cr from ChatRoom cr where " +
-            "(cr.loginUser.id = :senderId and cr.otherUser.id = :receiverId) " +
-            "OR (cr.loginUser.id = :receiverId and cr.otherUser.id = :senderId)")
-    Optional<ChatRoom> findByUserIds(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId);
+            "((cr.loginUser.id = :senderId and cr.otherUser.id = :receiverId) " +
+            "OR (cr.loginUser.id = :receiverId and cr.otherUser.id = :senderId)) " +
+            "AND cr.item.id = :itemId")
+    Optional<ChatRoom> findByUserIds(@Param("senderId") Long senderId,
+                                     @Param("receiverId") Long receiverId,
+                                     @Param("itemId") Long itemId);
+
 }

@@ -26,7 +26,7 @@ public class DateUtil {
 
         Date currentDate = new Date(startDate.getTime());
 
-        return DateFormatUtils.format(currentDate, "오후 HH:mm");
+        return DateFormatUtils.format(currentDate, "a HH:mm");
     }
 
 

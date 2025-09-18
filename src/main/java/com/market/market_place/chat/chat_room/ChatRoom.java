@@ -2,6 +2,7 @@ package com.market.market_place.chat.chat_room;
 
 import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.chat.chat_message.ChatMessage;
+import com.market.market_place.item.core.Item;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,10 @@ public class ChatRoom {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "last_message")
     private ChatMessage lastMessage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_item_id")
+    private Item item; // 상품 정보
 
     public String getTime(){
         return DateUtil.chatFormat(createdAt);

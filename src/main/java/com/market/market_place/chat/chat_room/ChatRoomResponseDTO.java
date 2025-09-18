@@ -1,6 +1,7 @@
 package com.market.market_place.chat.chat_room;
 
 import com.market.market_place.chat.chat_message.ChatMessage;
+import com.market.market_place.item.core.Item;
 import com.market.market_place.members.domain.Member;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ public class ChatRoomResponseDTO {
         private String otherUserName;
         private String lastMessage;
         private String lastMessageCreatedAt;
+        private Long itemId;
 
         @Builder
         public ChatRoomDTO(ChatRoom chatRoom, Long currentUserId) {
@@ -32,6 +34,8 @@ public class ChatRoomResponseDTO {
                 this.lastMessage = "";
                 this.lastMessageCreatedAt = "";
             }
+
+            this.itemId = chatRoom.getItem().getId();
         }
 
     }

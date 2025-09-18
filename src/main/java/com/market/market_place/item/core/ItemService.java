@@ -156,4 +156,9 @@ public class ItemService {
         return itemPage.map(ItemResponse.ItemListDTO::from);
     }
 
+
+    public Item findItemById(Long id) {
+        return itemRepository.findById(id)
+                .orElseThrow(() -> new Exception404("해당 상품을 찾을 수 없습니다"));
+    }
 }

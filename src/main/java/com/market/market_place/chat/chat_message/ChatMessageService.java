@@ -10,6 +10,9 @@ import com.market.market_place.chat.chat_image.ChatImageRepository;
 import com.market.market_place.chat.chat_image.ChatImageRequestDTO;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
+import com.market.market_place.item.core.Item;
+import com.market.market_place.item.core.ItemResponse;
+import com.market.market_place.item.core.ItemService;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ public class ChatMessageService {
     private final FileUploadUtil fileUploadUtil;
     private final UploadConfig uploadConfig;
     private final MemberService memberService;
+    private final ItemService itemService;
 
     // 메세지 저장 및 방생성 (있으면 기존 방에서)
     @Transactional
@@ -40,17 +44,22 @@ public class ChatMessageService {
         Member sender = memberService.findMember(senderId);
         Member receiver = memberService.findMember(msgDTO.getReceiveId());
 
+
+        Item item =  itemService.findItemById(msgDTO.getItemId());
+
+
         if (msgDTO.getMessage() == null || msgDTO.getMessage().trim().isEmpty()) {
             throw new Exception401("메시지를 입력해주시기 바랍니다");
         }
         
-        ChatRoom room = chatRoomRepository.findByUserIds(senderId, msgDTO.getReceiveId())
+        ChatRoom room = chatRoomRepository.findByUserIds(senderId, msgDTO.getReceiveId(),item.getId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
                         .loginUser(sender)
                         .otherUser(receiver)
+                        .item(item)
                         .build()));
 
-        ChatMessage chatMessage = msgDTO.toEntity(sender, receiver, room);
+        ChatMessage chatMessage = msgDTO.toEntity(sender, receiver, room,item);
         chatMessage.setMessageType(MessageType.TEXT);
         chatMessageRepository.save(chatMessage);
         if (msgDTO.getImages() != null && !msgDTO.getImages().isEmpty()) {
@@ -83,15 +92,16 @@ public class ChatMessageService {
     public ChatMessageResponseDTO.MessageDTO saveMessage(ChatMessageRequestDTO.Message dto, JwtUtil.SessionUser sessionUser) {
         Member sender = memberService.findMember(sessionUser.getId()); // 보는 유저 번호
         Member receive = memberService.findMember(dto.getReceiveId()); // 받는 유저 번호
+        Item item =  itemService.findItemById(dto.getItemId());
 
         // 이미 방이 있는지 없으면 새로 생성 orElseGet -> 값이 없을때만 실행
-        ChatRoom room = chatRoomRepository.findByUserIds(sessionUser.getId(), dto.getReceiveId())
+        ChatRoom room = chatRoomRepository.findByUserIds(sessionUser.getId(), dto.getReceiveId(),item.getId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
                         .loginUser(sender)
                         .otherUser(receive)
                         .build()));
 
-        ChatMessage chatMessage = dto.toEntity(sender, receive, room);
+        ChatMessage chatMessage = dto.toEntity(sender, receive, room,item);
         chatMessageRepository.save(chatMessage);
         return new ChatMessageResponseDTO.MessageDTO(chatMessage, Collections.emptyList());
     }

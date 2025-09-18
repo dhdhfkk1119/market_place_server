@@ -8,6 +8,7 @@ public class ChatRoomRequestDTO {
     public static class ChatRoomDTO{
         private Long loginUser;
         private Long otherUser;
+        private Long itemId;
 
         public ChatRoom toEntity(Member userId1,Member userId2){
             return ChatRoom.builder()

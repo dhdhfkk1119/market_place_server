@@ -9,6 +9,8 @@ import com.market.market_place.chat.chat_message.ChatMessageRepository;
 import com.market.market_place.chat.chat_message.ChatMessageRequestDTO;
 import com.market.market_place.chat.chat_room.ChatRoom;
 import com.market.market_place.chat.chat_room.ChatRoomRepository;
+import com.market.market_place.item.core.Item;
+import com.market.market_place.item.core.ItemService;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.services.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class ChatFileService {
     private final MemberService memberService;
     private final ChatRoomRepository chatRoomRepository;
     private final UploadConfig uploadConfig;
+    private final ItemService itemService;
 
     // 파일 업로드 처리
     public void fileUpload(Long roomId,ChatMessageRequestDTO.Message msgDTO, JwtUtil.SessionUser sessionUser) {
@@ -34,18 +37,20 @@ public class ChatFileService {
 
         Member sender = memberService.findMember(sessionUser.getId());
         Member receiver = memberService.findMember(msgDTO.getReceiveId());
+        Item item = itemService.findItemById(msgDTO.getItemId());
 
         msgDTO.setRoomId(roomId);
 
         // 방 생성 or 조회
-        ChatRoom room = chatRoomRepository.findByUserIds(sessionUser.getId(),receiverId)
+        ChatRoom room = chatRoomRepository.findByUserIds(sessionUser.getId(),receiverId,item.getId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
                         .loginUser(sender)
                         .otherUser(receiver)
+                                .item(item)
                         .build()));
 
 
-        ChatMessage chatMessage = msgDTO.toEntity(sender,receiver,room);
+        ChatMessage chatMessage = msgDTO.toEntity(sender,receiver,room,item);
 
         MultipartFile file = msgDTO.getUploadFile();
 
