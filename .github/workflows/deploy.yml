@@ -31,16 +31,15 @@ jobs:
             name: market-place-server
             app: java@21
             options:
-            ports: 8080
-            preset: java-springboot
-            env:
-              - name: GEMINI_API_KEY
-                secret: GEMINI_API_KEY
-              - name: API_URL
-                value: https://app.cloudtype.io/@ysb5397/flowise
-              - name: GCP_CREDENTIALS_JSON
-                secret: GCP_CREDENTIALS_JSON
-
-            git:
-              url: git@github.com:${{ github.repository }}.git
-              ref: ${{ github.ref }}
+              ports: 8080
+              preset: java-springboot
+              env:
+                - name: GEMINI_API_KEY
+                  secret: GEMINI_API_KEY
+                - name: API_URL
+                  value: https://app.cloudtype.io/@ysb5397/flowise
+                - name: GCP_CREDENTIALS_JSON
+                  secret: GCP_CREDENTIALS_JSON
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
