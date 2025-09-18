@@ -2,6 +2,7 @@ package com.market.market_place.gemini;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._utils.SseUtil;
 import com.market.market_place._core._utils.TranslationUtil;
@@ -45,18 +46,14 @@ public class GeminiService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()
-                .bodyToFlux(String.class) // 응답을 String 조각으로 받는다.
-                .collectList() // 스트림이 끝날 때까지 모든 String 조각을 List로 모은다.
-                // --- 여기가 최종 수정! 쉼표 없이 그냥 그대로 합친다 ---
+                .bodyToFlux(String.class)
+                .collectList()
                 .map(list -> String.join("", list))
                 .flatMap(fullJsonArrayString -> {
-                    log.info("FINAL ASSEMBLED STRING: {}", fullJsonArrayString);
                     try {
-                        // 이제 fullJsonArrayString은 "[{...},{...}]" 형태의 완벽한 문자열이다.
                         List<GeminiImageResponse> responses = objectMapper.readValue(fullJsonArrayString, new TypeReference<>() {});
                         return reactor.core.publisher.Mono.just(responses);
                     } catch (Exception e) {
-                        log.error("최종 JSON 배열 파싱 실패. 응답 문자열: {}", fullJsonArrayString);
                         return reactor.core.publisher.Mono.error(e);
                     }
                 })
