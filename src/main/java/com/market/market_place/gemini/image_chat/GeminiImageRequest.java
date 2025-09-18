@@ -6,51 +6,44 @@ import java.util.List;
 import java.util.Objects;
 
 public record GeminiImageRequest(
-        List<Content> contents
+        List<Content> contents,
+        @JsonProperty("generation_config")
+        GenerationConfig generationConfig
 ) {
+    public record Content(List<Part> parts) {}
 
-    /**
-     * 요청의 'parts' 목록을 감싸는 Content 구조
-     */
-    record Content(
-            List<Part> parts
-    ) {}
-
-    /**
-     * 실제 데이터 조각 (텍스트 또는 이미지)
-     */
-    record Part(
-            @JsonProperty("text")
-            String text,
-
-            @JsonProperty("inline_data")
-            InlineData inlineData
+    public record Part(
+            @JsonProperty("text") String text,
+            @JsonProperty("inline_data") InlineData inlineData
     ) {
-        /**
-         * 텍스트 파트를 쉽게 만들기 위한 정적 메서드
-         */
         public static Part fromText(String text) {
             return new Part(text, null);
         }
 
-        /**
-         * 이미지 파트를 쉽게 만들기 위한 메서드
-         */
         public static Part fromInlineData(String mimeType, String data) {
             return new Part(null, new InlineData(mimeType, data));
         }
     }
 
-    /**
-     * Base64로 인코딩된 이미지 데이터를 담는 구조
-     */
-    record InlineData(
-            @JsonProperty("mime_type")
-            String mimeType,
-
-            @JsonProperty("data")
-            String data
+    public record InlineData(
+            @JsonProperty("mime_type") String mimeType,
+            @JsonProperty("data") String data
     ) {}
+
+    public record GenerationConfig(
+            @JsonProperty("thinking_config") ThinkingConfig thinkingConfig
+    ) {}
+
+    public record ThinkingConfig(
+            @JsonProperty("thinking_budget") Integer thinkingBudget,
+            @JsonProperty("include_thoughts") Boolean includeThoughts
+    ) {}
+
+    public static GeminiImageRequest withThinkingEnabled(List<Content> contents) {
+        var thinkingConfig = new ThinkingConfig(8192, true);
+        var generationConfig = new GenerationConfig(thinkingConfig);
+        return new GeminiImageRequest(contents, generationConfig);
+    }
 
     public String extractText() {
         try {

@@ -1,3 +1,5 @@
+# 📁 .github/workflows/deploy.yml (최종 완성본)
+
 name: Deploy to Cloudtype
 
 on:
@@ -36,7 +38,8 @@ jobs:
                   secret: GEMINI_API_KEY
                 - name: API_URL
                   value: https://app.cloudtype.io/@ysb5397/flowise
-              # ✨ 에러 메시지가 요구한 대로 options 안에 git 정보를 추가!
+                - name: GCP_CREDENTIALS_JSON
+                  secret: GCP_CREDENTIALS_JSON
               git:
                 url: git@github.com:${{ github.repository }}.git
                 ref: ${{ github.ref }}

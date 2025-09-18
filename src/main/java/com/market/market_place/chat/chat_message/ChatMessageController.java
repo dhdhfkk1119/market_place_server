@@ -63,6 +63,8 @@ public class ChatMessageController {
         log.info("[Backend Log] STOMP message received.");
 
         Long senderId = (Long) headerAccessor.getSessionAttributes().get("userId");
+
+
         log.info("[Backend Log] Sender ID from session: {}", senderId);
 
         if (senderId == null) {
@@ -83,7 +85,8 @@ public class ChatMessageController {
 
             // 메시지 브로커를 통해 메시지 전송
             // 상대방에게 메시지 전송
-            messagingTemplate.convertAndSend("/topic/chat/room/" + responseDTO.getRoomId(), responseDTO);
+            messagingTemplate.convertAndSend("/topic/chat/room/" +
+                    responseDTO.getRoomId(), responseDTO);
 
 
         } catch (Exception e) {

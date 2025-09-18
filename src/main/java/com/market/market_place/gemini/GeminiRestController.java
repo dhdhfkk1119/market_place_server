@@ -30,16 +30,6 @@ public class GeminiRestController {
         return sseUtil.addEmitter(userId);
     }
 
-    @Operation(summary = "AI 이미지 분석 전체 응답 API")
-    @PostMapping("/image/{userId}")
-    public ResponseEntity<Void> imageChat(
-            @PathVariable String userId,
-            @RequestBody GeminiImageRequest geminiRequest
-    ) {
-        geminiService.askImageForGemini(userId, geminiRequest);
-        return ResponseEntity.ok().build();
-    }
-
     @Operation(summary = "AI 이미지 분석 실시간 응답 API")
     @PostMapping("/image/{userId}/stream")
     public ResponseEntity<Void> streamImageChat(
