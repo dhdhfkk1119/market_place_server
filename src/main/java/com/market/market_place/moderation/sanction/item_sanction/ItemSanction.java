@@ -44,7 +44,6 @@ public class ItemSanction {
     private LocalDateTime startAt;
     private LocalDateTime endAt;
 
-
     @Column(nullable = false)
     private boolean active;
 
@@ -58,7 +57,7 @@ public class ItemSanction {
         this.active = false;
     }
 
-    public String getTime(){
+    public String getTime() {
         return DateUtil.localDateTimeFormat(endAt);
     }
 }

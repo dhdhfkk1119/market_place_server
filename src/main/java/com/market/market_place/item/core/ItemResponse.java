@@ -24,7 +24,6 @@ public class ItemResponse {
         private String tradeLocation;
         private String thumbnail;
 
-        // private String status;
         private Integer favoriteCount;
 
         public static ItemListDTO from(Item item) {
@@ -138,6 +137,4 @@ public class ItemResponse {
             this.title = item.getTitle();
         }
     }
-
-
 }

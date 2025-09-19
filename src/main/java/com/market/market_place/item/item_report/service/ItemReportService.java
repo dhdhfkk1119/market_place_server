@@ -83,8 +83,8 @@ public class ItemReportService {
         );
 
         return ItemReportResponse.ItemReportResultDTO.builder()
-                .itemReportId(report.getId())
-                .Result(process.getResult())
+                .id(report.getId())
+                .result(process.getResult())
                 .adminReason(process.getReason())
                 .processDate(process.getProcessDate())
                 .build();

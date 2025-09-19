@@ -23,5 +23,4 @@ public class ItemSanctionRequest {
     private ProcessResult processResult;
 
     private String adminReason;
-
 }

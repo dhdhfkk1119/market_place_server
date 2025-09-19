@@ -17,36 +17,25 @@ public class ItemReportResponse {
     public static class ItemReportSaveDTO {
         private String reason;
 
+        @Builder
         public ItemReportSaveDTO(ItemReport itemReport) {
             this.reason = itemReport.getReason();
         }
-
     }
 
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     @Builder
     public static class ItemReportDetailDTO {
-
+        private Long id;
         private String reporterName;
         private Long itemId;
         private String reason;
         private ItemReportStatus status;
         private Timestamp createdAt;
 
-        public ItemReportDetailDTO(ItemReport itemReport) {
-
-            this.reporterName = itemReport.getReporter().getMemberProfile().getName();
-            this.itemId = itemReport.getItem().getId();
-            this.reason = itemReport.getReason();
-            this.status = itemReport.getStatus();
-            this.createdAt = itemReport.getCreatedAt();
-
-        }
-
         public static ItemReportDetailDTO from(ItemReport itemReport) {
             return ItemReportDetailDTO.builder()
+                    .id(itemReport.getId())
                     .reporterName(itemReport.getReporter().getMemberProfile().getName())
                     .itemId(itemReport.getItem().getId())
                     .reason(itemReport.getReason())
@@ -54,26 +43,18 @@ public class ItemReportResponse {
                     .createdAt(itemReport.getCreatedAt())
                     .build();
         }
-
     }
 
     @Data
-    @Builder
-    @NoArgsConstructor
     @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
     public static class ItemReportListDTO {
-
+        private Long id;
         private Long itemId;
         private String reason;
         private ItemReportStatus status;
         private Timestamp createAt;
-
-        public ItemReportListDTO(ItemReport itemReport) {
-            this.itemId = itemReport.getItem().getId();
-            this.reason = itemReport.getReason();
-            this.status = itemReport.getStatus();
-            this.createAt = itemReport.getCreatedAt();
-        }
     }
 
     @Data
@@ -81,9 +62,9 @@ public class ItemReportResponse {
     @AllArgsConstructor
     @Builder
     public static class ItemReportResultDTO {
-        private Long itemReportId;
+        private Long id;
         private String adminReason;
-        private ProcessResult Result;
+        private ProcessResult result;
         private LocalDateTime processDate;
     }
 }

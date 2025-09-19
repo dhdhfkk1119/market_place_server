@@ -14,12 +14,10 @@ public class ItemRequest {
     public static class ItemSaveDTO {
 
         private Long itemCategoryId;
-        private Long memberAddressId;
         private String title;
         private String content;
         private Long price;
         private List<String> base64Images;
-
         private String tradeLocation;
 
         public Item toEntity(ItemCategory itemCategory) {

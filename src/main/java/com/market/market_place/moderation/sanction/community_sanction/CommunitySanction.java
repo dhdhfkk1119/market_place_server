@@ -22,12 +22,12 @@ public class CommunitySanction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY,optional = false)
-    @JoinColumn(name = "member_id",nullable = false,updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false, updatable = false)
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY,optional = false)
-    @JoinColumn(name = "report_id",nullable = false,updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "report_id", nullable = false, updatable = false)
     private CommunityReport report;
 
     @Column(length = 500)
@@ -44,6 +44,4 @@ public class CommunitySanction {
 
     @Column(nullable = false)
     private Boolean active = true;
-
-
 }
