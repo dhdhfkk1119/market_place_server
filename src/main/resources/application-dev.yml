@@ -50,6 +50,9 @@ spring:
   h2:
     console:
       enabled: true
+      settings:
+        web-allow-others: true # 가장 중요한 설정
+
   # (기존 다른 설정들은 그대로 두세요)
   mail:
     host: smtp.gmail.com

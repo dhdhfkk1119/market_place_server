@@ -27,7 +27,7 @@ public class GeminiService {
     private final ObjectMapper objectMapper;
     private final TranslationUtil translationUtil;
 
-    @Value("${ai.gemini.key}")
+    // @Value("${ai.gemini.key}")
     private String apiKey;
 
     @Value("${ai.gemini.url.stream}")
