@@ -6,6 +6,7 @@ import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
 import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_favorite.ItemFavoriteRepository;
+import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
@@ -116,6 +117,11 @@ public class ItemAndFavoriteInitializer implements CommandLineRunner {
                 .tradeLocation(location)
                 .averageRating(avgRating)
                 .build();
+
+        ItemImage image = ItemImage.builder()
+                        .imageUrl("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn8B9V2HAAAAAElFTkSuQmCC")
+                .build();
+        item.addImage(image);
 
         itemRepository.save(item);
     }
