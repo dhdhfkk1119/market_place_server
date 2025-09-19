@@ -23,14 +23,11 @@ public class ItemImage {
     @Column(nullable = false)
     private String imageUrl;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id",nullable = false)
     private Item item;
 
     public static ItemImage of(String url) {
         return ItemImage.builder().imageUrl(url).build();
     }
-
-
 }

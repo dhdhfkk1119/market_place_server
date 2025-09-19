@@ -40,19 +40,20 @@ public class Item {
 
     @Enumerated(EnumType.STRING)
     private TradeStatus status;
-    @Setter
+
     @Column(name = "average_rating")
     private Double averageRating;
-
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemImage> images = new ArrayList<>();
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ItemImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ItemFavorite> favorites = new ArrayList<>();
 
     public void addImage(ItemImage image) {

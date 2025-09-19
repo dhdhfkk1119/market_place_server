@@ -2,7 +2,6 @@ package com.market.market_place.moderation.sanction.community_sanction;
 
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
-import com.market.market_place.community.community_post.CommunityPostService;
 import com.market.market_place.community.community_report.CommunityReport;
 import com.market.market_place.community.community_report.CommunityReportRepository;
 import com.market.market_place.community.community_report.CommunityReportStatus;
@@ -31,7 +30,7 @@ public class CommunitySanctionService {
     public void ensurePostAllowed(Long memberId) {
         LocalDateTime now = LocalDateTime.now();
         boolean banned = communitySanctionRepository
-                .existsByMember_IdAndActiveTrueAndEndAtAfter(memberId,now);
+                .existsByMember_IdAndActiveTrueAndEndAtAfter(memberId, now);
         if (banned) {
             throw new Exception403("게시글 작성이 제한되어 있습니다.");
         }

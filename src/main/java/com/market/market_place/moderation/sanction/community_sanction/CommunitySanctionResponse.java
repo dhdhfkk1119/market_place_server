@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class CommunitySanctionResponse {
-
     private Long id;
     private Long memberId;
     private Long reportId;

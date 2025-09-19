@@ -7,10 +7,12 @@ public class ItemCategoryResponse {
 
     @Data
     public static class ItemCategoryDetailDTO {
+        private Long id;
         private String title;
 
         @Builder
         public ItemCategoryDetailDTO(ItemCategory itemCategory) {
+            this.id = itemCategory.getId();
             this.title = itemCategory.getName();
         }
     }
@@ -18,10 +20,12 @@ public class ItemCategoryResponse {
     @Data
     @Builder
     public static class ItemCategoryListDTO {
+        private Long id;
         private String name;
 
         public static ItemCategoryListDTO fromEntity(ItemCategory itemCategory) {
             return ItemCategoryListDTO.builder()
+                    .id(itemCategory.getId())
                     .name(itemCategory.getName())
                     .build();
         }
