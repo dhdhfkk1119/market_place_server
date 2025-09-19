@@ -93,8 +93,8 @@ public class MemberAuthService {
         // 계정 상태 확인
         checkAccountStatus(member);
 
-        // 마지막 로그인 시간 업데이트 (동시 로그인 방지)
-        member.setLoggedInAt(LocalDateTime.now());
+        // 마지막 로그인 시간 업데이트 (동시 로그인 방지) - 정밀도 문제 해결
+        member.setLoggedInAt(LocalDateTime.now().withNano(0));
 
         log.info("로그인 성공. 사용자 ID: {}", member.getId());
         return issueTokensAndGetResponse(member);
@@ -112,8 +112,8 @@ public class MemberAuthService {
         // 계정 상태 확인
         checkAccountStatus(member);
 
-        // 마지막 로그인 시간 업데이트 (동시 로그인 방지)
-        member.setLoggedInAt(LocalDateTime.now());
+        // 마지막 로그인 시간 업데이트 (동시 로그인 방지) - 정밀도 문제 해결
+        member.setLoggedInAt(LocalDateTime.now().withNano(0));
 
         log.info("소셜 로그인 성공. 사용자 ID: {}", member.getId());
         return issueTokensAndGetResponse(member);

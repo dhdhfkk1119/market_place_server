@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.members.domain.Provider;
 import com.market.market_place.members.domain.Role;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +39,8 @@ public class JwtUtil {
                 .withClaim("id", member.getId())
                 .withClaim("loginId", member.getLoginId())
                 .withClaim("role", member.getRole().name())
-                .withClaim("loggedInAt", member.getLoggedInAt().toString()) // 이름 통일
+                .withClaim("provider", member.getProvider().name()) // 로그인 방식 추가
+                .withClaim("loggedInAt", member.getLoggedInAt().toString())
                 .sign(Algorithm.HMAC512(SECRET_KEY));
     }
 
@@ -69,13 +71,15 @@ public class JwtUtil {
         Long id = decodedJWT.getClaim("id").asLong();
         String loginId = decodedJWT.getClaim("loginId").asString();
         String roleStr = decodedJWT.getClaim("role").asString();
+        String providerStr = decodedJWT.getClaim("provider").asString(); // 로그인 방식 추출
         String loggedInAtStr = decodedJWT.getClaim("loggedInAt").asString();
 
         return SessionUser.builder()
                 .id(id)
                 .loginId(loginId)
                 .role(Role.valueOf(roleStr))
-                .loggedInAt(LocalDateTime.parse(loggedInAtStr)) // 이름 통일
+                .provider(Provider.valueOf(providerStr)) // Provider로 변환하여 저장
+                .loggedInAt(LocalDateTime.parse(loggedInAtStr))
                 .build();
     }
 
@@ -119,6 +123,7 @@ public class JwtUtil {
         private Long id;
         private String loginId;
         private Role role;
-        private LocalDateTime loggedInAt; // 이름 통일
+        private Provider provider; // 로그인 방식 필드 추가
+        private LocalDateTime loggedInAt;
     }
 }
