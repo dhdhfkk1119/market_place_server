@@ -45,6 +45,10 @@ public class Member {
     // 이메일 인증 완료 시각
     private LocalDateTime emailVerifiedAt;
 
+    // 마지막 로그인 시각 (동시 로그인 방지용)
+    @Setter
+    private LocalDateTime loggedInAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role; // 독립된 Role 열거형
@@ -117,5 +121,3 @@ public class Member {
         this.status = MemberStatus.ACTIVE;
     }
 }
-
-

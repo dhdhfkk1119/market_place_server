@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 // JWT 토큰 생성 및 유효성 검증을 위한 유틸리티 클래스
@@ -37,6 +38,7 @@ public class JwtUtil {
                 .withClaim("id", member.getId())
                 .withClaim("loginId", member.getLoginId())
                 .withClaim("role", member.getRole().name())
+                .withClaim("loggedInAt", member.getLoggedInAt().toString()) // 이름 통일
                 .sign(Algorithm.HMAC512(SECRET_KEY));
     }
 
@@ -67,11 +69,13 @@ public class JwtUtil {
         Long id = decodedJWT.getClaim("id").asLong();
         String loginId = decodedJWT.getClaim("loginId").asString();
         String roleStr = decodedJWT.getClaim("role").asString();
+        String loggedInAtStr = decodedJWT.getClaim("loggedInAt").asString();
 
         return SessionUser.builder()
                 .id(id)
                 .loginId(loginId)
                 .role(Role.valueOf(roleStr))
+                .loggedInAt(LocalDateTime.parse(loggedInAtStr)) // 이름 통일
                 .build();
     }
 
@@ -114,8 +118,7 @@ public class JwtUtil {
     public static class SessionUser {
         private Long id;
         private String loginId;
-        private String username;
-        private String email;
-        private Role role; // 독립된 Role을 사용하도록 수정
+        private Role role;
+        private LocalDateTime loggedInAt; // 이름 통일
     }
 }

@@ -45,18 +45,24 @@ public class AuthInterceptor implements HandlerInterceptor {
             // 1. 인증: 토큰 검증 및 세션 정보 생성
             JwtUtil.SessionUser sessionUser = verifyTokenAndGetSessionUser(request);
 
-            // [추가] 1.5. 계정 상태 확인: DB에서 최신 사용자 상태를 직접 확인
+            // 2. DB 조회: DB에서 최신 사용자 정보를 직접 확인
             Member memberInDb = memberRepository.findById(sessionUser.getId())
                     .orElseThrow(() -> new Exception401("@Auth: 유효하지 않은 사용자 정보입니다."));
 
+            // 3. 동시 로그인 검증: 토큰의 로그인 시간과 DB의 마지막 로그인 시간을 비교
+            if (memberInDb.getLoggedInAt() != null && !sessionUser.getLoggedInAt().isEqual(memberInDb.getLoggedInAt())) {
+                throw new Exception401("@Auth: 다른 기기에서 로그인하여 현재 세션이 만료되었습니다.");
+            }
+
+            // 4. 계정 상태 확인
             if (memberInDb.getStatus() == MemberStatus.BANNED) {
                 throw new Exception403("@Auth: 활동이 정지된 계정입니다.");
             }
 
-            // 2. 권한: API 접근 역할 검사
+            // 5. 권한: API 접근 역할 검사
             checkRole(auth, sessionUser);
 
-            // 3. 소유권: 리소스 소유자 검사
+            // 6. 소유권: 리소스 소유자 검사
             checkOwnership(auth, sessionUser, request);
 
             return true; // 모든 검사 통과
