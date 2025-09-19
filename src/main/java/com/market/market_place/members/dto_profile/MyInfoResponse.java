@@ -3,6 +3,7 @@ package com.market.market_place.members.dto_profile;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.domain.MemberProfile;
 import com.market.market_place.members.domain.MemberStatus;
+import com.market.market_place.members.domain.Provider;
 import lombok.Getter;
 
 @Getter
@@ -14,6 +15,7 @@ public class MyInfoResponse {
     private final String name;
     private final String role;
     private final MemberStatus status;
+    private final Provider provider; // 로그인 방식 추가
     private final String profileImageBase64;
 
     public MyInfoResponse(Member member) {
@@ -22,6 +24,7 @@ public class MyInfoResponse {
         this.role = member.getRole().name();
         this.status = member.getStatus();
         this.email = member.getEmail();
+        this.provider = member.getProvider(); // 로그인 방식 설정
 
         MemberProfile profile = member.getMemberProfile();
         if (profile != null) {
