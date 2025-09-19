@@ -3,8 +3,10 @@ package com.market.market_place.item.core;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.status.TradeStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -62,6 +64,8 @@ public class ItemResponse {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ItemDetailDTO {
         private Long id;
         private Long itemCategoryId;
@@ -76,6 +80,7 @@ public class ItemResponse {
         private String sellerProfileUrl;
         private String sellerAddress;
         private int retransactionRate;
+        private Long viewCount;
 
         public static ItemDetailDTO from(Item item) {
             return ItemDetailDTO.builder()
@@ -100,6 +105,7 @@ public class ItemResponse {
                     .sellerProfileUrl(item.getMember().getMemberProfile().getProfileImageBase64())
                     .sellerAddress(item.getMember().getAddress())
                     .retransactionRate(item.getMember().getRetransactionRate())
+                    .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
                     .build();
         }
     }

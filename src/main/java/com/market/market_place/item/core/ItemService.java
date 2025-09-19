@@ -31,6 +31,9 @@ public class ItemService {
     public ItemResponse.ItemDetailDTO findById(Long id) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 게시물을 찾을 수 없습니다"));
+
+        item.increaseViewCount();
+
         return ItemResponse.ItemDetailDTO.from(item);
     }
 
@@ -168,7 +171,4 @@ public class ItemService {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 상품을 찾을 수 없습니다"));
     }
-
-
-
 }
