@@ -19,63 +19,71 @@ public class ItemController {
 
     private final ItemService itemService;
 
+    // 상품 상세 조회
     @GetMapping("/{id}")
     public ResponseEntity<ItemResponse.ItemDetailDTO> detail(@PathVariable Long id) {
-
-
         ItemResponse.ItemDetailDTO item = itemService.findById(id);
-
         return ResponseEntity.ok(item);
     }
 
+    // 내 상품 목록 조회
+    @Auth(roles = {Role.ADMIN, Role.USER})
+    @GetMapping("/sales")
+    public ResponseEntity<Page<ItemResponse.MySalesListItemDTO>> getMySales(
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
+            @PageableDefault(size = 10,sort = "createdAt") Pageable pageable
+    ) {
+        Page<ItemResponse.MySalesListItemDTO> mySales = itemService.getMySales(sessionUser.getId(),pageable);
+        return ResponseEntity.ok(mySales);
+    }
+
+
+    // 상품 목록 조회
     @GetMapping("/")
     public ResponseEntity<Page<ItemResponse.ItemListDTO>> list(
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
+            Pageable pageable) {
         Page<ItemResponse.ItemListDTO> body = itemService.findAll(pageable);
         return ResponseEntity.ok(body);
     }
 
+    // 상품 등록
     @Auth(roles = {Role.ADMIN, Role.USER})
     @PostMapping
     public ResponseEntity<?> save(
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
-            @RequestBody ItemRequest.ItemSaveDTO dto
-    ) {
+            @RequestBody ItemRequest.ItemSaveDTO dto) {
         ItemResponse.ItemSaveDTO body = itemService.save(sessionUser.getId(), dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
+    // 상품 수정
     @Auth(roles = {Role.ADMIN, Role.USER})
     @PatchMapping("/{id}")
     public ResponseEntity<ItemResponse.ItemUpdateDTO> update(
             @PathVariable Long id,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
-            @RequestBody ItemRequest.ItemUpdateDTO dto
-    ) {
+            @RequestBody ItemRequest.ItemUpdateDTO dto) {
         ItemResponse.ItemUpdateDTO body =
                 itemService.update(id, sessionUser.getId(), dto);
         return ResponseEntity.ok(body);
     }
 
+    // 상품 삭제
     @Auth(roles = {Role.ADMIN, Role.USER})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser
-    ) {
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
         itemService.delete(id, sessionUser.getId());
         return ResponseEntity.noContent().build();
     }
 
-    @Auth(roles = {Role.ADMIN, Role.USER})
+    // 상품 검색
     @GetMapping
     public ResponseEntity<Page<ItemResponse.ItemListDTO>> getItems(
-            ItemRequest.SearchDTO searchRequest,
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
-
-        Page<ItemResponse.ItemListDTO> items = itemService.getItems(searchRequest, sessionUser);
+            ItemRequest.SearchDTO searchRequest) {
+        Page<ItemResponse.ItemListDTO> items = itemService.getItems(searchRequest);
         return ResponseEntity.ok(items);
     }
 }

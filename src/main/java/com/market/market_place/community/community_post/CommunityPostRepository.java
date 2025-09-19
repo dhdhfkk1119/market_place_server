@@ -41,4 +41,7 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
     // ID로 삭제되지 않은 글만 조회
     @Query("select p from CommunityPost p where p.deletedAt is null")
     List<CommunityPost> findAllActive();
+
+    // memberId로 게시글 목록 조회
+    Page<CommunityPost> findByMemberId(Long memberId,Pageable pageable);
 }

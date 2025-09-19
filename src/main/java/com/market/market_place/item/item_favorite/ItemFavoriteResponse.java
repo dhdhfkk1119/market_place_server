@@ -11,4 +11,9 @@ public class ItemFavoriteResponse {
     private Long itemId;
     private boolean liked;
     private Long favoriteCount;
+
+    public static class StatusDTO {
+        private Long itemId;
+    }
+
 }

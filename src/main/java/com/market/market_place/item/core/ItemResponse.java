@@ -2,9 +2,11 @@ package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.status.TradeStatus;
 import lombok.Builder;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -104,7 +106,6 @@ public class ItemResponse {
 
     @Data
     public static class ItemSaveDTO {
-        //이미지 거래방식 추가 필요
         private Long itemCategoryId;
         private String tradeLocation;
         private String title;
@@ -123,7 +124,6 @@ public class ItemResponse {
 
     @Data
     public static class ItemUpdateDTO {
-
         private String tradeLocation;
         private String title;
         private String content;
@@ -135,6 +135,45 @@ public class ItemResponse {
             this.tradeLocation = item.getTradeLocation();
             this.price = item.getPrice();
             this.title = item.getTitle();
+        }
+    }
+
+    @Data
+    @Builder
+    public static class MySalesListItemDTO {
+        private Long id;
+        private String title;
+        private Long price;
+        private String thumbnailUrl;
+        private Timestamp createdAt;
+        private String statusLabel;
+        public TradeStatus status;
+
+        public static MySalesListItemDTO from(Item item) {
+            String thumbUrl = Optional.ofNullable(item.getImages())
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(ItemImage::getImageUrl)
+                    .findFirst()
+                    .orElse(null);
+
+            return MySalesListItemDTO.builder()
+                    .id(item.getId())
+                    .title(item.getTitle())
+                    .price(item.getPrice())
+                    .thumbnailUrl(thumbUrl)
+                    .createdAt(item.getCreatedAt())
+                    .status(item.getStatus())
+                    .statusLabel(toStatusLabel(item.getStatus()))
+                    .build();
+        }
+
+        private static String toStatusLabel(TradeStatus status) {
+            return switch (status) {
+                case ON_SALE -> "판매중";
+                case PENDING -> "예약중";
+                case SOLD -> "판매완료";
+            };
         }
     }
 }

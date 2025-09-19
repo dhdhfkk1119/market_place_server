@@ -45,13 +45,13 @@ public class CommunityPostService {
 
     // 상세보기 - 댓글 인기순 등록순 정렬
     @Transactional
-    public CommunityPostResponse.DetailDTO detail(Long id,String sortType) {
+    public CommunityPostResponse.DetailDTO detail(Long id, String sortType) {
         CommunityPost post = postRepository.findByIdWithComments(id).orElseThrow(() ->
                 new Exception404("게시글이 없습니다"));
         post.increaseViewCount();
         postRepository.save(post);
 
-        return new CommunityPostResponse.DetailDTO(post,sortType);
+        return new CommunityPostResponse.DetailDTO(post, sortType);
     }
 
     // 작성
@@ -122,10 +122,10 @@ public class CommunityPostService {
 
     // 삭제
     @Transactional
-    public void delete(Long id, JwtUtil.SessionUser sessionUser){
+    public void delete(Long id, JwtUtil.SessionUser sessionUser) {
         CommunityPost post = postRepository.findById(id)
                 .orElseThrow(() -> new Exception404("삭제하려는 게시글이 없습니다"));
-        if(!post.isOwner(sessionUser.getId())){
+        if (!post.isOwner(sessionUser.getId())) {
             throw new Exception403("본인이 작성한 게시글만 삭제할 수 있습니다");
         }
         postRepository.delete(post);
@@ -156,10 +156,15 @@ public class CommunityPostService {
         post.setDeletedAt(LocalDateTime.now());
 
         // 필요하면 삭제 사유 로깅
-        log.info("[ForceDelete] postId={} 이유={}",id,reason);
+        log.info("[ForceDelete] postId={} 이유={}", id, reason);
     }
 
-
+    // 마이페이지 - 내가 쓴 커뮤니티 글 목록
+    @Transactional(readOnly = true)
+    public Page<CommunityPostResponse.ListDTO> getMyPosts(Long memberId, Pageable pageable) {
+        Page<CommunityPost> page = postRepository.findByMemberId(memberId, pageable);
+        return page.map(CommunityPostResponse.ListDTO::new);
+    }
 
 }
 

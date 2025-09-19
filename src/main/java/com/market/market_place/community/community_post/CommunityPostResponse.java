@@ -98,4 +98,7 @@ public class CommunityPostResponse {
             this.content = post.getContent();
         }
     }
+
+
+
 }

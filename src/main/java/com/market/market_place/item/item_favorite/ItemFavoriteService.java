@@ -64,4 +64,7 @@ public class ItemFavoriteService {
 
         return new ItemFavoriteResponse(itemId, liked, itemFavoriteCount);
     }
+
+
+
 }
