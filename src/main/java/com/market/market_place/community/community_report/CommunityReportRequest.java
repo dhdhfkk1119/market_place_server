@@ -7,7 +7,6 @@ import lombok.Data;
 
 public class CommunityReportRequest {
 
-    // 신고등록
     @Data
     public static class CreateDTO {
         @NotBlank(message = "신고 사유는 필수입니다.")

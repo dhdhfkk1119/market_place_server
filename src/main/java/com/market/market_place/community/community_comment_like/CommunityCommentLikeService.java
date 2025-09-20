@@ -4,7 +4,6 @@ import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.community.community_comment.CommunityComment;
 import com.market.market_place.community.community_comment.CommunityCommentRepository;
-import com.market.market_place.community.community_post_like.CommunityPostLikeResponse;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.notification.NotificationService;
@@ -38,7 +37,7 @@ public class CommunityCommentLikeService {
         boolean liked;
         if(commentLike.isPresent()){
             likeRepository.delete(commentLike.get());
-            comment.updateLikeCount(comment.getLikeCount() -1); // 좋아요 취소 -1
+            comment.updateLikeCount(comment.getLikeCount() -1);
             liked = false;
         } else {
             CommunityCommentLike like = CommunityCommentLike.builder()
@@ -46,14 +45,13 @@ public class CommunityCommentLikeService {
                     .member(member)
                     .build();
             likeRepository.save(like);
-            comment.updateLikeCount(comment.getLikeCount() + 1); // 좋아요 등록
+            comment.updateLikeCount(comment.getLikeCount() + 1);
             liked = true;
         }
         notificationService.sendCommentLike(comment.getMember().getId().toString(), comment.getContent());
         return new CommunityCommentLikeResponse.ResponseDTO(liked, (long)comment.getLikeCount());
     }
 
-    // 좋아요 수 조회
     public Long getLikeCount(Long commentId){
         return commentRepository.findById(commentId)
                 .map(comment -> (long)comment.getLikeCount())

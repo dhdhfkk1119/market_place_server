@@ -6,7 +6,6 @@ import lombok.Data;
 
 public class CommunityCommentRequest {
 
-    // 저장
     @Data
     public static class SaveDTO{
         private String content;
@@ -22,7 +21,6 @@ public class CommunityCommentRequest {
         }
     }
 
-    // 수정
     @Data
     public static class UpdateDTO{
         private String content;

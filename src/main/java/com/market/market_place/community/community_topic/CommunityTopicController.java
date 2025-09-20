@@ -16,14 +16,12 @@ public class CommunityTopicController {
 
     private final CommunityTopicService topicService;
 
-    // 조회
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<CommunityTopicResponse.ListDTO> topics = topicService.findAll();
         return ResponseEntity.ok(topics);
     }
 
-    // 등록
     @Auth(roles = Role.ADMIN)
     @PostMapping
     public ResponseEntity<?> save(@Valid @RequestBody CommunityTopicRequest.SaveDTO saveDTO){
@@ -31,7 +29,6 @@ public class CommunityTopicController {
         return ResponseEntity.ok(savedTopic);
     }
 
-    // 수정
     @Auth(roles = Role.ADMIN)
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
@@ -40,7 +37,6 @@ public class CommunityTopicController {
         return ResponseEntity.ok(updateTopic);
     }
 
-    // 삭제
     @Auth(roles = Role.ADMIN)
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {

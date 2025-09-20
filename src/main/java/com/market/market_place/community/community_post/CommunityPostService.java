@@ -43,7 +43,6 @@ public class CommunityPostService {
                 .collect(Collectors.toList());
     }
 
-    // 상세보기 - 댓글 인기순 등록순 정렬
     @Transactional
     public CommunityPostResponse.DetailDTO detail(Long id, String sortType) {
         CommunityPost post = postRepository.findByIdWithComments(id).orElseThrow(() ->
@@ -54,7 +53,6 @@ public class CommunityPostService {
         return new CommunityPostResponse.DetailDTO(post, sortType);
     }
 
-    // 작성
     @Transactional
     public CommunityPostResponse.ResponseDTO save(CommunityPostRequest.SaveDTO saveDTO,
                                                   JwtUtil.SessionUser sessionUser) {

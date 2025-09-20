@@ -2,7 +2,6 @@ package com.market.market_place.community.community_comment;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.community.community_comment_like.CommunityCommentLike;
 import com.market.market_place.community.community_post.CommunityPost;
@@ -42,24 +41,25 @@ public class CommunityComment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    @JsonIgnore // json 응답에서 제외
+    @JsonIgnore
     private Member member;
 
+    @Builder.Default
     @Column(nullable = false)
     private int likeCount = 0;
 
     @CreationTimestamp
     private Timestamp createdAt;
 
+    @Builder.Default
+    @JsonIgnore
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // json 응답에서 제외
     private List<CommunityCommentLike> likes = new ArrayList<>();
 
     public boolean isOwner(Long sessionId){
         return this.member.getId().equals(sessionId);
     }
 
-    // update 메서드
     public void update(CommunityCommentRequest.UpdateDTO updateDTO) {
         this.content = updateDTO.getContent();
         this.imageUrl = updateDTO.getImageUrl();
@@ -70,6 +70,6 @@ public class CommunityComment {
     }
 
     public String getTime(){
-        return DateUtil.dateTimeFormat(createdAt);
+        return DateUtil.timestampFormat(createdAt);
     }
 }
