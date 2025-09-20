@@ -70,7 +70,7 @@ public class Member {
 
     @Column(nullable = false)
     @Setter
-    private int retransactionRate = 0;
+    private double retransactionRate = 0.0;
 
     private double mannerScore;
 
@@ -113,7 +113,7 @@ public class Member {
         this.status = MemberStatus.BANNED;
     }
 
-    public int getRetransactionRate() {
+    public double getRetransactionRate() {
         return this.retransactionRate;
     }
 
