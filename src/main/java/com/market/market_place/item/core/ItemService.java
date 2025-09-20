@@ -5,6 +5,7 @@ import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -63,6 +64,9 @@ public class ItemService {
 
         Item item = dto.toEntity(category);
         item.setMember(seller);
+
+        item.setStatus(TradeStatus.ON_SALE);
+        item.setAverageRating(null);
 
         if (dto.getBase64Images() != null && !dto.getBase64Images().isEmpty()) {
             for (String data : dto.getBase64Images()) {
