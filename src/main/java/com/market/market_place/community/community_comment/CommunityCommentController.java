@@ -18,7 +18,6 @@ public class CommunityCommentController {
 
     private final CommunityCommentService commentService;
 
-    // 조회
     @GetMapping("/posts/{postId}")
     public ResponseEntity<ApiUtil.ApiResult<List<CommunityCommentResponse.ResponseDTO>>> list(
             @PathVariable Long postId){
@@ -26,7 +25,6 @@ public class CommunityCommentController {
     }
 
 
-    // 저장
     @Auth(roles = {Role.USER, Role.ADMIN})
     @PostMapping("/posts/{postId}")
     public ResponseEntity<?> save(@PathVariable Long postId,
@@ -37,7 +35,6 @@ public class CommunityCommentController {
         return ResponseEntity.ok(ApiUtil.success(savedComment));
     }
 
-    // 수정
     @Auth(roles = {Role.USER, Role.ADMIN})
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
@@ -48,7 +45,6 @@ public class CommunityCommentController {
         return ResponseEntity.ok(ApiUtil.success(updateComment));
     }
 
-    // 삭제
     @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id,

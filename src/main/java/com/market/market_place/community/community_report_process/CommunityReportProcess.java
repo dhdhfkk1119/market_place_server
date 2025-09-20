@@ -37,7 +37,7 @@ public class CommunityReportProcess {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id", nullable = false)
-    @JsonIgnore // json 응답에서 제외
+    @JsonIgnore
     private Member admin;
 
     @Column(length = 500)
@@ -47,6 +47,6 @@ public class CommunityReportProcess {
     private Timestamp createdAt;
 
     public String getTime(){
-        return DateUtil.dateTimeFormat(createdAt);
+        return DateUtil.timestampFormat(createdAt);
     }
 }

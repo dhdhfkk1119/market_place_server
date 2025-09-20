@@ -14,16 +14,12 @@ import java.util.Optional;
 public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {
 
 
-    // 전체조회 페이징처리
     @Query("SELECT DISTINCT p FROM CommunityPost p JOIN FETCH p.topic LEFT JOIN FETCH p.comments")
     Page<CommunityPost> findAllWithTopicAndComments(Pageable pageable);
 
-
-    // 댓글과 사용자 한번에 조회
     @Query("SELECT p FROM CommunityPost p LEFT JOIN FETCH p.comments c LEFT JOIN FETCH c.member WHERE p.id = :postId")
     Optional<CommunityPost> findByIdWithComments(@Param("postId") Long postId);
 
-    // 검색기능
     @Query("SELECT DISTINCT p FROM CommunityPost p " +
             "LEFT JOIN p.topic t " +
             "WHERE (:keyword IS NULL OR p.title LIKE %:keyword% OR p.content LIKE %:keyword%) " +

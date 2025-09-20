@@ -5,7 +5,6 @@ import lombok.Data;
 
 public class CommunityTopicRequest {
 
-    // 저장
     @Data
     public static class SaveDTO{
         private String name;
@@ -19,7 +18,6 @@ public class CommunityTopicRequest {
         }
     }
 
-    // 수정
     @Data
     public static class UpdateDTO {
         private String name;

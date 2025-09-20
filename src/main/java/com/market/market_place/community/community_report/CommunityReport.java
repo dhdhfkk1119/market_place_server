@@ -28,33 +28,30 @@ public class CommunityReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 신고자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id", nullable = false)
     private Member reporter;
 
-    // 신고 대상 게시글
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private CommunityPost post;
 
-    // 신고 사유
     @Column(nullable = false, length = 500)
     private String reason;
 
-    // 신고 상태
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private CommunityReportStatus status = CommunityReportStatus.PENDING;
 
-    // 신고 답변
+    @Builder.Default
+    @JsonManagedReference
     @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // 순환 참조 방지
     private List<CommunityReportProcess> adminComments = new ArrayList<>();
 
     @CreationTimestamp
     private Timestamp createdAt;
 
     public String getTime() {
-        return DateUtil.dateTimeFormat(createdAt);
+        return DateUtil.timestampFormat(createdAt);
     }
 }

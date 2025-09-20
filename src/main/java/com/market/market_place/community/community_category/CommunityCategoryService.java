@@ -14,7 +14,6 @@ public class CommunityCategoryService {
 
     private final CommunityCategoryRepository categoryRepository;
 
-    // 조회
     public List<CommunityCategoryResponse.ListDTO> findAll() {
 
         return categoryRepository.findAll().stream()
@@ -22,7 +21,6 @@ public class CommunityCategoryService {
                 .toList();
     }
 
-    // 등록
     @Transactional
     public CommunityCategoryResponse.CategoryResponseDTO save(CommunityCategoryRequest.SaveDTO saveDTO){
 
@@ -31,7 +29,6 @@ public class CommunityCategoryService {
         return new CommunityCategoryResponse.CategoryResponseDTO(savedCategory);
     }
 
-    // 수정
     @Transactional
     public CommunityCategoryResponse.CategoryResponseDTO update(Long id, CommunityCategoryRequest.UpdateDTO updateDTO) {
 
@@ -42,8 +39,6 @@ public class CommunityCategoryService {
         return new CommunityCategoryResponse.CategoryResponseDTO(category);
     }
 
-
-    // 삭제
     @Transactional
     public void delete(Long id) {
         CommunityCategory category = categoryRepository.findById(id).orElseThrow(() ->
