@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TradeService {
@@ -30,5 +32,14 @@ public class TradeService {
         Trade savedTrade = tradeRepository.save(trade);
 
         return new TradeResponse(savedTrade);
+    }
+
+    // 내 구매내역 조회
+    @Transactional(readOnly = true)
+    public List<TradeResponse.MyTradeListItemDTO> getMyPurchases(Long buyerId) {
+        List<Trade> trades = tradeRepository.findByBuyerId(buyerId);
+        return trades.stream()
+                .map(TradeResponse.MyTradeListItemDTO::fromPurchase)
+                .toList();
     }
 }

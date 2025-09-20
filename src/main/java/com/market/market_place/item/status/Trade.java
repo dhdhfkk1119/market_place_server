@@ -43,8 +43,15 @@ public class Trade {
     @JoinColumn(name = "buyer_id")
     private Member buyer;
 
+    @Enumerated(EnumType.STRING)
+    private TradeStatus status;
+
     private boolean buyerReviewed;
     private boolean sellerReviewed;
+
+    private Timestamp createdAt;
+
+    private Timestamp completedAt;
 
     public void setBuyerReviewed(boolean buyerReviewed) {
         this.buyerReviewed = buyerReviewed;
