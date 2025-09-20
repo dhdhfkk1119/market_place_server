@@ -1,5 +1,6 @@
 package com.market.market_place.item.status;
 
+import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
 import com.market.market_place.members.domain.Member;
