@@ -74,6 +74,13 @@ public class Item {
         image.setItem(null);
     }
 
+    @PrePersist
+    public void PrePersist() {
+        if (averageRating == null) {
+            averageRating = 2.5;
+        }
+    }
+
     public void update(ItemRequest.ItemUpdateDTO dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();

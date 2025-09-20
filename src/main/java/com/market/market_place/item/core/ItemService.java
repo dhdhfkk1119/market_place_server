@@ -44,7 +44,7 @@ public class ItemService {
         Member seller = memberRepository.findById(memberId)
                 .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다"));
 
-        return itemRepository.findByMemberId(memberId,pageable)
+        return itemRepository.findByMemberId(memberId, pageable)
                 .map(ItemResponse.MySalesListItemDTO::from);
     }
 
@@ -64,9 +64,7 @@ public class ItemService {
 
         Item item = dto.toEntity(category);
         item.setMember(seller);
-
         item.setStatus(TradeStatus.ON_SALE);
-        item.setAverageRating(null);
 
         if (dto.getBase64Images() != null && !dto.getBase64Images().isEmpty()) {
             for (String data : dto.getBase64Images()) {

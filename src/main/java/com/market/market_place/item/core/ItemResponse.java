@@ -27,7 +27,7 @@ public class ItemResponse {
         private String itemCategoryName;
         private String tradeLocation;
         private String thumbnail;
-
+        private Long viewCount;
         private Integer favoriteCount;
 
         public static ItemListDTO from(Item item) {
@@ -58,6 +58,7 @@ public class ItemResponse {
                     .tradeLocation(town)
                     .thumbnail(thumbUrl)
                     .favoriteCount(favCount)
+                    .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
                     .build();
         }
     }
@@ -79,7 +80,7 @@ public class ItemResponse {
         private Integer favoriteCount;
         private String sellerProfileUrl;
         private String sellerAddress;
-        private int retransactionRate;
+        private Double retransactionRate;
         private Long viewCount;
 
         public static ItemDetailDTO from(Item item) {
@@ -104,7 +105,7 @@ public class ItemResponse {
                     .sellerName(item.getMember().getMemberProfile().getName())
                     .sellerProfileUrl(item.getMember().getMemberProfile().getProfileImageBase64())
                     .sellerAddress(item.getMember().getAddress())
-                    .retransactionRate(item.getMember().getRetransactionRate())
+                    .retransactionRate(item.getAverageRating())
                     .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
                     .build();
         }
