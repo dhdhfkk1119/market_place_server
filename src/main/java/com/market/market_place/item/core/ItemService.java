@@ -2,8 +2,10 @@ package com.market.market_place.item.core;
 
 import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
+import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
+import com.market.market_place.item.item_favorite.ItemFavoriteRepository;
 import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
@@ -26,16 +28,22 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCategoryRepository itemCategoryRepository;
+    private final ItemFavoriteRepository itemFavoriteRepository;
     private final MemberRepository memberRepository;
 
     // 상품 ID로 객체를 불러와 DTO로 반환
-    public ItemResponse.ItemDetailDTO findById(Long id) {
+    public ItemResponse.ItemDetailDTO findById(Long id, JwtUtil.SessionUser sessionUser) {
+
+        Member member = memberRepository.findById(sessionUser.getId())
+                .orElseThrow(() -> new Exception404("해당 유저를 찾을수없습니다"));
+
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 게시물을 찾을 수 없습니다"));
 
         item.increaseViewCount();
+        boolean liked = itemFavoriteRepository.existsByItemAndMember(item, member);
 
-        return ItemResponse.ItemDetailDTO.from(item);
+        return ItemResponse.ItemDetailDTO.from(item,liked);
     }
 
     // 멤버 ID로 상품 불러온 후 응답 DTO로 반환
@@ -50,6 +58,7 @@ public class ItemService {
 
     // 상품 리스트 DTO로 반환
     public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
+
         return itemRepository.findAll(pageable)
                 .map(ItemResponse.ItemListDTO::from);
     }

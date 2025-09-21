@@ -84,8 +84,9 @@ public class ItemResponse {
         private String sellerAddress;
         private Double retransactionRate;
         private Long viewCount;
+        private boolean liked;
 
-        public static ItemDetailDTO from(Item item) {
+        public static ItemDetailDTO from(Item item,boolean liked) {
             return ItemDetailDTO.builder()
                     .id(item.getId())
                     .itemCategoryId(item.getItemCategory().getId())
@@ -109,6 +110,7 @@ public class ItemResponse {
                     .sellerAddress(item.getMember().getAddress())
                     .retransactionRate(item.getAverageRating())
                     .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
+                    .liked(liked)
                     .build();
         }
     }

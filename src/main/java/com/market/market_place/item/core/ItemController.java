@@ -20,9 +20,11 @@ public class ItemController {
     private final ItemService itemService;
 
     // 상품 상세 조회
+    @Auth(roles = {Role.ADMIN,Role.USER})
     @GetMapping("/{id}")
-    public ResponseEntity<ItemResponse.ItemDetailDTO> detail(@PathVariable Long id) {
-        ItemResponse.ItemDetailDTO item = itemService.findById(id);
+    public ResponseEntity<ItemResponse.ItemDetailDTO> detail(@PathVariable Long id,
+                                                             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        ItemResponse.ItemDetailDTO item = itemService.findById(id,sessionUser);
         return ResponseEntity.ok(item);
     }
 
@@ -39,13 +41,14 @@ public class ItemController {
 
 
     // 상품 목록 조회
-    @GetMapping("/")
-    public ResponseEntity<Page<ItemResponse.ItemListDTO>> list(
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
-            Pageable pageable) {
-        Page<ItemResponse.ItemListDTO> body = itemService.findAll(pageable);
-        return ResponseEntity.ok(body);
-    }
+//    @GetMapping("/")
+//    public ResponseEntity<Page<ItemResponse.ItemListDTO>> list(
+//            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
+//            Pageable pageable) {
+//        Page<ItemResponse.ItemListDTO> body = itemService.findAll(pageable);
+//
+//        return ResponseEntity.ok(body);
+//    }
 
     // 상품 등록
     @Auth(roles = {Role.ADMIN, Role.USER})
