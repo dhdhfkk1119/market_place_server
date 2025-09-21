@@ -79,6 +79,7 @@ public class ItemService {
     }
 
     // 상품 수정
+    @Transactional
     public ItemResponse.ItemUpdateDTO update(Long id, Long sessionUserId, ItemRequest.ItemUpdateDTO dto) {
 
         Item item = itemRepository.findById(id)
@@ -99,6 +100,10 @@ public class ItemService {
         if (dto.getTradeLocation() != null) {
             item.setTradeLocation(dto.getTradeLocation());
         }
+
+        ItemCategory itemCategory = itemCategoryRepository.findById(dto.getItemCategoryId()).orElseThrow(() -> new Exception404("해당 카테고리를 찾을수없습니다"));
+        item.setItemCategory(itemCategory);
+
         return new ItemResponse.ItemUpdateDTO(item);
     }
 

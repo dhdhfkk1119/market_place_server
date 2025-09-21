@@ -29,6 +29,7 @@ public class ItemResponse {
         private String thumbnail;
         private Long viewCount;
         private Integer favoriteCount;
+        private Long itemCategoryId;
 
         public static ItemListDTO from(Item item) {
 
@@ -59,6 +60,7 @@ public class ItemResponse {
                     .thumbnail(thumbUrl)
                     .favoriteCount(favCount)
                     .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
+                    .itemCategoryId(item.getItemCategory().getId())
                     .build();
         }
     }
