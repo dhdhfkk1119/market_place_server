@@ -34,6 +34,7 @@ public class ItemRequest {
     @Data
     public static class ItemUpdateDTO {
 
+        private Long itemCategoryId;
         private Long memberAddressId;
         private String title;
         private String content;

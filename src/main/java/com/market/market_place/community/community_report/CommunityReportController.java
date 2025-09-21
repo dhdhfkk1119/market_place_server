@@ -20,7 +20,6 @@ public class CommunityReportController {
 
     private final CommunityReportService reportService;
 
-    // 등록
     @Auth(roles = Role.USER)
     @PostMapping("/posts/{postId}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityReportResponse.CreateDTO>> reportPost(
@@ -32,7 +31,6 @@ public class CommunityReportController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    // 전체조회
     @Auth(roles = Role.USER)
     @GetMapping
     public ResponseEntity<ApiUtil.ApiResult<List<CommunityReportResponse.ListDTO>>> list(
@@ -42,7 +40,6 @@ public class CommunityReportController {
         return ResponseEntity.ok(ApiUtil.success(reports));
     }
 
-    // 상세조회
     @Auth(roles = Role.USER)
     @GetMapping("/{reportId}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityReportResponse.DetailDTO>> detail(

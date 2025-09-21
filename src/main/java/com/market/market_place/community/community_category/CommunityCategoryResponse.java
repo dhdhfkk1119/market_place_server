@@ -1,14 +1,10 @@
 package com.market.market_place.community.community_category;
 
-import com.market.market_place.community.community_topic.CommunityTopic;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 public class CommunityCategoryResponse {
 
-    // 조회
     @Data
     public static class ListDTO {
         private Long id;
@@ -21,7 +17,6 @@ public class CommunityCategoryResponse {
         }
     }
 
-    // 등록, 수정
     @Data
     public static class CategoryResponseDTO{
         private Long id;

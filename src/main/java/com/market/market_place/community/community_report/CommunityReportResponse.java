@@ -30,7 +30,6 @@ public class CommunityReportResponse {
         }
     }
 
-    // 전체조회
     @Data
     public static class ListDTO{
         private Long id;
@@ -48,7 +47,6 @@ public class CommunityReportResponse {
         }
     }
 
-    // 상세 조회
     @Data
     public static class DetailDTO{
         private Long id;

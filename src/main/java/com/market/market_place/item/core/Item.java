@@ -44,6 +44,10 @@ public class Item {
     @Column(name = "average_rating")
     private Double averageRating;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Long viewCount = 0L;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
@@ -56,6 +60,10 @@ public class Item {
     @Builder.Default
     private List<ItemFavorite> favorites = new ArrayList<>();
 
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
     public void addImage(ItemImage image) {
         images.add(image);
         image.setItem(this);
@@ -66,9 +74,28 @@ public class Item {
         image.setItem(null);
     }
 
+    @PrePersist
+    public void PrePersist() {
+        if (averageRating == null) {
+            averageRating = 2.5;
+        }
+    }
+
     public void update(ItemRequest.ItemUpdateDTO dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.price = dto.getPrice();
+    }
+
+    public String getThumbnailUrl() {
+        return images.stream()
+                .filter(ItemImage::isPrimary)
+                .findFirst()
+                .map(ItemImage::getImageUrl)
+                .orElseGet(() -> images.stream()
+                        .sorted((o1, o2) -> Integer.compare(o1.getOrderIndex(),o2.getOrderIndex()))
+                        .findFirst()
+                        .map(ItemImage::getImageUrl)
+                        .orElse(null));
     }
 }

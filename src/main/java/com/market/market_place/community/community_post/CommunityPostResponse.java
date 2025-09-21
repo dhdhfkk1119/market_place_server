@@ -5,14 +5,12 @@ import com.market.market_place.community.community_post_image.CommunityPostImage
 import lombok.Builder;
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommunityPostResponse {
 
-    // 전체조회
     @Data
     public static class ListDTO{
         private Long id;
@@ -46,7 +44,6 @@ public class CommunityPostResponse {
         }
     }
 
-    // 상세조회
     @Data
     public static class DetailDTO {
         private Long id;
@@ -84,18 +81,24 @@ public class CommunityPostResponse {
         }
     }
 
-    // 작성, 수정
     @Data
     public static class ResponseDTO{
         private Long id;
+        private Long topicId;
         private String title;
         private String content;
+        private String location;
 
         @Builder
         public ResponseDTO(CommunityPost post) {
             this.id = post.getId();
+            this.topicId = post.getTopic().getId();
             this.title = post.getTitle();
             this.content = post.getContent();
+            this.location = post.getLocation();
         }
     }
+
+
+
 }

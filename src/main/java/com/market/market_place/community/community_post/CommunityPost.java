@@ -39,14 +39,16 @@ public class CommunityPost {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String location; // 임시 위치 정보
+    private String location;
 
     @CreationTimestamp
     private Timestamp createdAt;
 
+    @Builder.Default
     @Column(nullable = false)
     private int likeCount = 0;
 
+    @Builder.Default
     @Column(nullable = false)
     private int viewCount = 0;
 
@@ -62,13 +64,16 @@ public class CommunityPost {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityPostImage> images = new ArrayList<>();
 
+    @Builder.Default
+    @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // 순환 참조 방지
     private List<CommunityComment> comments = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityPostLike> likes = new ArrayList<>();
 
@@ -81,7 +86,7 @@ public class CommunityPost {
     }
 
     public void updateLikeCount(int count) {
-        this.likeCount = Math.max(0, count); // 0 보다 작아지지 않도록 설정
+        this.likeCount = Math.max(0, count);
     }
 
     public void update(CommunityPostRequest.UpdateDTO updateDTO) {
@@ -91,7 +96,7 @@ public class CommunityPost {
     }
 
     public String getTime() {
-        return DateUtil.dateTimeFormat(createdAt);
+        return DateUtil.timestampFormat(createdAt);
     }
 
 }

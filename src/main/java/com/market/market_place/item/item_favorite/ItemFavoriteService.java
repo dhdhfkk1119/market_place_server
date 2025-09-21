@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,7 +24,7 @@ public class ItemFavoriteService {
     private final NotificationService notificationService;
 
     @Transactional
-    public ItemFavoriteResponse toggleFavorite(Long itemId, Long memberId) {
+    public ItemFavoriteResponse.StatusDTO toggleFavorite(Long itemId, Long memberId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
         Member member = memberRepository.findById(memberId)
@@ -33,6 +34,7 @@ public class ItemFavoriteService {
                 itemFavoriteRepository.findByMemberIdAndItemId(member.getId(), item.getId());
 
         boolean liked;
+        boolean created = false;
         if (itemFavoriteOpt.isPresent()) {
             itemFavoriteRepository.delete(itemFavoriteOpt.get());
             liked = false;
@@ -43,6 +45,7 @@ public class ItemFavoriteService {
             try {
                 itemFavoriteRepository.save(itemFavorite);
                 liked = true;
+                created = true;
             } catch (DataIntegrityViolationException e) {
                 liked = true;
             }
@@ -50,11 +53,12 @@ public class ItemFavoriteService {
 
         Long itemFavoriteCount = itemFavoriteRepository.countByItemId(item.getId());
         notificationService.sendPostLike(item.getMember().getId().toString(), item.getTitle());
-        return new ItemFavoriteResponse(item.getId(), liked, itemFavoriteCount);
+
+        return new ItemFavoriteResponse.StatusDTO(item.getId(), liked, itemFavoriteCount);
     }
 
     @Transactional(readOnly = true)
-    public ItemFavoriteResponse getFavoriteStatus(Long itemId, Long sessionUserId) {
+    public ItemFavoriteResponse.StatusDTO getFavoriteStatus(Long itemId, Long sessionUserId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new Exception404("상품이 존재하지 않습니다."));
 
@@ -62,6 +66,28 @@ public class ItemFavoriteService {
 
         Long itemFavoriteCount = itemFavoriteRepository.countByItemId(itemId);
 
-        return new ItemFavoriteResponse(itemId, liked, itemFavoriteCount);
+        return new ItemFavoriteResponse.StatusDTO(itemId, liked, itemFavoriteCount);
     }
+
+    @Transactional(readOnly = true)
+    public List<ItemFavoriteResponse.FavoriteItemDTO> getMyFavoriteItems(Long memberId) {
+        return itemFavoriteRepository.findByMemberId(memberId).stream()
+                .map(favorite -> {
+                    Item item = favorite.getItem();
+                    return new ItemFavoriteResponse.FavoriteItemDTO(
+                            item.getId(),
+                            item.getTitle(),
+                            item.getThumbnailUrl(),
+                            item.getPrice(),
+                            item.getTradeLocation()
+                    );
+                })
+                .toList();
+    }
+
+    @Transactional
+    public void setPrimaryImage(Item item,Long imageId) {
+        item.getImages().forEach(itemImage -> itemImage.setPrimary(itemImage.getId().equals(imageId)));
+    }
+
 }

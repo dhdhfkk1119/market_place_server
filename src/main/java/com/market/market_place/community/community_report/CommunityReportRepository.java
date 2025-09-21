@@ -14,7 +14,6 @@ public interface CommunityReportRepository extends JpaRepository<CommunityReport
 
     Page<CommunityReport> findAllByReporterIdOrderByCreatedAtDesc(Long reporterId, Pageable pageable);
 
-    // 신고자와 신고 답변 한번에 조회
     @Query("SELECT r FROM CommunityReport r LEFT JOIN FETCH r.adminComments c LEFT JOIN FETCH c.admin WHERE r.id = :reporterId")
     Optional<CommunityReport> findByIdWithAdminComments(@Param("reporterId")Long reporterId);
 

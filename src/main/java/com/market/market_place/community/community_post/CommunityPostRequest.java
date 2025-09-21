@@ -8,7 +8,6 @@ import java.util.List;
 
 public class CommunityPostRequest {
 
-    // 저장
     @Data
     public static class SaveDTO {
         private String title;
@@ -28,7 +27,6 @@ public class CommunityPostRequest {
         }
     }
 
-    // 수정
     @Data
     public static class UpdateDTO {
         private String title;
@@ -39,7 +37,6 @@ public class CommunityPostRequest {
         private List<String> deleteImages;
     }
 
-    // 검색
     @Data
     public static class SearchDTO {
         private String keyword;

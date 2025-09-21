@@ -24,11 +24,9 @@ public class CommunityReportService {
     private final CommunityPostRepository postRepository;
     private final MemberRepository memberRepository;
 
-    // 신고 등록
     @Transactional
     public CommunityReportResponse.CreateDTO createReport(Long postId, Long memberId,
                                                           CommunityReportRequest.CreateDTO createDTO){
-        // 중복 신고 방지
         if(reportRepository.existsByReporterIdAndPostId(memberId,postId)){
             throw new Exception400("이미 신고한 게시글 입니다.");
         }
@@ -45,14 +43,12 @@ public class CommunityReportService {
         return new CommunityReportResponse.CreateDTO(report, "신고가 접수되었습니다");
     }
 
-    // 전체 조회
     public List<CommunityReportResponse.ListDTO> findAllMyReports(Long memberId, Pageable pageable){
         Page<CommunityReport> reports = reportRepository.findAllByReporterIdOrderByCreatedAtDesc(memberId, pageable);
         return reports.stream().map(CommunityReportResponse.ListDTO::new)
                 .collect(Collectors.toList());
     }
 
-    // 상세조회
     public CommunityReportResponse.DetailDTO detail(Long reportId, Long memberId){
         CommunityReport report = reportRepository.findByIdWithAdminComments(reportId)
                 .orElseThrow(() -> new Exception404("신고 내역을 찾을 수 없습니다."));

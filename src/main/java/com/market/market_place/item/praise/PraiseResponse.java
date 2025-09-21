@@ -12,10 +12,10 @@ public class PraiseResponse {
     private double updatedMannerScore;
     private boolean isSuccess;
     private List<Long> praiseCategories;
-    private int updatedRetransactionRate;
+    private double updatedRetransactionRate;
 
     @Builder
-    public PraiseResponse(String message, double updatedMannerScore, boolean isSuccess, List<Long> praiseCategories, int updatedRetransactionRate) {
+    public PraiseResponse(String message, double updatedMannerScore, boolean isSuccess, List<Long> praiseCategories, double updatedRetransactionRate) {
         this.message = message;
         this.updatedMannerScore = updatedMannerScore;
         this.isSuccess = isSuccess;

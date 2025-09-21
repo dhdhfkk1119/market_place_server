@@ -5,7 +5,9 @@ import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
+import com.market.market_place.item.item_favorite.ItemFavoriteRepository;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -26,24 +28,43 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCategoryRepository itemCategoryRepository;
+    private final ItemFavoriteRepository itemFavoriteRepository;
     private final MemberRepository memberRepository;
 
+    // 상품 ID로 객체를 불러와 DTO로 반환
+    public ItemResponse.ItemDetailDTO findById(Long id, JwtUtil.SessionUser sessionUser) {
 
-    public ItemResponse.ItemDetailDTO findById(Long id) {
+        Member member = memberRepository.findById(sessionUser.getId())
+                .orElseThrow(() -> new Exception404("해당 유저를 찾을수없습니다"));
+
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 게시물을 찾을 수 없습니다"));
 
-        return ItemResponse.ItemDetailDTO.from(item);
+        item.increaseViewCount();
+        boolean liked = itemFavoriteRepository.existsByItemAndMember(item, member);
+
+        return ItemResponse.ItemDetailDTO.from(item,liked);
     }
 
+    // 멤버 ID로 상품 불러온 후 응답 DTO로 반환
+    @Transactional(readOnly = true)
+    public Page<ItemResponse.MySalesListItemDTO> getMySales(Long memberId, Pageable pageable) {
+        Member seller = memberRepository.findById(memberId)
+                .orElseThrow(() -> new Exception404("사용자를 찾을 수 없습니다"));
 
+        return itemRepository.findByMemberId(memberId, pageable)
+                .map(ItemResponse.MySalesListItemDTO::from);
+    }
+
+    // 상품 리스트 DTO로 반환
     public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
+
         return itemRepository.findAll(pageable)
                 .map(ItemResponse.ItemListDTO::from);
     }
 
+    // 상품 저장
     public ItemResponse.ItemSaveDTO save(Long id, ItemRequest.ItemSaveDTO dto) {
-
         Member seller = memberRepository.findById(id)
                 .orElseThrow(() -> new Exception404("회원이 존재하지 않습니다"));
 
@@ -52,6 +73,7 @@ public class ItemService {
 
         Item item = dto.toEntity(category);
         item.setMember(seller);
+        item.setStatus(TradeStatus.ON_SALE);
 
         if (dto.getBase64Images() != null && !dto.getBase64Images().isEmpty()) {
             for (String data : dto.getBase64Images()) {
@@ -65,6 +87,8 @@ public class ItemService {
         return new ItemResponse.ItemSaveDTO(saved);
     }
 
+    // 상품 수정
+    @Transactional
     public ItemResponse.ItemUpdateDTO update(Long id, Long sessionUserId, ItemRequest.ItemUpdateDTO dto) {
 
         Item item = itemRepository.findById(id)
@@ -73,7 +97,6 @@ public class ItemService {
         if (!Objects.equals(item.getMember().getId(), sessionUserId)) {
             throw new Exception403("수정 권한이 없습니다.");
         }
-
         if (dto.getTitle() != null) {
             item.setTitle(dto.getTitle());
         }
@@ -83,15 +106,17 @@ public class ItemService {
         if (dto.getPrice() != null) {
             item.setPrice(dto.getPrice());
         }
-
         if (dto.getTradeLocation() != null) {
             item.setTradeLocation(dto.getTradeLocation());
         }
 
+        ItemCategory itemCategory = itemCategoryRepository.findById(dto.getItemCategoryId()).orElseThrow(() -> new Exception404("해당 카테고리를 찾을수없습니다"));
+        item.setItemCategory(itemCategory);
 
         return new ItemResponse.ItemUpdateDTO(item);
     }
 
+    // 상품 삭제
     public void delete(Long id, Long sessionUserId) {
 
         Item item = itemRepository.findById(id)
@@ -104,8 +129,9 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
+    // 키워드 검색
     @Transactional(readOnly = true)
-    public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest, JwtUtil.SessionUser sessionUser) {
+    public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
 
         QItem item = QItem.item;
         BooleanBuilder builder = new BooleanBuilder();
@@ -156,7 +182,7 @@ public class ItemService {
         return itemPage.map(ItemResponse.ItemListDTO::from);
     }
 
-
+    // 엔티티 바로 반환하는 메서드(서비스 로직안에서만 사용)
     public Item findItemById(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 상품을 찾을 수 없습니다"));

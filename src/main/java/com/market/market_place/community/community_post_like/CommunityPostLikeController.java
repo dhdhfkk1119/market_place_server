@@ -15,7 +15,6 @@ public class CommunityPostLikeController {
 
     private final CommunityPostLikeService postLikeService;
 
-    // 좋아요 토글 (등록/삭제)
     @Auth(roles = Role.USER)
     @PostMapping("/{postId}/like")
     public ResponseEntity<?> toggleLike(@PathVariable Long postId,
@@ -24,7 +23,6 @@ public class CommunityPostLikeController {
         return ResponseEntity.ok(ApiUtil.success(likeResponse));
     }
 
-    // 좋아요 수 조회
     @Auth(roles = Role.USER)
     @GetMapping("/{postId}/like/count")
     public ResponseEntity<?> getLikeCount(@PathVariable Long postId) {

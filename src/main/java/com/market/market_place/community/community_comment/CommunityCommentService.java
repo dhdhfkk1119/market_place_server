@@ -25,7 +25,6 @@ public class CommunityCommentService {
     private final MemberRepository memberRepository;
     private final NotificationService notificationService;
 
-    // 저장
     @Transactional
     public CommunityCommentResponse.ResponseDTO save(Long postId, CommunityCommentRequest.SaveDTO saveDTO,
                                                      JwtUtil.SessionUser sessionUser) {
@@ -42,14 +41,12 @@ public class CommunityCommentService {
         return new CommunityCommentResponse.ResponseDTO(comment);
     }
 
-    // 조회
     public List<CommunityCommentResponse.ResponseDTO> findWithPost(Long postId){
         return commentRepository.findByPostId(postId).stream()
                 .map(CommunityCommentResponse.ResponseDTO::new)
                 .collect(Collectors.toList());
     }
 
-    // 수정
     @Transactional
     public CommunityCommentResponse.ResponseDTO update(Long id, CommunityCommentRequest.UpdateDTO updateDTO,
                                    JwtUtil.SessionUser sessionUser){
@@ -62,8 +59,6 @@ public class CommunityCommentService {
         return new CommunityCommentResponse.ResponseDTO(comment);
     }
 
-
-    // 삭제
     @Transactional
     public void delete(Long id, JwtUtil.SessionUser sessionUser) {
         CommunityComment comment = commentRepository.findById(id)

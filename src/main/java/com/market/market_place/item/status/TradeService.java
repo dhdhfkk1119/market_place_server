@@ -1,5 +1,6 @@
 package com.market.market_place.item.status;
 
+import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
 import com.market.market_place.members.domain.Member;
@@ -7,6 +8,8 @@ import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,5 +33,14 @@ public class TradeService {
         Trade savedTrade = tradeRepository.save(trade);
 
         return new TradeResponse(savedTrade);
+    }
+
+    // 내 구매내역 조회
+    @Transactional(readOnly = true)
+    public List<TradeResponse.MyTradeListItemDTO> getMyPurchases(Long buyerId) {
+        List<Trade> trades = tradeRepository.findByBuyerId(buyerId);
+        return trades.stream()
+                .map(TradeResponse.MyTradeListItemDTO::fromPurchase)
+                .toList();
     }
 }

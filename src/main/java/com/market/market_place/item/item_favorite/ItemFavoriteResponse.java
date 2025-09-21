@@ -5,10 +5,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ItemFavoriteResponse {
-    private Long itemId;
-    private boolean liked;
-    private Long favoriteCount;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class StatusDTO {
+        private Long itemId;
+        private boolean liked;
+        private Long favoriteCount;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FavoriteItemDTO {
+        private Long itemId;
+        private String title;
+        private String thumbnailUrl;
+        private Long price;
+        private String tradeLocation;
+    }
 }

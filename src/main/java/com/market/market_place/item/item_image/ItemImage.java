@@ -27,6 +27,14 @@ public class ItemImage {
     @JoinColumn(name = "item_id",nullable = false)
     private Item item;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isPrimary = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private int orderIndex = 0;
+
     public static ItemImage of(String url) {
         return ItemImage.builder().imageUrl(url).build();
     }

@@ -5,7 +5,6 @@ import lombok.Data;
 
 public class CommunityTopicResponse {
 
-    // 조회
     @Data
     public static class ListDTO {
         private Long id;
@@ -18,7 +17,6 @@ public class CommunityTopicResponse {
         }
     }
 
-    // 등록, 수정
     @Data
     public static class TopicResponseDTO{
         private Long id;

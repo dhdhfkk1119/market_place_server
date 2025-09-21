@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -89,8 +90,12 @@ public class MemberAuthService {
             throw new Exception401("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        // 계정 상태 확인 및 토큰 발급
+        // 계정 상태 확인
         checkAccountStatus(member);
+
+        // 마지막 로그인 시간 업데이트 (동시 로그인 방지) - 정밀도 문제 해결
+        member.setLoggedInAt(LocalDateTime.now().withNano(0));
+
         log.info("로그인 성공. 사용자 ID: {}", member.getId());
         return issueTokensAndGetResponse(member);
     }
@@ -104,8 +109,12 @@ public class MemberAuthService {
         Member member = memberRepository.findByProviderAndProviderId(request.getProvider(), request.getProviderId())
                 .orElseGet(() -> createSocialMember(request));
 
-        // 계정 상태 확인 및 토큰 발급
+        // 계정 상태 확인
         checkAccountStatus(member);
+
+        // 마지막 로그인 시간 업데이트 (동시 로그인 방지) - 정밀도 문제 해결
+        member.setLoggedInAt(LocalDateTime.now().withNano(0));
+
         log.info("소셜 로그인 성공. 사용자 ID: {}", member.getId());
         return issueTokensAndGetResponse(member);
     }

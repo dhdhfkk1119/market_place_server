@@ -2,8 +2,6 @@ package com.market.market_place.gemini;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.market.market_place._core._exception.Exception400;
 import com.market.market_place._core._utils.SseUtil;
 import com.market.market_place._core._utils.TranslationUtil;
 import com.market.market_place.gemini.image_chat.GeminiImageRequest;
@@ -30,19 +28,24 @@ public class GeminiService {
     // @Value("${ai.gemini.key}")
     private String apiKey;
 
-    @Value("${ai.gemini.url.stream}")
-    private String streamApiUrl;
+    @Value("${ai.gemini.url.flash-stream}")
+    private String flashStreamApiUrl;
+
+    @Value("${ai.gemini.url.pro-stream}")
+    private String proStreamApiUrl;
 
     @Async
     public void askImageForGeminiStreaming(String userId, GeminiImageRequest request) {
-        if (streamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
-            throw new Exception400("Stream API 엔드포인트 또는 API Key가 누락된 잘못된 요청입니다. 설정을 확인해주세요.");
+        if (proStreamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
+            log.error("Gemini API Key 확인 실패 userId: {}", userId);
+            sseUtil.sendToUser(userId, "error", "Gemini API KEY를 확인할 수 없습니다.");
+            return;
         }
 
         sseUtil.sendToUser(userId, "thinking", "AI가 이미지를 분석하고 있어요...");
 
         webClient.post()
-                .uri(streamApiUrl + "?key=" + apiKey)
+                .uri(proStreamApiUrl + "?key=" + apiKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()
@@ -50,6 +53,7 @@ public class GeminiService {
                 .collectList()
                 .map(list -> String.join("", list))
                 .flatMap(fullJsonArrayString -> {
+                    log.info("FINAL ASSEMBLED STRING: {}", fullJsonArrayString);
                     try {
                         List<GeminiImageResponse> responses = objectMapper.readValue(fullJsonArrayString, new TypeReference<>() {});
                         return reactor.core.publisher.Mono.just(responses);
@@ -62,9 +66,6 @@ public class GeminiService {
                         if (chunk.isThinking()) {
                             String thoughtText = chunk.extractThoughtText();
                             String subject = extractSubjectFromThought(thoughtText);
-
-                            // --- 여기가 핵심! ---
-                            // 영어로 된 주제를 한국어로 번역한다.
                             String translatedSubject = translationUtil.translateText(subject, "ko");
                             sseUtil.sendToUser(userId, "thinking", translatedSubject);
                         } else {
@@ -76,7 +77,7 @@ public class GeminiService {
                     });
                 })
                 .doOnError(error -> {
-                    log.error("Gemini API 처리 중 에러 발생! userId: {}", userId, error);
+                    log.error("Gemini API 처리 중 최종 에러 발생! userId: {}", userId, error);
                     sseUtil.sendToUser(userId, "error", "AI 서버와 통신 중 문제가 발생했습니다.");
                 })
                 .doFinally(signalType -> {

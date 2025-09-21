@@ -37,7 +37,7 @@ public class CommunityPostLikeService {
         boolean liked;
         if(postLike.isPresent()){
             likeRepository.delete(postLike.get());
-            post.updateLikeCount(post.getLikeCount() -1); // 좋아요 취소 -1
+            post.updateLikeCount(post.getLikeCount() -1);
             liked = false;
         } else {
             CommunityPostLike like = CommunityPostLike.builder()
@@ -45,7 +45,7 @@ public class CommunityPostLikeService {
                     .member(member)
                     .build();
             likeRepository.save(like);
-            post.updateLikeCount(post.getLikeCount() + 1); // 좋아요 등록 +1
+            post.updateLikeCount(post.getLikeCount() + 1);
             liked = true;
         }
         notificationService.sendPostLike(post.getMember().getId().toString(), post.getTitle());
@@ -53,7 +53,6 @@ public class CommunityPostLikeService {
         return new CommunityPostLikeResponse.ResponseDTO(liked, (long) post.getLikeCount());
     }
 
-    // 좋아요 수 조회
     public Long getLikeCount(Long postId){
         return postRepository.findById(postId)
                 .map(post -> (long)post.getLikeCount())

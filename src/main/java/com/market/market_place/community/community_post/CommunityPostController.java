@@ -24,16 +24,14 @@ public class CommunityPostController {
 
     private final CommunityPostService postService;
 
-    // 전체조회
     @GetMapping
     public ResponseEntity<ApiUtil.ApiResult<List<CommunityPostResponse.ListDTO>>> list(
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         List<CommunityPostResponse.ListDTO> posts = postService.findAllPosts(pageable);
-        log.info("전체 조회에 접속 했습니다 posts = {}" , posts);
+        log.info("전체 조회에 접속 했습니다 posts = {}", posts);
         return ResponseEntity.ok(ApiUtil.success(posts));
     }
 
-    // 상세조회
     @GetMapping("/{id}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityPostResponse.DetailDTO>> detail(
             @PathVariable Long id,
@@ -43,37 +41,33 @@ public class CommunityPostController {
         return ResponseEntity.ok(ApiUtil.success(detailPosts));
     }
 
-    // 글 작성
     @Auth(roles = {Role.USER, Role.ADMIN})
     @PostMapping
     public ResponseEntity<?> save(@Valid @RequestBody CommunityPostRequest.SaveDTO saveDTO,
-                                  @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser){
+                                  @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
         CommunityPostResponse.ResponseDTO savedPost = postService.save(saveDTO, sessionUser);
         return ResponseEntity.ok(ApiUtil.success(savedPost));
     }
 
-    // 수정
     @Auth(roles = {Role.USER, Role.ADMIN})
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
                                     @Valid @RequestBody CommunityPostRequest.UpdateDTO updateDTO,
-                                    @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
+                                    @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
         CommunityPostResponse.ResponseDTO updatePost = postService.update(id, updateDTO, sessionUser);
         return ResponseEntity.ok(ApiUtil.success(updatePost));
     }
 
-    // 삭제
     @Auth(roles = {Role.USER, Role.ADMIN})
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id,
-                                    @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser){
+                                    @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
         postService.delete(id, sessionUser);
         return ResponseEntity.ok(ApiUtil.success("삭제 성공"));
     }
 
-    // 검색
     @Auth(roles = {Role.USER, Role.ADMIN})
     @GetMapping("/search")
     public ResponseEntity<ApiUtil.ApiResult<Page<CommunityPostResponse.ListDTO>>> searchPosts(
@@ -82,7 +76,6 @@ public class CommunityPostController {
             Pageable pageable,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
-        // 서비스에 검색 조건 + 정렬 정보 전달
         Page<CommunityPost> postsPage = postService.search(
                 searchDTO.getKeyword(),
                 searchDTO.getCategories(),
@@ -90,9 +83,19 @@ public class CommunityPostController {
                 pageable
         );
 
-        // 엔티티 -> DTO 변환
         Page<CommunityPostResponse.ListDTO> resultPage = postsPage.map(CommunityPostResponse.ListDTO::new);
 
         return ResponseEntity.ok(ApiUtil.success(resultPage));
+    }
+
+    // 내가 쓴 게시글 목록 조회
+    @Auth(roles = {Role.USER, Role.ADMIN})
+    @GetMapping("/mine")
+    public ResponseEntity<Page<CommunityPostResponse.ListDTO>> myCommunityPosts(
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<CommunityPostResponse.ListDTO> result = postService.getMyPosts(sessionUser.getId(), pageable);
+        return ResponseEntity.ok(result);
     }
 }

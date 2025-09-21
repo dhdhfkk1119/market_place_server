@@ -2,9 +2,13 @@ package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.status.TradeStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -23,8 +27,9 @@ public class ItemResponse {
         private String itemCategoryName;
         private String tradeLocation;
         private String thumbnail;
-
+        private Long viewCount;
         private Integer favoriteCount;
+        private Long itemCategoryId;
 
         public static ItemListDTO from(Item item) {
 
@@ -54,12 +59,16 @@ public class ItemResponse {
                     .tradeLocation(town)
                     .thumbnail(thumbUrl)
                     .favoriteCount(favCount)
+                    .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
+                    .itemCategoryId(item.getItemCategory().getId())
                     .build();
         }
     }
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ItemDetailDTO {
         private Long id;
         private Long itemCategoryId;
@@ -73,9 +82,11 @@ public class ItemResponse {
         private Integer favoriteCount;
         private String sellerProfileUrl;
         private String sellerAddress;
-        private int retransactionRate;
+        private Double retransactionRate;
+        private Long viewCount;
+        private boolean liked;
 
-        public static ItemDetailDTO from(Item item) {
+        public static ItemDetailDTO from(Item item,boolean liked) {
             return ItemDetailDTO.builder()
                     .id(item.getId())
                     .itemCategoryId(item.getItemCategory().getId())
@@ -97,14 +108,15 @@ public class ItemResponse {
                     .sellerName(item.getMember().getMemberProfile().getName())
                     .sellerProfileUrl(item.getMember().getMemberProfile().getProfileImageBase64())
                     .sellerAddress(item.getMember().getAddress())
-                    .retransactionRate(item.getMember().getRetransactionRate())
+                    .retransactionRate(item.getAverageRating())
+                    .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
+                    .liked(liked)
                     .build();
         }
     }
 
     @Data
     public static class ItemSaveDTO {
-        //이미지 거래방식 추가 필요
         private Long itemCategoryId;
         private String tradeLocation;
         private String title;
@@ -123,7 +135,6 @@ public class ItemResponse {
 
     @Data
     public static class ItemUpdateDTO {
-
         private String tradeLocation;
         private String title;
         private String content;
@@ -135,6 +146,45 @@ public class ItemResponse {
             this.tradeLocation = item.getTradeLocation();
             this.price = item.getPrice();
             this.title = item.getTitle();
+        }
+    }
+
+    @Data
+    @Builder
+    public static class MySalesListItemDTO {
+        private Long id;
+        private String title;
+        private Long price;
+        private String thumbnailUrl;
+        private Timestamp createdAt;
+        private String statusLabel;
+        public TradeStatus status;
+
+        public static MySalesListItemDTO from(Item item) {
+            String thumbUrl = Optional.ofNullable(item.getImages())
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(ItemImage::getImageUrl)
+                    .findFirst()
+                    .orElse(null);
+
+            return MySalesListItemDTO.builder()
+                    .id(item.getId())
+                    .title(item.getTitle())
+                    .price(item.getPrice())
+                    .thumbnailUrl(thumbUrl)
+                    .createdAt(item.getCreatedAt())
+                    .status(item.getStatus())
+                    .statusLabel(toStatusLabel(item.getStatus()))
+                    .build();
+        }
+
+        private static String toStatusLabel(TradeStatus status) {
+            return switch (status) {
+                case ON_SALE -> "판매중";
+                case PENDING -> "예약중";
+                case SOLD -> "판매완료";
+            };
         }
     }
 }
