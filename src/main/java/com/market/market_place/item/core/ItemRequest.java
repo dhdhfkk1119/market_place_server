@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Point;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ItemRequest {
         private Long price;
         private List<String> base64Images;
         private List<String> tags;
-        private String tradeLocation;
+        private Point tradeLocation;
 
         public Item toEntity(ItemCategory itemCategory) {
             return Item.builder()
@@ -40,7 +41,7 @@ public class ItemRequest {
         private String title;
         private String content;
         private Long price;
-        private String tradeLocation;
+        private Point tradeLocation;
 
         private List<String> base64Images;
     }
@@ -58,7 +59,8 @@ public class ItemRequest {
         private Long maxPrice;
         private String priceRange;
         private Long itemCategoryId;
-        private String tradeLocation;
+        private Point tradeLocation;
+        private Double distanceInMeter;
 
         @Builder.Default
         private int page = 0;
@@ -74,5 +76,12 @@ public class ItemRequest {
                 default        -> "createdAt";
             };
         }
+    }
+
+    @Data
+    public static class SearchByLocationDTO {
+        private double lat;
+        private double lng;
+        private int radius;
     }
 }

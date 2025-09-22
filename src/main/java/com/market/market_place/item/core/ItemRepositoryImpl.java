@@ -3,7 +3,9 @@ package com.market.market_place.item.core;
 import com.market.market_place.item.item_category.QItemCategory;
 import com.market.market_place.item.item_tag.QItemTag;
 import com.market.market_place.item.item_tag.QTag;
+import static com.market.market_place.item.core.QItem.item;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.BooleanOperation;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import org.locationtech.jts.geom.Point;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +37,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 .where(
                         keywordContains(searchDTO.getKeyword()),
                         categoryEq(searchDTO.getItemCategoryId()),
-                        locationContains(searchDTO.getTradeLocation()),
+                        withinDistance(searchDTO.getTradeLocation(), searchDTO.getDistanceInMeter()),
                         priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange()),
                         tagsIn(searchDTO.getTags(), tag)
 
@@ -53,7 +56,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
                 .where(
                         keywordContains(searchDTO.getKeyword()),
                         categoryEq(searchDTO.getItemCategoryId()),
-                        locationContains(searchDTO.getTradeLocation()),
+                        withinDistance(searchDTO.getTradeLocation(), searchDTO.getDistanceInMeter()),
                         priceBetween(searchDTO.getMinPrice(), searchDTO.getMaxPrice(), searchDTO.getPriceRange()),
                         tagsIn(searchDTO.getTags(), tag)
                 )
@@ -78,12 +81,12 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
         return item.itemCategory.id.eq(itemCategoryId);
     }
 
-    private BooleanExpression locationContains(String tradeLocation) {
-        if (tradeLocation == null || tradeLocation.trim().isEmpty()) {
+    private BooleanExpression withinDistance(Point center, Double distanceInMeter) {
+        if (center == null || distanceInMeter <= 0) {
             return null;
         }
-        QItem item = QItem.item;
-        return item.tradeLocation.containsIgnoreCase(tradeLocation);
+
+        return item.tradeLocation.distance(center).loe(distanceInMeter);
     }
 
     private BooleanExpression priceBetween(Long minPrice, Long maxPrice, String priceRange) {
