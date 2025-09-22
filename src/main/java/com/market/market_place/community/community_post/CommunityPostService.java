@@ -5,6 +5,8 @@ import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import com.market.market_place.community.community_post_image.CommunityPostImageRepository;
+import com.market.market_place.community.community_post_like.CommunityPostLike;
+import com.market.market_place.community.community_post_like.CommunityPostLikeRepository;
 import com.market.market_place.community.community_topic.CommunityTopic;
 import com.market.market_place.community.community_topic.CommunityTopicRepository;
 import com.market.market_place.members.domain.Member;
@@ -33,7 +35,7 @@ public class CommunityPostService {
     private final MemberRepository memberRepository;
     private final CommunityTopicRepository topicRepository;
     private final CommunityPostImageRepository imageRepository;
-
+    private final CommunityPostLikeRepository communityPostLikeRepository;
     private final CommunitySanctionService communitySanctionService;
 
     // 전체 조회
@@ -44,13 +46,19 @@ public class CommunityPostService {
     }
 
     @Transactional
-    public CommunityPostResponse.DetailDTO detail(Long id, String sortType) {
+    public CommunityPostResponse.DetailDTO detail(Long id, String sortType,JwtUtil.SessionUser sessionUser) {
         CommunityPost post = postRepository.findByIdWithComments(id).orElseThrow(() ->
                 new Exception404("게시글이 없습니다"));
+
+        Member member = memberRepository.findById(sessionUser.getId()).orElseThrow(() -> new Exception404("해당 유저를 찾을수없습니다"));
+        Boolean isLikedObj = communityPostLikeRepository.existsByPostAndMember(post, member);
+        boolean isLiked = Boolean.TRUE.equals(isLikedObj);
+
         post.increaseViewCount();
         postRepository.save(post);
 
-        return new CommunityPostResponse.DetailDTO(post, sortType);
+
+        return new CommunityPostResponse.DetailDTO(post, sortType,isLiked);
     }
 
     @Transactional

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Table(name = "community_post_like_tb",
-        uniqueConstraints = {@UniqueConstraint(name = "uk_post_member", columnNames = {"post_id", "member_id"})})
+        uniqueConstraints = {@UniqueConstraint(name = "uk_post_member", columnNames = {"post", "member"})})
 @Data
 @Entity
 public class CommunityPostLike {
@@ -22,11 +22,11 @@ public class CommunityPostLike {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post")
     private CommunityPost post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member")
     private Member member;
 
 }
