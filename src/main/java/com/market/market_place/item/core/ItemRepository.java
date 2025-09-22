@@ -21,4 +21,15 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
 
     // 판매자 ID로 상품 조회
     Page<Item> findByMemberId(Long memberId, Pageable pageable);
+
+    // 좌표로 거래 아이템 불러오기
+    @Query(
+            value = "SELECT * FROM Item i WHERE ST_Distance_Sphere(i.tradeLocation, ST_MakePoint(:lng, :lat)) <= :radius",
+            nativeQuery = true
+    )
+    List<Item> findPlacesInRadius(
+            @Param("lng") double lng,   // 중심점 경도
+            @Param("lat") double lat,   // 중심점 위도
+            @Param("radius") int radius  // 반경 (미터 단위)
+    );
 }

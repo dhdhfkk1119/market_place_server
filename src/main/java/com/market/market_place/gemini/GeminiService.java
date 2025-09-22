@@ -25,7 +25,7 @@ public class GeminiService {
     private final ObjectMapper objectMapper;
     private final TranslationUtil translationUtil;
 
-    // @Value("${ai.gemini.key}")
+    @Value("${ai.gemini.key}")
     private String apiKey;
 
     @Value("${ai.gemini.url.flash-stream}")
@@ -36,7 +36,7 @@ public class GeminiService {
 
     @Async
     public void askImageForGeminiStreaming(String userId, GeminiImageRequest request) {
-        if (proStreamApiUrl.trim().isEmpty() || apiKey.trim().isEmpty()) {
+        if (apiKey == null || apiKey.trim().isEmpty()) {
             log.error("Gemini API Key 확인 실패 userId: {}", userId);
             sseUtil.sendToUser(userId, "error", "Gemini API KEY를 확인할 수 없습니다.");
             return;

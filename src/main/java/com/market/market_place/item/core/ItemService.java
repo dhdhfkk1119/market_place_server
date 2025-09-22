@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Transactional
@@ -63,6 +64,14 @@ public class ItemService {
 
         return itemRepository.findAll(pageable)
                 .map(ItemResponse.ItemListDTO::from);
+    }
+
+    // 위치로 상품 리스트 가져오기
+    public List<ItemResponse.ItemListDTO> findAllByLocation(ItemRequest.SearchByLocationDTO search) {
+        return itemRepository.findPlacesInRadius(search.getLng(), search.getLat(), search.getRadius())
+                .stream()
+                .map(ItemResponse.ItemListDTO::from)
+                .toList();
     }
 
     // 상품 저장

@@ -37,11 +37,11 @@ public class NaverMapController {
                 .uri(uriBuilder -> uriBuilder
                         .path("/v1/search/local.json")
                         .queryParam("query", query)
-                        .queryParam("display", 5) // 예시: 5개 결과
+                        .queryParam("display", 5)
                         .build())
                 .header("X-Naver-Client-Id", naverMapClientId)
-                .retrieve() // 요청 실행
-                .toEntity(String.class) // 응답을 String 형태의 ResponseEntity로 변환
+                .retrieve()
+                .toEntity(String.class)
                 .doOnError(error -> System.err.println("네이버 API 호출 오류: " + error.getMessage()));
     }
 }

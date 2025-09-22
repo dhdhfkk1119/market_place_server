@@ -50,6 +50,11 @@ public class ItemController {
 //        return ResponseEntity.ok(body);
 //    }
 
+    @GetMapping("/nearby")
+    public ResponseEntity<?> nearbyList(ItemRequest.SearchByLocationDTO location) {
+        return ResponseEntity.ok().body(itemService.findAllByLocation(location));
+    }
+
     // 상품 등록
     @Auth(roles = {Role.ADMIN, Role.USER})
     @PostMapping

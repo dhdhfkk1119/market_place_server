@@ -3,10 +3,15 @@ package com.market.market_place.item.core;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.status.TradeStatus;
+import io.grpc.LoadBalancer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -25,7 +30,7 @@ public class ItemResponse {
         private Long price;
 
         private String itemCategoryName;
-        private String tradeLocation;
+        private LocationDTO tradeLocation;
         private String thumbnail;
         private Long viewCount;
         private Integer favoriteCount;
@@ -33,6 +38,7 @@ public class ItemResponse {
         private List<String> tags;
 
         public static ItemListDTO from(Item item) {
+            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
             String thumbUrl = Optional.ofNullable(item.getImages())
                     .orElseGet(Collections::emptyList)
@@ -44,8 +50,9 @@ public class ItemResponse {
             String categoryName = Optional.ofNullable(item.getItemCategory())
                     .map(ItemCategory::getName)
                     .orElse("기타");
-            String town = Optional.ofNullable(item.getTradeLocation())
-                    .orElse("미지정");
+            LocationDTO location = Optional.ofNullable(item.getTradeLocation())
+                    .map(LocationDTO::new)
+                    .orElse(null);
 
             int favCount = Optional.ofNullable(item.getFavorites())
                     .map(List::size)
@@ -57,7 +64,7 @@ public class ItemResponse {
                     .content(item.getContent())
                     .price(item.getPrice())
                     .itemCategoryName(categoryName)
-                    .tradeLocation(town)
+                    .tradeLocation(location)
                     .thumbnail(thumbUrl)
                     .favoriteCount(favCount)
                     .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
@@ -83,7 +90,7 @@ public class ItemResponse {
         private String content;
         private Long price;
         private String sellerName;
-        private String tradeLocation;
+        private LocationDTO tradeLocation;
         private List<String> base64Images;
         private Integer favoriteCount;
         private String sellerProfileUrl;
@@ -94,6 +101,10 @@ public class ItemResponse {
         private boolean liked;
 
         public static ItemDetailDTO from(Item item, boolean liked) {
+            LocationDTO location = Optional.ofNullable(item.getTradeLocation())
+                    .map(LocationDTO::new)
+                    .orElse(null);
+
             return ItemDetailDTO.builder()
                     .id(item.getId())
                     .itemCategoryId(item.getItemCategory().getId())
@@ -102,7 +113,7 @@ public class ItemResponse {
                     .content(item.getContent())
                     .price(item.getPrice())
                     .sellerName(item.getMember().getMemberProfile().getName())
-                    .tradeLocation(item.getTradeLocation())
+                    .tradeLocation(location)
                     .base64Images(
                             item.getImages().stream()
                                     .map(ItemImage::getImageUrl)
@@ -130,7 +141,7 @@ public class ItemResponse {
     @Data
     public static class ItemSaveDTO {
         private Long itemCategoryId;
-        private String tradeLocation;
+        private LocationDTO tradeLocation;
         private String title;
         private String content;
         private Long price;
@@ -139,7 +150,7 @@ public class ItemResponse {
         public ItemSaveDTO(Item item) {
             this.content = item.getContent();
             this.itemCategoryId = item.getItemCategory().getId();
-            this.tradeLocation = item.getTradeLocation();
+            this.tradeLocation = new LocationDTO(item.getTradeLocation());
             this.price = item.getPrice();
             this.title = item.getTitle();
         }
@@ -147,7 +158,7 @@ public class ItemResponse {
 
     @Data
     public static class ItemUpdateDTO {
-        private String tradeLocation;
+        private LocationDTO tradeLocation;
         private String title;
         private String content;
         private Long price;
@@ -155,7 +166,7 @@ public class ItemResponse {
         @Builder
         public ItemUpdateDTO(Item item) {
             this.content = item.getContent();
-            this.tradeLocation = item.getTradeLocation();
+            this.tradeLocation = new LocationDTO(item.getTradeLocation());
             this.price = item.getPrice();
             this.title = item.getTitle();
         }
@@ -197,6 +208,19 @@ public class ItemResponse {
                 case PENDING -> "예약중";
                 case SOLD -> "판매완료";
             };
+        }
+    }
+
+    @Data
+    public static class LocationDTO {
+        private double latitude;  // 위도
+        private double longitude; // 경도
+
+        public LocationDTO(Point point) {
+            if (point != null) {
+                this.latitude = point.getY();  // Y좌표가 위도
+                this.longitude = point.getX(); // X좌표가 경도
+            }
         }
     }
 }

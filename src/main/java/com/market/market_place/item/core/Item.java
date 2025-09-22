@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.locationtech.jts.geom.Point;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -41,7 +42,9 @@ public class Item {
     private String title;
     private String content;
     private Long price;
-    private String tradeLocation;
+
+    @Column(columnDefinition = "geometry(Point, 4326)")
+    private Point tradeLocation;
 
     @Enumerated(EnumType.STRING)
     private TradeStatus status;
