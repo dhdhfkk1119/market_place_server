@@ -36,6 +36,8 @@ jobs:
               env:
                 - name: GEMINI_API_KEY
                   secret: GEMINI_API_KEY
+                - name: NAVER_CLIENT_ID
+                  secret: NAVER_CLIENT_ID
                 - name: API_URL
                   value: https://app.cloudtype.io/@ysb5397/flowise
                 - name: GCP_CREDENTIALS_JSON
