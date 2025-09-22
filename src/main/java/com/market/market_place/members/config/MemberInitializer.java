@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 
 // 개발(dev) 또는 로컬(local) 환경에서만 실행되도록 프로필 설정
 @Profile({"dev", "local"})
@@ -51,6 +52,7 @@ public class MemberInitializer implements CommandLineRunner {
                     .role(role)
                     .status(status)
                     .provider(Provider.MARKIT)
+                    .loggedInAt(LocalDateTime.now().withNano(0)) // loggedInAt 초기화
                     .build();
 
             MemberProfile profile = MemberProfile.builder()

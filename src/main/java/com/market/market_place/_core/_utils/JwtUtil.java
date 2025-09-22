@@ -11,8 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 // JWT 토큰 생성 및 유효성 검증을 위한 유틸리티 클래스
 @Component
@@ -32,7 +32,7 @@ public class JwtUtil {
 
     // === 액세스 토큰 생성 ===
     public static String createAccessToken(Member member) {
-        Date expiresAt = new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME);
+        Instant expiresAt = Instant.now().plusMillis(ACCESS_TOKEN_EXPIRATION_TIME);
         return JWT.create()
                 .withSubject("access-jwt") // 용도 명확화
                 .withExpiresAt(expiresAt)
@@ -46,7 +46,7 @@ public class JwtUtil {
 
     // === 리프레시 토큰 생성 ===
     public static String createRefreshToken(Member member) {
-        Date expiresAt = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME);
+        Instant expiresAt = Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION_TIME);
         return JWT.create()
                 .withSubject("refresh-jwt") // 용도 명확화
                 .withExpiresAt(expiresAt)
@@ -96,7 +96,7 @@ public class JwtUtil {
 
     // 비밀번호 재설정용 임시 토큰 생성
     public static String createPasswordResetToken(Member member) {
-        Date expiresAt = new Date(System.currentTimeMillis() + RESET_TOKEN_EXPIRATION_TIME);
+        Instant expiresAt = Instant.now().plusMillis(RESET_TOKEN_EXPIRATION_TIME);
         return JWT.create()
                 .withSubject("password-reset-jwt") // 용도를 명확히 구분
                 .withExpiresAt(expiresAt)
