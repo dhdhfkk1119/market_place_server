@@ -40,4 +40,6 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
 
     // memberId로 게시글 목록 조회
     Page<CommunityPost> findByMemberId(Long memberId,Pageable pageable);
+
+    Optional<CommunityPost> findByTitle(String title);
 }
