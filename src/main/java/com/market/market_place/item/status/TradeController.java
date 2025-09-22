@@ -24,6 +24,7 @@ public class TradeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // 구매내역
     @Auth(roles = {Role.ADMIN, Role.USER})
     @GetMapping("/purchases")
     public ResponseEntity<List<TradeResponse.MyTradeListItemDTO>> getPurchases(

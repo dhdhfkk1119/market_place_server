@@ -83,6 +83,12 @@ public class ItemService {
             }
         }
 
+        if (dto.getTags() != null) {
+            for (String raw : dto.getTags()) {
+                String normalized = raw.trim();
+            }
+        }
+
         Item saved = itemRepository.save(item);
         return new ItemResponse.ItemSaveDTO(saved);
     }

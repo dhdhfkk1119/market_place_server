@@ -1,5 +1,6 @@
 package com.market.market_place.item.item_report.entity;
 
+import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.item_report._enum.ItemReportStatus;
 import com.market.market_place.members.domain.Member;
@@ -47,6 +48,10 @@ public class ItemReport {
         if (status == null) {
             status = ItemReportStatus.PENDING;
         }
+    }
+
+    public String getTime(){
+        return DateUtil.chatFormat(createdAt);
     }
 
 }

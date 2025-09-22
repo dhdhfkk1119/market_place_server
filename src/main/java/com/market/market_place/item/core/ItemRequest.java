@@ -18,6 +18,7 @@ public class ItemRequest {
         private String content;
         private Long price;
         private List<String> base64Images;
+        private List<String> tags;
         private String tradeLocation;
 
         public Item toEntity(ItemCategory itemCategory) {
