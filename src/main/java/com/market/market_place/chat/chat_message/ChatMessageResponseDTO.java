@@ -23,9 +23,10 @@ public class ChatMessageResponseDTO {
         private List<String> imageUrls;
         private String createdAt;
         private Long itemId;
+        private boolean isRead; // 상대방이 읽었는지 체크
 
         @Builder
-        public MessageDTO(ChatMessage chatMessage, List<ChatImage> chatImage){
+        public MessageDTO(ChatMessage chatMessage, List<ChatImage> chatImage,boolean isRead){
             this.messageId = chatMessage.getId();
             this.roomId = chatMessage.getChatRoom().getId();
             this.senderId = chatMessage.getSender().getId();
@@ -37,6 +38,7 @@ public class ChatMessageResponseDTO {
             this.imageUrls = chatImage.stream().map(ChatImage::getImageUrl).collect(Collectors.toList());
             this.createdAt = chatMessage.getTime();
             this.itemId = chatMessage.getItem().getId();
+            this.isRead = isRead;
         }
     }
 }

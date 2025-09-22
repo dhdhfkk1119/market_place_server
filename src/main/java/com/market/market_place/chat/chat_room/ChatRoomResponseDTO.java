@@ -15,9 +15,10 @@ public class ChatRoomResponseDTO {
         private String lastMessage;
         private String lastMessageCreatedAt;
         private Long itemId;
+        private int unreadMessageCount; // 읽지않은 메제시 수
 
         @Builder
-        public ChatRoomDTO(ChatRoom chatRoom, Long currentUserId) {
+        public ChatRoomDTO(ChatRoom chatRoom, Long currentUserId, int unreadCount) {
             Member otherUser = chatRoom.getLoginUser().getId().equals(currentUserId)
                     ? chatRoom.getOtherUser()
                     : chatRoom.getLoginUser();
@@ -34,6 +35,7 @@ public class ChatRoomResponseDTO {
                 this.lastMessage = "";
                 this.lastMessageCreatedAt = "";
             }
+            this.unreadMessageCount = unreadCount;
 
             this.itemId = chatRoom.getItem().getId();
         }
