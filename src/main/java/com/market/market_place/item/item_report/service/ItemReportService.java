@@ -58,7 +58,7 @@ public class ItemReportService {
                         .itemId(itemReport.getItem().getId())
                         .reason(itemReport.getReason())
                         .status(itemReport.getStatus())
-                        .createAt(itemReport.getCreatedAt())
+                        .createdAt(itemReport.getTime())
                         .build()
                 );
     }

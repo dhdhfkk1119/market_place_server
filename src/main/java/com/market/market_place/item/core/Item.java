@@ -3,6 +3,7 @@ package com.market.market_place.item.core;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.item_tag.ItemTag;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
@@ -60,6 +61,9 @@ public class Item {
     @Builder.Default
     private List<ItemFavorite> favorites = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<ItemTag> itemTags = new ArrayList<>();
+    
     public void increaseViewCount() {
         this.viewCount++;
     }

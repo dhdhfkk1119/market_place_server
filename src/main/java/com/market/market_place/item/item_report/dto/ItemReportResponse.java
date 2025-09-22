@@ -31,7 +31,7 @@ public class ItemReportResponse {
         private Long itemId;
         private String reason;
         private ItemReportStatus status;
-        private Timestamp createdAt;
+        private String createdAt;
 
         public static ItemReportDetailDTO from(ItemReport itemReport) {
             return ItemReportDetailDTO.builder()
@@ -40,7 +40,7 @@ public class ItemReportResponse {
                     .itemId(itemReport.getItem().getId())
                     .reason(itemReport.getReason())
                     .status(itemReport.getStatus())
-                    .createdAt(itemReport.getCreatedAt())
+                    .createdAt(itemReport.getTime())
                     .build();
         }
     }
@@ -54,7 +54,7 @@ public class ItemReportResponse {
         private Long itemId;
         private String reason;
         private ItemReportStatus status;
-        private Timestamp createAt;
+        private String createdAt;
     }
 
     @Data
