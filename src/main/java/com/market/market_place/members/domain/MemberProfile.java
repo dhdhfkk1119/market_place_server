@@ -39,6 +39,8 @@ public class MemberProfile {
 
     private Double responseRate;
 
+
+
     @UpdateTimestamp
     private LocalDateTime lastActiveAt;
 

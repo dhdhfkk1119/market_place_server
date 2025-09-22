@@ -7,10 +7,11 @@ import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
 import com.market.market_place.item.item_favorite.ItemFavoriteRepository;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.item_tag.Tag;
+import com.market.market_place.item.item_tag.TagRepository;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
-import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,7 @@ public class ItemService {
     private final ItemCategoryRepository itemCategoryRepository;
     private final ItemFavoriteRepository itemFavoriteRepository;
     private final MemberRepository memberRepository;
+    private final TagRepository tagRepository;
 
     // 상품 ID로 객체를 불러와 DTO로 반환
     public ItemResponse.ItemDetailDTO findById(Long id, JwtUtil.SessionUser sessionUser) {
@@ -43,7 +45,7 @@ public class ItemService {
         item.increaseViewCount();
         boolean liked = itemFavoriteRepository.existsByItemAndMember(item, member);
 
-        return ItemResponse.ItemDetailDTO.from(item,liked);
+        return ItemResponse.ItemDetailDTO.from(item, liked);
     }
 
     // 멤버 ID로 상품 불러온 후 응답 DTO로 반환
@@ -85,7 +87,15 @@ public class ItemService {
 
         if (dto.getTags() != null) {
             for (String raw : dto.getTags()) {
-                String normalized = raw.trim();
+                String normalized = raw.trim().toLowerCase();
+                Tag tag = tagRepository.findByNameNormalized(normalized)
+                        .orElseGet(() -> tagRepository.save(
+                                Tag.builder()
+                                        .nameNormalized(normalized)
+                                        .displayName(raw.trim())
+                                        .build()
+                        ));
+                item.addTag(tag);
             }
         }
 
@@ -136,61 +146,79 @@ public class ItemService {
     }
 
     // 키워드 검색
-    @Transactional(readOnly = true)
-    public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
+//    @Transactional(readOnly = true)
+//    public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
+//
+//        QItem item = QItem.item;
+//        QItemTag itemTag = QItemTag.itemTag;
+//        QTag tag = QTag.tag;
+//        BooleanBuilder builder = new BooleanBuilder();
+//
+//        // 1. 키워드 검색 (제목 + 내용)
+//        if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().isEmpty()) {
+//            builder.and(item.title.containsIgnoreCase(searchRequest.getKeyword())
+//                    .or(item.content.containsIgnoreCase(searchRequest.getKeyword())));
+//        }
 
-        QItem item = QItem.item;
-        BooleanBuilder builder = new BooleanBuilder();
-
-        // 1. 키워드 검색 (제목 + 내용)
-        if (searchRequest.getKeyword() != null && !searchRequest.getKeyword().isEmpty()) {
-            builder.and(item.title.containsIgnoreCase(searchRequest.getKeyword())
-                    .or(item.content.containsIgnoreCase(searchRequest.getKeyword())));
-        }
-
-        // 2. 가격 범위
-        if (searchRequest.getMinPrice() != null) {
-            builder.and(item.price.goe(searchRequest.getMinPrice()));
-        }
-        if (searchRequest.getMaxPrice() != null) {
-            builder.and(item.price.loe(searchRequest.getMaxPrice()));
-        }
-
-        // 3. 카테고리 ID
-        if (searchRequest.getItemCategoryId() != null) {
-            builder.and(item.itemCategory.id.eq(searchRequest.getItemCategoryId()));
-        }
-
-        // 4. 거래 지역
-        if (searchRequest.getTradeLocation() != null && !searchRequest.getTradeLocation().isEmpty()) {
-            builder.and(item.tradeLocation.containsIgnoreCase(searchRequest.getTradeLocation()));
-        }
-
-        // 5. 정렬 기준 설정
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        if ("latest".equals(searchRequest.getSortBy())) {
-            sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        } else if ("popular".equals(searchRequest.getSortBy())) {
-            sort = Sort.by(Sort.Direction.DESC, "averageRating");
-        }
-        if ("asc".equalsIgnoreCase(searchRequest.getSortOrder())) {
-            sort = sort.ascending();
-        } else {
-            sort = sort.descending();
-        }
-
-        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
-
-        // 6. 쿼리 실행
-        Page<Item> itemPage = itemRepository.findAll(builder, pageable);
-
-        // 7. DTO 변환 및 반환
-        return itemPage.map(ItemResponse.ItemListDTO::from);
-    }
+    // 2. 가격 범위
+//        if (searchRequest.getMinPrice() != null) {
+//            builder.and(item.price.goe(searchRequest.getMinPrice()));
+//        }
+//        if (searchRequest.getMaxPrice() != null) {
+//            builder.and(item.price.loe(searchRequest.getMaxPrice()));
+//        }
+//
+//        // 3. 카테고리 ID
+//        if (searchRequest.getItemCategoryId() != null) {
+//            builder.and(item.itemCategory.id.eq(searchRequest.getItemCategoryId()));
+//        }
+//
+//        // 4. 거래 지역
+//        if (searchRequest.getTradeLocation() != null && !searchRequest.getTradeLocation().isEmpty()) {
+//            builder.and(item.tradeLocation.containsIgnoreCase(searchRequest.getTradeLocation()));
+//        }
+//
+//        // 5. 정렬 기준 설정
+//        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+//        if ("latest".equals(searchRequest.getSortBy())) {
+//            sort = Sort.by(Sort.Direction.DESC, "createdAt");
+//        } else if ("popular".equals(searchRequest.getSortBy())) {
+//            sort = Sort.by(Sort.Direction.DESC, "averageRating");
+//        }
+//        if ("asc".equalsIgnoreCase(searchRequest.getSortOrder())) {
+//            sort = sort.ascending();
+//        } else {
+//            sort = sort.descending();
+//        }
+//        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
+//
+//        // 6. 쿼리 실행
+//        Page<Item> itemPage = itemRepository.findAll(builder, pageable);
+//
+//        // 7. DTO 변환 및 반환
+//        return itemPage.map(ItemResponse.ItemListDTO::from);
+//    }
 
     // 엔티티 바로 반환하는 메서드(서비스 로직안에서만 사용)
     public Item findItemById(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new Exception404("해당 상품을 찾을 수 없습니다"));
+    }
+
+    // 키워드 검색(2)
+    @Transactional(readOnly = true)
+    public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
+
+        String prop = searchRequest.getSortByProp();
+        if (prop == null || prop.isBlank()) prop = "createdAt";
+
+        Sort.Direction direction = "asc".equalsIgnoreCase(searchRequest.getSortOrder())
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), Sort.by(direction, prop));
+
+        Page<Item> itemPage = itemRepository.findBySearchOption(pageable, searchRequest);
+
+        return itemPage.map(ItemResponse.ItemListDTO::from);
     }
 }

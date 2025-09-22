@@ -84,8 +84,7 @@ public class ItemController {
 
     // 상품 검색
     @GetMapping
-    public ResponseEntity<Page<ItemResponse.ItemListDTO>> getItems(
-            ItemRequest.SearchDTO searchRequest) {
+    public ResponseEntity<Page<ItemResponse.ItemListDTO>> getItems(ItemRequest.SearchDTO searchRequest) {
         Page<ItemResponse.ItemListDTO> items = itemService.getItems(searchRequest);
         return ResponseEntity.ok(items);
     }

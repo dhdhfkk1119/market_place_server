@@ -4,10 +4,14 @@ import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.item_tag.ItemTag;
+import com.market.market_place.item.item_tag.Tag;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -61,9 +65,10 @@ public class Item {
     @Builder.Default
     private List<ItemFavorite> favorites = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ItemTag> itemTags = new ArrayList<>();
-    
+
     public void increaseViewCount() {
         this.viewCount++;
     }
@@ -76,6 +81,14 @@ public class Item {
     public void removeImage(ItemImage image) {
         images.remove(image);
         image.setItem(null);
+    }
+
+    public void addTag(Tag tag) {
+        ItemTag link = ItemTag.builder()
+                .item(this)
+                .tag(tag)
+                .build();
+        this.itemTags.add(link);
     }
 
     @PrePersist
@@ -97,7 +110,7 @@ public class Item {
                 .findFirst()
                 .map(ItemImage::getImageUrl)
                 .orElseGet(() -> images.stream()
-                        .sorted((o1, o2) -> Integer.compare(o1.getOrderIndex(),o2.getOrderIndex()))
+                        .sorted((o1, o2) -> Integer.compare(o1.getOrderIndex(), o2.getOrderIndex()))
                         .findFirst()
                         .map(ItemImage::getImageUrl)
                         .orElse(null));

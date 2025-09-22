@@ -65,5 +65,14 @@ public class ItemRequest {
 
         @Builder.Default
         private int size = 10;
+
+        public String getSortByProp() {
+            if (sortBy == null) return "createdAt";
+            return switch (sortBy.toLowerCase()) {
+                case "popular" -> "averageRating";
+                case "price"   -> "price";
+                default        -> "createdAt";
+            };
+        }
     }
 }

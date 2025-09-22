@@ -72,6 +72,7 @@ dependencies {
 	// 번역 의존성 추가
 	implementation 'com.google.cloud:google-cloud-translate:2.38.0'
 
+	implementation 'org.hibernate.orm:hibernate-spatial:6.2.7.Final'
 }
 // Querydsl 설정
 def generated = 'src/main/generated'

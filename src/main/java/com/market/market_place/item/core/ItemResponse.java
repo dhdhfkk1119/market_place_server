@@ -30,6 +30,7 @@ public class ItemResponse {
         private Long viewCount;
         private Integer favoriteCount;
         private Long itemCategoryId;
+        private List<String> tags;
 
         public static ItemListDTO from(Item item) {
 
@@ -61,6 +62,11 @@ public class ItemResponse {
                     .favoriteCount(favCount)
                     .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
                     .itemCategoryId(item.getItemCategory().getId())
+                    .tags(item.getItemTags() == null ? List.of() :
+                            item.getItemTags().stream()
+                                    .map(itemTag -> itemTag.getTag().getDisplayName())
+                                    .distinct()
+                                    .toList())
                     .build();
         }
     }
@@ -84,9 +90,10 @@ public class ItemResponse {
         private String sellerAddress;
         private Double retransactionRate;
         private Long viewCount;
+        private List<String> tags;
         private boolean liked;
 
-        public static ItemDetailDTO from(Item item,boolean liked) {
+        public static ItemDetailDTO from(Item item, boolean liked) {
             return ItemDetailDTO.builder()
                     .id(item.getId())
                     .itemCategoryId(item.getItemCategory().getId())
@@ -110,6 +117,11 @@ public class ItemResponse {
                     .sellerAddress(item.getMember().getAddress())
                     .retransactionRate(item.getAverageRating())
                     .viewCount(item.getViewCount() == null ? 0L : item.getViewCount())
+                    .tags(item.getItemTags() == null ? List.of() :
+                            item.getItemTags().stream()
+                                    .map(itemTag -> itemTag.getTag().getDisplayName())
+                                    .distinct()
+                                    .toList())
                     .liked(liked)
                     .build();
         }

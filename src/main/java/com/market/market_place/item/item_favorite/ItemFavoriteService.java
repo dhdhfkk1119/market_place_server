@@ -93,5 +93,4 @@ public class ItemFavoriteService {
     public void setPrimaryImage(Item item,Long imageId) {
         item.getImages().forEach(itemImage -> itemImage.setPrimary(itemImage.getId().equals(imageId)));
     }
-
 }
