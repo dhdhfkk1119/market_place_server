@@ -2,6 +2,8 @@ package com.market.market_place.chat.chat_message;
 
 import com.market.market_place._core._config.UploadConfig;
 import com.market.market_place._core._exception.Exception401;
+import com.market.market_place._core._exception.Exception403;
+import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.FileUploadUtil;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.chat._enum.MessageType;
@@ -57,6 +59,8 @@ public class ChatMessageService {
                         .loginUser(sender)
                         .otherUser(receiver)
                         .item(item)
+                        .lastReadMessageIdByLoginUser(null)
+                        .lastReadMessageIdByOtherUser(null)
                         .build()));
 
         ChatMessage chatMessage = msgDTO.toEntity(sender, receiver, room,item);
@@ -79,11 +83,19 @@ public class ChatMessageService {
             chatMessageRepository.save(chatMessage); // 메시지 타입 업데이트
 
         }
+
+        // 방금 보낸 사람은 MessageId 업데이트 나는 읽었음
+        if (room.getLoginUser().getId().equals(senderId)) {
+            room.setLastReadMessageIdByLoginUser(chatMessage.getId());
+        } else {
+            room.setLastReadMessageIdByOtherUser(chatMessage.getId());
+        }
+        
         room.setLastMessage(chatMessage);
         chatRoomRepository.save(room);
 
         List<ChatImage> images = chatImageRepository.findByChatMessage(chatMessage);
-        return new ChatMessageResponseDTO.MessageDTO(chatMessage, images);
+        return new ChatMessageResponseDTO.MessageDTO(chatMessage, images ,true);
 
     }
 
@@ -103,19 +115,66 @@ public class ChatMessageService {
 
         ChatMessage chatMessage = dto.toEntity(sender, receive, room,item);
         chatMessageRepository.save(chatMessage);
-        return new ChatMessageResponseDTO.MessageDTO(chatMessage, Collections.emptyList());
+        return new ChatMessageResponseDTO.MessageDTO(chatMessage, Collections.emptyList(),true);
     }
 
     // 내가 속한 한 방에 메세지 내역을 전부 가져오기
-    public Slice<ChatMessageResponseDTO.MessageDTO> getMessagesByRoom(Long roomId, Pageable pageable) {
+    public Slice<ChatMessageResponseDTO.MessageDTO> getMessagesByRoom(Long roomId, Long currentUserId, Pageable pageable) {
+        // 1. 현재 사용자를 기준으로 채팅방 정보 조회
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new Exception404("채팅방을 찾을 수 없습니다."));
 
+        // 2. 상대방의 lastReadMessageId 가져오기
+        Long otherUserLastReadMessageId = null;
+        if (chatRoom.getLoginUser().getId().equals(currentUserId)) {
+            otherUserLastReadMessageId = chatRoom.getLastReadMessageIdByOtherUser();
+        } else {
+            otherUserLastReadMessageId = chatRoom.getLastReadMessageIdByLoginUser();
+        }
 
-        Slice<ChatMessage> messages = chatMessageRepository.findMessagesByChatRoomId(roomId,pageable);
+        // 3. 메시지 목록 조회
+        Slice<ChatMessage> messages = chatMessageRepository.findMessagesByChatRoomId(roomId, pageable);
 
         log.info("[Backend Log] DB에서 가져온 메시지 개수={}, roomId={}",
                 messages.getNumberOfElements(), roomId);
 
-        return messages.map(msg -> new ChatMessageResponseDTO.MessageDTO(msg, Collections.emptyList()));
+        // 4. 메시지 목록을 DTO로 변환하며 isRead 값 계산
+        Long finalOtherUserLastReadMessageId = otherUserLastReadMessageId;
+
+        return messages.map(msg -> {
+            // 내가 보낸 메시지인 경우에만 isRead를 계산
+            boolean isRead = false;
+            if (msg.getSender().getId().equals(currentUserId)) {
+                isRead = (finalOtherUserLastReadMessageId != null && msg.getId() <= finalOtherUserLastReadMessageId);
+            }
+            return new ChatMessageResponseDTO.MessageDTO(msg, Collections.emptyList(), isRead);
+        });
+    }
+    @Transactional
+    public void markMessagesAsRead(Long roomId, Long currentUserId) {
+        // 1. 해당 채팅방의 가장 최신 메시지 ID를 찾습니다.
+        ChatMessage latestMessage = chatMessageRepository.findFirstByChatRoomIdOrderByCreatedAtDesc(roomId)
+                .orElse(null);
+
+        // 만약 방에 메시지가 없다면, 읽을 메시지도 없으므로 바로 종료합니다.
+        if (latestMessage == null) {
+            return;
+        }
+
+        Long latestMessageId = latestMessage.getId();
+
+        // 2. 현재 사용자가 채팅방에서 어떤 사용자인지(loginUser인지 otherUser인지) 확인합니다.
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new Exception404("채팅방을 찾을 수 없습니다."));
+
+        // 3. 사용자의 역할에 맞는 lastReadMessageId를 업데이트합니다.
+        if (chatRoom.getLoginUser().getId().equals(currentUserId)) {
+            chatRoomRepository.updateLastReadMessageIdForLoginUser(roomId, currentUserId, latestMessageId);
+        } else if (chatRoom.getOtherUser().getId().equals(currentUserId)) {
+            chatRoomRepository.updateLastReadMessageIdForOtherUser(roomId, currentUserId, latestMessageId);
+        } else {
+            throw new Exception403("해당 채팅방의 멤버가 아닙니다.");
+        }
     }
 
 }

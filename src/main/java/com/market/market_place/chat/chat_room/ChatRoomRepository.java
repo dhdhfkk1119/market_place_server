@@ -3,8 +3,10 @@ package com.market.market_place.chat.chat_room;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,5 +31,23 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom,Long> {
     Optional<ChatRoom> findByUserIds(@Param("senderId") Long senderId,
                                      @Param("receiverId") Long receiverId,
                                      @Param("itemId") Long itemId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ChatRoom cr SET " +
+            "cr.lastReadMessageIdByLoginUser = :latestMessageId " +
+            "WHERE cr.id = :roomId AND cr.loginUser.id = :currentUserId")
+    int updateLastReadMessageIdForLoginUser(@Param("roomId") Long roomId,
+                                            @Param("currentUserId") Long currentUserId,
+                                            @Param("latestMessageId") Long latestMessageId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ChatRoom cr SET " +
+            "cr.lastReadMessageIdByOtherUser = :latestMessageId " +
+            "WHERE cr.id = :roomId AND cr.otherUser.id = :currentUserId")
+    int updateLastReadMessageIdForOtherUser(@Param("roomId") Long roomId,
+                                            @Param("currentUserId") Long currentUserId,
+                                            @Param("latestMessageId") Long latestMessageId);
 
 }

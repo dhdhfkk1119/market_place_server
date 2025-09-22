@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/naver")
 public class NaverMapController {
 
-    @Value("${naver.api.client-id}")
+    // @Value("${naver.api.client-id}")
     private String naverMapClientId;
 
     private final WebClient webClient = WebClient.create("https://openapi.naver.com");

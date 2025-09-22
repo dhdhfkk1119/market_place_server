@@ -37,11 +37,32 @@ public class ChatRoomService {
         Slice<ChatRoom> chatRooms = chatRoomRepository.findAllByUser(userId, pageable);
 
         return chatRooms.map(cr -> {
+            // 1. 현재 사용자를 기준으로 상대방과 lastReadMessageId를 확인
+            Long lastReadMessageId;
+            Long otherUserId;
+            if (cr.getLoginUser().getId().equals(userId)) {
+                lastReadMessageId = cr.getLastReadMessageIdByLoginUser();
+                otherUserId = cr.getOtherUser().getId();
+            } else {
+                lastReadMessageId = cr.getLastReadMessageIdByOtherUser();
+                otherUserId = cr.getLoginUser().getId();
+            }
+
+            // 2. 안 읽은 메시지 개수 계산
+            // 상대방이 보낸 메시지 중 마지막 읽음 메시지 ID 이후의 메시지 수를 셉니다.
+            int unreadCount = 0;
+            if (lastReadMessageId != null) {
+                unreadCount = chatMessageRepository.countUnreadMessages(cr.getId(), otherUserId, lastReadMessageId);
+            } else {
+                // lastReadMessageId가 null이면, 상대방이 보낸 모든 메시지가 안 읽은 메시지입니다.
+                unreadCount = chatMessageRepository.countAllMessagesByRoomAndSender(cr.getId(), otherUserId);
+            }
+
             return ChatRoomResponseDTO.ChatRoomDTO.builder()
                     .chatRoom(cr)
                     .currentUserId(userId)
+                    .unreadCount(unreadCount) // DTO에 안 읽은 메시지 개수 추가
                     .build();
-
         });
     }
 

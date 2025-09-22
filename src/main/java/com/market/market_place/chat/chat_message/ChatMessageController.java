@@ -45,11 +45,25 @@ public class ChatMessageController {
         log.info("[Backend Log] getMessages 요청: roomId={}, userId={}, pageable={}",
                 roomId, sessionUser.getId(), pageable);
 
-        Slice<ChatMessageResponseDTO.MessageDTO> messages = chatMessageService.getMessagesByRoom(roomId,pageable);
+        Slice<ChatMessageResponseDTO.MessageDTO> messages = chatMessageService.getMessagesByRoom(roomId,sessionUser.getId(),pageable);
 
         log.info("[Backend Log] 조회된 메시지 개수: {}", messages.getNumberOfElements());
 
         return ResponseEntity.ok(messages);
+    }
+
+    // 채팅방에서 채팅읽기
+    @Auth(roles = {Role.ADMIN, Role.USER})
+    @PutMapping("/room/{roomId}/read")
+    public ResponseEntity<?> markMessagesAsRead(@PathVariable Long roomId,
+                                                @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        log.info("[Backend Log] 메시지 읽음 처리 요청: roomId={}, userId={}",
+                roomId, sessionUser.getId());
+
+        // 서비스 레이어의 '읽음 처리' 메서드 호출
+        chatMessageService.markMessagesAsRead(roomId, sessionUser.getId());
+
+        return ResponseEntity.ok("메시지 읽음 처리가 완료되었습니다.");
     }
 
 

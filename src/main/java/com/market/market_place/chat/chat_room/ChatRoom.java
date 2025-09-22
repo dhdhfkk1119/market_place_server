@@ -49,6 +49,9 @@ public class ChatRoom {
     @JoinColumn(name = "chat_item_id")
     private Item item; // 상품 정보
 
+    private Long lastReadMessageIdByLoginUser;
+    private Long lastReadMessageIdByOtherUser;
+
     public String getTime(){
         return DateUtil.chatFormat(createdAt);
     }
