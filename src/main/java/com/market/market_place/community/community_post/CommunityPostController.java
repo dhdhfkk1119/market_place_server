@@ -32,12 +32,14 @@ public class CommunityPostController {
         return ResponseEntity.ok(ApiUtil.success(posts));
     }
 
+    @Auth(roles = {Role.ADMIN,Role.USER})
     @GetMapping("/{id}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityPostResponse.DetailDTO>> detail(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "latest") String sortType) {
+            @RequestParam(defaultValue = "latest") String sortType,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
-        CommunityPostResponse.DetailDTO detailPosts = postService.detail(id, sortType);
+        CommunityPostResponse.DetailDTO detailPosts = postService.detail(id, sortType,sessionUser);
         return ResponseEntity.ok(ApiUtil.success(detailPosts));
     }
 

@@ -71,15 +71,19 @@ public class ItemFavoriteService {
 
     @Transactional(readOnly = true)
     public List<ItemFavoriteResponse.FavoriteItemDTO> getMyFavoriteItems(Long memberId) {
+
         return itemFavoriteRepository.findByMemberId(memberId).stream()
                 .map(favorite -> {
                     Item item = favorite.getItem();
+                    Long favoriteCount = itemFavoriteRepository.countByItemId(item.getId());
+
                     return new ItemFavoriteResponse.FavoriteItemDTO(
                             item.getId(),
                             item.getTitle(),
                             item.getThumbnailUrl(),
                             item.getPrice(),
-                            item.getTradeLocation()
+                            item.getTradeLocation(),
+                            favoriteCount
                     );
                 })
                 .toList();
@@ -89,5 +93,4 @@ public class ItemFavoriteService {
     public void setPrimaryImage(Item item,Long imageId) {
         item.getImages().forEach(itemImage -> itemImage.setPrimary(itemImage.getId().equals(imageId)));
     }
-
 }

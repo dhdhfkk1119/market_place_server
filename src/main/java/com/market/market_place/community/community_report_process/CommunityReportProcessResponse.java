@@ -5,8 +5,6 @@ import com.market.market_place.community.community_report.CommunityReportStatus;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 public class CommunityReportProcessResponse {
 
     @Data

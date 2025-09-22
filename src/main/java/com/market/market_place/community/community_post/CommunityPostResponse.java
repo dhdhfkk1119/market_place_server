@@ -58,9 +58,10 @@ public class CommunityPostResponse {
         private List<String> images;
         private List<CommunityComment> comments;
         private int commentCount;
+        private boolean isLiked;
 
         @Builder
-        public DetailDTO(CommunityPost post,String sortType) {
+        public DetailDTO(CommunityPost post,String sortType,boolean isLiked) {
             this.id = post.getId();
             this.title = post.getTitle();
             this.content = post.getContent();
@@ -78,6 +79,7 @@ public class CommunityPostResponse {
                             : Comparator.comparing(CommunityComment::getCreatedAt).reversed())
                     .collect(Collectors.toList());
             this.commentCount = post.getComments() == null ? 0 : post.getComments().size();
+            this.isLiked = isLiked;
         }
     }
 

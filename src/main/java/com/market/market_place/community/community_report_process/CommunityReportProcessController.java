@@ -20,7 +20,6 @@ public class CommunityReportProcessController {
 
     private final CommunityReportProcessService processService;
 
-    // 신고 상태 처리
     @Auth(roles = Role.ADMIN)
     @PostMapping("/{reportId}/status")
     public ResponseEntity<ApiUtil.ApiResult<CommunityReportProcessResponse.ListDTO>> updateStatus(
@@ -32,7 +31,6 @@ public class CommunityReportProcessController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
-    // 전체 조회
     @Auth(roles = Role.ADMIN)
     @GetMapping
     public ResponseEntity<ApiUtil.ApiResult<List<CommunityReportProcessResponse.ListDTO>>> list(
@@ -41,7 +39,6 @@ public class CommunityReportProcessController {
         return ResponseEntity.ok(ApiUtil.success(reports));
     }
 
-    // 상세 조회
     @Auth(roles = Role.ADMIN)
     @GetMapping("/{reportId}")
     public ResponseEntity<ApiUtil.ApiResult<CommunityReportProcessResponse.DetailDTO>> detail(

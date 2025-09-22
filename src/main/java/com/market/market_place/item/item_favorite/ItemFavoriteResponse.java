@@ -3,6 +3,7 @@ package com.market.market_place.item.item_favorite;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Point;
 
 @Data
 public class ItemFavoriteResponse {
@@ -24,6 +25,7 @@ public class ItemFavoriteResponse {
         private String title;
         private String thumbnailUrl;
         private Long price;
-        private String tradeLocation;
+        private Point tradeLocation;
+        private Long favoriteCount;
     }
 }

@@ -11,6 +11,10 @@ import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
@@ -36,6 +40,38 @@ public class ItemAndFavoriteInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+        // 강남역 1번 출구
+        Point gangnamStation = geometryFactory.createPoint(new Coordinate(127.0264, 37.4988));
+
+        // 잠실역 1번 출구
+        Point jamsilStation = geometryFactory.createPoint(new Coordinate(127.1011, 37.5138));
+
+        // 마포역 1번 출구
+        Point mapoStation = geometryFactory.createPoint(new Coordinate(126.9458, 37.5398));
+
+        // 강서구청역 1번 출구 (*참고: '강서역'은 없어서 '강서구청역'으로 대체)
+        Point gangseoGuOfficeStation = geometryFactory.createPoint(new Coordinate(126.8529, 37.5516));
+
+        // 천호역 1번 출구
+        Point cheonhoStation = geometryFactory.createPoint(new Coordinate(127.1245, 37.5383));
+
+        // 노원역 1번 출구
+        Point nowonStation = geometryFactory.createPoint(new Coordinate(127.0628, 37.6560));
+
+        // 불광역 1번 출구
+        Point bulgwangStation = geometryFactory.createPoint(new Coordinate(126.9298, 37.6103));
+
+        // 교대역 1번 출구
+        Point gyodaeStation = geometryFactory.createPoint(new Coordinate(127.0142, 37.4936));
+
+        // 용산역 1번 출구
+        Point yongsanStation = geometryFactory.createPoint(new Coordinate(126.9649, 37.5298));
+
+        // 종각역 1번 출구
+        Point jonggakStation = geometryFactory.createPoint(new Coordinate(126.9829, 37.5704));
+
         ItemCategory digital = getCategory("디지털 기기");
         ItemCategory furniture = getCategory("가구/인테리어");
         ItemCategory book = getCategory("도서");
@@ -46,23 +82,23 @@ public class ItemAndFavoriteInitializer implements CommandLineRunner {
                 "user11", "user12", "user13"
         );
 
-        createItemIfAbsent(users.get("user1"), digital, "삼성노트북", "삼성 최신형 노트북 판매합니다.", 5000L, "강남역", 3.5);
-        createItemIfAbsent(users.get("user2"), digital, "LG노트북", "LG 그램 중고 노트북입니다.", 12000L, "잠실역", 4.0);
-        createItemIfAbsent(users.get("user3"), digital, "애플노트북", "맥북 프로 상태 양호합니다.", 18000L, "마포역", 4.2);
-        createItemIfAbsent(users.get("user4"), digital, "레노버노트북", "레노버 아이디어패드 팝니다.", 7000L, "강서역", 3.8);
-        createItemIfAbsent(users.get("user5"), digital, "델노트북", "델 XPS 중고 노트북 판매", 20000L, "천호역", 4.7);
+        createItemIfAbsent(users.get("user1"), digital, "삼성노트북", "삼성 최신형 노트북 판매합니다.", 5000L, gangnamStation, 3.5);
+        createItemIfAbsent(users.get("user2"), digital, "LG노트북", "LG 그램 중고 노트북입니다.", 12000L, jamsilStation, 4.0);
+        createItemIfAbsent(users.get("user3"), digital, "애플노트북", "맥북 프로 상태 양호합니다.", 18000L, mapoStation, 4.2);
+        createItemIfAbsent(users.get("user4"), digital, "레노버노트북", "레노버 아이디어패드 팝니다.", 7000L, gangseoGuOfficeStation, 3.8);
+        createItemIfAbsent(users.get("user5"), digital, "델노트북", "델 XPS 중고 노트북 판매", 20000L, cheonhoStation, 4.7);
 
-        createItemIfAbsent(users.get("user6"), furniture, "사무용의자", "편안한 사무용 의자 판매", 3000L, "노원역", 3.9);
-        createItemIfAbsent(users.get("user7"), furniture, "원목의자", "인테리어에 좋은 원목 의자", 15000L, "불광역", 4.5);
-        createItemIfAbsent(users.get("user8"), furniture, "게이밍의자", "장시간 사용에 좋은 게이밍 의자", 8000L, "교대역", 4.1);
-        createItemIfAbsent(users.get("user9"), furniture, "식탁의자", "가정용 식탁 의자 세트 판매", 17000L, "용산역", 3.7);
-        createItemIfAbsent(users.get("user10"), furniture, "디자인의자", "디자인 감각 있는 의자", 10000L, "종각역", 4.4);
+        createItemIfAbsent(users.get("user6"), furniture, "사무용의자", "편안한 사무용 의자 판매", 3000L, nowonStation, 3.9);
+        createItemIfAbsent(users.get("user7"), furniture, "원목의자", "인테리어에 좋은 원목 의자", 15000L, bulgwangStation, 4.5);
+        createItemIfAbsent(users.get("user8"), furniture, "게이밍의자", "장시간 사용에 좋은 게이밍 의자", 8000L, gyodaeStation, 4.1);
+        createItemIfAbsent(users.get("user9"), furniture, "식탁의자", "가정용 식탁 의자 세트 판매", 17000L, yongsanStation, 3.7);
+        createItemIfAbsent(users.get("user10"), furniture, "디자인의자", "디자인 감각 있는 의자", 10000L, jonggakStation, 4.4);
 
-        createItemIfAbsent(users.get("user1"), book, "자바책", "자바 프로그래밍 기초 교재", 2000L, "강남역", 4.0);
-        createItemIfAbsent(users.get("user2"), book, "알고리즘책", "알고리즘 문제 해결 전략", 9000L, "잠실역", 4.6);
-        createItemIfAbsent(users.get("user3"), book, "데이터베이스책", "데이터베이스 개론 교재", 11000L, "마포역", 3.8);
-        createItemIfAbsent(users.get("user4"), book, "영어책", "토익 영어 문법 교재", 6000L, "강서역", 4.3);
-        createItemIfAbsent(users.get("user5"), book, "머신러닝책", "머신러닝 입문서", 16000L, "천호역", 4.9);
+        createItemIfAbsent(users.get("user1"), book, "자바책", "자바 프로그래밍 기초 교재", 2000L, gangnamStation, 4.0);
+        createItemIfAbsent(users.get("user2"), book, "알고리즘책", "알고리즘 문제 해결 전략", 9000L, jamsilStation, 4.6);
+        createItemIfAbsent(users.get("user3"), book, "데이터베이스책", "데이터베이스 개론 교재", 11000L, mapoStation, 3.8);
+        createItemIfAbsent(users.get("user4"), book, "영어책", "토익 영어 문법 교재", 6000L, gangseoGuOfficeStation, 4.3);
+        createItemIfAbsent(users.get("user5"), book, "머신러닝책", "머신러닝 입문서", 16000L, cheonhoStation, 4.9);
 
         List<String> titles = List.of(
                 "삼성노트북", "LG노트북", "애플노트북", "레노버노트북", "델노트북",
@@ -102,7 +138,7 @@ public class ItemAndFavoriteInitializer implements CommandLineRunner {
     }
 
     private void createItemIfAbsent(Member seller, ItemCategory category, String title, String content,
-                                    Long price, String location, Double avgRating) {
+                                    Long price, Point location, Double avgRating) {
         if (seller == null) return;
         Optional<Item> existing = itemRepository.findByTitle(title);
         if (existing.isPresent()) return;

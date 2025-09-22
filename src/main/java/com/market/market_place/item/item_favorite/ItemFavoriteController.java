@@ -37,6 +37,7 @@ public class ItemFavoriteController {
         return ResponseEntity.ok(body);
     }
 
+    // 내 좋아요 목록
     @Auth(roles = {Role.ADMIN, Role.USER})
     @GetMapping("/favorites/me")
     public ResponseEntity<List<ItemFavoriteResponse.FavoriteItemDTO>> getMyFavorites(

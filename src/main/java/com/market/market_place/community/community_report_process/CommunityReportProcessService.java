@@ -28,7 +28,6 @@ public class CommunityReportProcessService {
 
     private final CommunitySanctionService communitySanctionService;
 
-    // 신고 상태 처리
     @Transactional
     public CommunityReportProcessResponse.ListDTO updateStatus(Long reportId, Long adminId, CommunityReportProcessRequest.RequestDTO requestDTO){
         CommunityReport report = reportRepository.findById(reportId)
@@ -58,14 +57,12 @@ public class CommunityReportProcessService {
         return new CommunityReportProcessResponse.ListDTO(process);
     }
 
-    // 전체 조회
     public List<CommunityReportProcessResponse.ListDTO> findAllReports(Pageable pageable){
-        return processRepository.findAll(pageable)
+        return processRepository.findAllWithPost(pageable)
                 .stream().map(CommunityReportProcessResponse.ListDTO::new)
                 .collect(Collectors.toList());
     }
 
-    // 상세 조회
     public CommunityReportProcessResponse.DetailDTO detail(Long reportId){
         CommunityReport report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new Exception404("신고 내역을 찾을 수 없습니다"));

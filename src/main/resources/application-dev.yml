@@ -89,3 +89,7 @@ ai:
     url:
       flash-stream: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent"
       pro-stream: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:streamGenerateContent"
+
+naver:
+  api:
+    client-id: ${NAVER_CLIENT_ID}
