@@ -29,3 +29,4 @@ public class ItemFavoriteResponse {
         private Long favoriteCount;
     }
 }
+

@@ -10,6 +10,10 @@ import java.util.Date;
 public class DateUtil {
     public static String timestampFormat(Timestamp startDate) {
 
+        if (startDate == null) {
+            return "----년 --월 --일"; // 또는 다른 기본값 반환
+        }
+
         Date currentDate = new Date(startDate.getTime());
 
         return DateFormatUtils.format(currentDate, "yyyy년 MM월 dd일 HH시 mm분");

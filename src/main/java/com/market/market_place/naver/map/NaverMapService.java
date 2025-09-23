@@ -14,10 +14,10 @@ import java.util.Optional;
 @Service
 public class NaverMapService {
 
-    @Value("${naver.api.client-id}")
+    //@Value("${naver.api.client-id}")
     private String naverMapClientId;
 
-    @Value("${naver.api.client-secret}")
+    //@Value("${naver.api.client-secret}")
     private String naverMapClientSecret;
 
     public String getNaverMapClientId() {

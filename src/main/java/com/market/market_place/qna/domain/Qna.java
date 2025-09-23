@@ -1,12 +1,14 @@
 package com.market.market_place.qna.domain;
 
 import com.market.market_place.Reply.domain.Reply;
+import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.members.domain.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,7 +32,7 @@ public class Qna {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String question;
 
-    @CreatedDate
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,5 +45,9 @@ public class Qna {
     public Qna (String question, Member member) {
         this.question = question;
         this.member = member;
+    }
+
+    public String getTime(){
+        return DateUtil.localDateTimeFormat(createdAt);
     }
 }

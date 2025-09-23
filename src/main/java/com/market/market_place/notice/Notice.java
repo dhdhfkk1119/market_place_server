@@ -1,5 +1,6 @@
 package com.market.market_place.notice;
 
+import com.market.market_place._core._utils.DateUtil;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import lombok.Getter;
@@ -37,5 +38,9 @@ public class Notice {
     public Notice(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public String getTime(){
+        return DateUtil.localDateTimeFormat(createdAt);
     }
 }
