@@ -4,6 +4,7 @@ import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/items")
+@Slf4j
 public class ItemController {
 
     private final ItemService itemService;
@@ -35,7 +37,9 @@ public class ItemController {
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
             @PageableDefault(size = 10,sort = "createdAt") Pageable pageable
     ) {
+
         Page<ItemResponse.MySalesListItemDTO> mySales = itemService.getMySales(sessionUser.getId(),pageable);
+        log.info("서버에 접근해 했습니다 : {} ,",mySales);
         return ResponseEntity.ok(mySales);
     }
 

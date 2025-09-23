@@ -46,6 +46,17 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtil.success(response));
     }
 
+    @Operation(summary = "회원 정보 조회", description = "유저의 정보를 가져옵니다")
+    @SecurityRequirement(name = "jwtAuth")
+    @Auth(roles = {Role.USER, Role.ADMIN})
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiUtil.ApiResult<MyInfoResponse>> getUserInfo(
+            @PathVariable("id") Long id,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        MyInfoResponse response = memberService.getUserInfo(id);
+        return ResponseEntity.ok(ApiUtil.success(response));
+    }
+
     @Operation(summary = "비밀번호 변경", description = "현재 로그인한 사용자의 비밀번호를 변경합니다.")
     @SecurityRequirement(name = "jwtAuth")
     @Auth(roles = {Role.USER, Role.ADMIN})

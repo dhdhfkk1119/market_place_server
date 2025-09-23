@@ -1,5 +1,6 @@
 package com.market.market_place.item.core;
 
+import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_favorite.ItemFavorite;
 import com.market.market_place.item.item_image.ItemImage;
@@ -118,4 +119,9 @@ public class Item {
                         .map(ItemImage::getImageUrl)
                         .orElse(null));
     }
+
+    public String getTime() {
+        return DateUtil.timestampFormat(createdAt);
+    }
+
 }

@@ -45,6 +45,13 @@ public class MemberService {
         return new MyInfoResponse(member);
     }
 
+    // 내 정보 조회
+    public MyInfoResponse getUserInfo(Long id) {
+        log.debug("내 정보 조회. 사용자 ID: {}", id);
+        Member member = findMember(id);
+        return new MyInfoResponse(member);
+    }
+
     // 회원 상세 조회 (ID 기준, 다른 서비스에서 사용하기 위한 public 메서드)
     public Member findMember(Long memberId) {
         log.debug("ID로 회원 조회. 사용자 ID: {}", memberId);
