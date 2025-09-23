@@ -6,6 +6,7 @@ import com.market.market_place.item.review.TradeReview;
 import com.market.market_place.item.review.TradeReviewRepository;
 import com.market.market_place.item.status.Trade;
 import com.market.market_place.item.status.TradeRepository;
+import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Timestamp;
 
 @Profile({"dev","local"})
 @Component
@@ -50,17 +53,17 @@ public class ItemTradeAndReviewInitializer implements CommandLineRunner {
         Member user8  = getMember("user8");
         Member user9  = getMember("user9");
         Member user10 = getMember("user10");
-
-        Trade t1  = upsertTrade(i5,  user1,  user6,  true,  true);
-        Trade t2  = upsertTrade(i6,  user2,  user7,  true,  false);
-        Trade t3  = upsertTrade(i7,  user3,  user8,  false, true);
-        Trade t4  = upsertTrade(i8,  user4,  user9,  true,  true);
-        Trade t5  = upsertTrade(i9,  user5,  user10, false, false);
-        Trade t6  = upsertTrade(i10, user1,  user7,  true,  true);
-        Trade t7  = upsertTrade(i11, user2,  user8,  true,  true);
-        Trade t8  = upsertTrade(i12, user3,  user9,  false, true);
-        Trade t9  = upsertTrade(i13, user4,  user10, true,  false);
-        Trade t10 = upsertTrade(i14, user5,  user6,  true,  true);
+        
+        Trade t1  = upsertTrade(i5,  user1,  user6,  true,  true,  TradeStatus.SOLD);
+        Trade t2  = upsertTrade(i6,  user2,  user7,  true,  false, TradeStatus.SOLD);
+        Trade t3  = upsertTrade(i7,  user3,  user8,  false, true,  TradeStatus.PENDING); // 진행중 케이스 예시
+        Trade t4  = upsertTrade(i8,  user4,  user9,  true,  true,  TradeStatus.SOLD);
+        Trade t5  = upsertTrade(i9,  user5,  user10, false, false, TradeStatus.PENDING); // 진행중 케이스 예시
+        Trade t6  = upsertTrade(i10, user1,  user7,  true,  true,  TradeStatus.SOLD);
+        Trade t7  = upsertTrade(i11, user2,  user8,  true,  true,  TradeStatus.SOLD);
+        Trade t8  = upsertTrade(i12, user3,  user9,  false, true,  TradeStatus.PENDING); // 진행중 케이스 예시
+        Trade t9  = upsertTrade(i13, user4,  user10, true,  false, TradeStatus.SOLD);
+        Trade t10 = upsertTrade(i14, user5,  user6,  true,  true,  TradeStatus.SOLD);
 
         upsertReview(t1,  user6,  "좋은 거래였습니다. 감사합니다!", 5.0);
         upsertReview(t1,  user1,  "구매자분이 친절했습니다.",        4.8);
@@ -90,14 +93,38 @@ public class ItemTradeAndReviewInitializer implements CommandLineRunner {
     }
 
     private Trade upsertTrade(Item item, Member seller, Member buyer,
-                              boolean buyerReviewed, boolean sellerReviewed) {
-        return tradeRepository.findByItem(item).orElseGet(() -> {
+                              boolean buyerReviewed, boolean sellerReviewed,
+                              TradeStatus status) {
+
+        Timestamp created   = new Timestamp(System.currentTimeMillis() - 24 * 60 * 60 * 1000); // 어제
+        Timestamp completed = (status == TradeStatus.SOLD)
+                ? new Timestamp(created.getTime() + 2 * 60 * 60 * 1000) // +2h
+                : null;
+
+        return tradeRepository.findByItem(item).map(t -> {
+            // 기존 row 널 보정
+            if (t.getCreatedAt() == null) t.setCreatedAt(created);
+            if (t.getStatus() == null)    t.setStatus(status);
+            if (t.getStatus() == TradeStatus.SOLD && t.getCompletedAt() == null) {
+                t.setCompletedAt(completed != null ? completed
+                        : new Timestamp(t.getCreatedAt().getTime() + 2 * 60 * 60 * 1000));
+            }
+            if (t.getStatus() == TradeStatus.PENDING) {
+                t.setCompletedAt(null);
+            }
+            t.setBuyerReviewed(buyerReviewed);
+            t.setSellerReviewed(sellerReviewed);
+            return tradeRepository.save(t);
+        }).orElseGet(() -> {
             Trade t = Trade.builder()
                     .item(item)
                     .seller(seller)
                     .buyer(buyer)
+                    .status(status)
                     .buyerReviewed(buyerReviewed)
                     .sellerReviewed(sellerReviewed)
+                    .createdAt(created)
+                    .completedAt(completed) // PENDING이면 null
                     .build();
             return tradeRepository.save(t);
         });

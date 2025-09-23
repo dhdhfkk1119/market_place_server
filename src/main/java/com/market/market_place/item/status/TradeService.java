@@ -1,6 +1,5 @@
 package com.market.market_place.item.status;
 
-import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
 import com.market.market_place.members.domain.Member;
@@ -10,8 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,8 +36,8 @@ public class TradeService {
 
     // 내 구매내역 조회
     @Transactional(readOnly = true)
-    public Page<TradeResponse.MyTradeListItemDTO> getMyPurchases(Long buyerId,Pageable pageable) {
-        Page<Trade> trades = tradeRepository.findByBuyerId(buyerId,pageable);
+    public Page<TradeResponse.MyTradeListItemDTO> getMyPurchases(Long buyerId, Pageable pageable) {
+        Page<Trade> trades = tradeRepository.findByBuyerId(buyerId, pageable);
         return trades.map(TradeResponse.MyTradeListItemDTO::fromPurchase);
     }
 }

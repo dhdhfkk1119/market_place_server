@@ -83,7 +83,7 @@ public class ItemFavoriteService {
                     item.getTitle(),
                     item.getThumbnailUrl(),
                     item.getPrice(),
-                    // .getTradeLocation(),
+                    // item.getTradeLocation(),
                     favoriteCount
             );
         });
