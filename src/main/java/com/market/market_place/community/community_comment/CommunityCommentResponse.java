@@ -13,18 +13,24 @@ public class CommunityCommentResponse {
         private Long id;
         private String content;
         private String writerName;
-        private String createdAt;
-        private String imageUrl;
         private int likeCount;
+        private String displayTime;
+        private boolean isModified;
 
         @Builder
         public ResponseDTO(CommunityComment comment) {
             this.id = comment.getId();
             this.content = comment.getContent();
             this.writerName = comment.getMember().getMemberProfile().getName();
-            this.createdAt = comment.getTime();
-            this.imageUrl = comment.getImageUrl();
             this.likeCount = comment.getLikeCount();
+
+            if (comment.isModified()) {
+                this.displayTime = comment.getUpdateTime(); // 수정된 시간
+                this.isModified = true;
+            } else {
+                this.displayTime = comment.getCreateTime(); // 생성된 시간
+                this.isModified = false;
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ public class NaverMapService {
 
         // API URL과 파라미터 수정!
         URI uri = UriComponentsBuilder
-                .fromUriString("https://naveropenapi.apigw.ntruss.com")
+                .fromUriString("https://maps.apigw.ntruss.com")
                 .path("/map-reversegeocode/v2/gc")
                 .queryParam("coords", longitude + "," + latitude)
                 .queryParam("output", "json")

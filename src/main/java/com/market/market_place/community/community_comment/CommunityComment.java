@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -31,9 +32,6 @@ public class CommunityComment {
 
     private String content;
 
-    @Lob
-    private String imageUrl;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     @JsonBackReference // 순환 참조 방지
@@ -51,6 +49,9 @@ public class CommunityComment {
     @CreationTimestamp
     private Timestamp createdAt;
 
+    @UpdateTimestamp
+    private Timestamp updatedAt;
+
     @Builder.Default
     @JsonIgnore
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -62,14 +63,22 @@ public class CommunityComment {
 
     public void update(CommunityCommentRequest.UpdateDTO updateDTO) {
         this.content = updateDTO.getContent();
-        this.imageUrl = updateDTO.getImageUrl();
     }
 
     public void updateLikeCount(int count) {
         this.likeCount = Math.max(0, count);
     }
 
-    public String getTime(){
+    // 수정시간이 10초 이상 차이나면 수정됨
+    public boolean isModified(){
+        return this.updatedAt != null && (this.updatedAt.getTime() - this.createdAt.getTime()> 10000);
+    }
+
+    public String getCreateTime(){
         return DateUtil.timestampFormat(createdAt);
+    }
+
+    public String getUpdateTime(){
+        return DateUtil.timestampFormat(updatedAt);
     }
 }

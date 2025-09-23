@@ -9,12 +9,10 @@ public class CommunityCommentRequest {
     @Data
     public static class SaveDTO{
         private String content;
-        private String imageUrl;
 
         public CommunityComment toEntity(Member member, CommunityPost post) {
             return CommunityComment.builder()
                     .content(content.trim())
-                    .imageUrl(imageUrl)
                     .member(member)
                     .post(post)
                     .build();
@@ -24,6 +22,5 @@ public class CommunityCommentRequest {
     @Data
     public static class UpdateDTO{
         private String content;
-        private String imageUrl;
     }
 }
