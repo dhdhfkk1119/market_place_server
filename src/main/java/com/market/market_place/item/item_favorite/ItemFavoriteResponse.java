@@ -25,7 +25,7 @@ public class ItemFavoriteResponse {
         private String title;
         private String thumbnailUrl;
         private Long price;
-        private Point tradeLocation;
+        // private Point tradeLocation;
         private Long favoriteCount;
     }
 }

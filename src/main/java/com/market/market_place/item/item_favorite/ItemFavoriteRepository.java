@@ -2,6 +2,8 @@ package com.market.market_place.item.item_favorite;
 
 import com.market.market_place.item.core.Item;
 import com.market.market_place.members.domain.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,5 +15,5 @@ public interface ItemFavoriteRepository extends JpaRepository<ItemFavorite, Long
     Long countByItemId(Long itemId);
 
     boolean existsByItemAndMember(Item item, Member member);
-    List<ItemFavorite> findByMemberId(Long memberId);
+    Page<ItemFavorite> findByMemberId(Long memberId, Pageable pageable);
 }
