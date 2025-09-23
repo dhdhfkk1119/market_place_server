@@ -50,9 +50,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                     .orElseThrow(() -> new Exception401("@Auth: 유효하지 않은 사용자 정보입니다."));
 
             // 3. 동시 로그인 검증: 토큰의 로그인 시간과 DB의 마지막 로그인 시간을 비교
-            if (memberInDb.getLoggedInAt() != null && !sessionUser.getLoggedInAt().isEqual(memberInDb.getLoggedInAt())) {
-                throw new Exception401("@Auth: 다른 기기에서 로그인하여 현재 세션이 만료되었습니다.");
-            }
+            // (다중 로그인 허용을 위해 해당 검증 로직을 제거함)
 
             // 4. 계정 상태 확인
             if (memberInDb.getStatus() == MemberStatus.BANNED) {

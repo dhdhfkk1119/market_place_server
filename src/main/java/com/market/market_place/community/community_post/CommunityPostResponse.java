@@ -1,6 +1,7 @@
 package com.market.market_place.community.community_post;
 
 import com.market.market_place.community.community_comment.CommunityComment;
+import com.market.market_place.community.community_comment.CommunityCommentResponse;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import lombok.Builder;
 import lombok.Data;
@@ -56,7 +57,7 @@ public class CommunityPostResponse {
         private String createdAt;
         private String location;
         private List<String> images;
-        private List<CommunityComment> comments;
+        private List<CommunityCommentResponse.ResponseDTO> comments;
         private int commentCount;
         private boolean isLiked;
 
@@ -77,6 +78,7 @@ public class CommunityPostResponse {
                     .sorted("likes".equals(sortType)
                             ? Comparator.comparing(CommunityComment::getLikeCount).reversed()
                             : Comparator.comparing(CommunityComment::getCreatedAt).reversed())
+                    .map(CommunityCommentResponse.ResponseDTO::new) // <-- 여기서 ResponseDTO 변환
                     .collect(Collectors.toList());
             this.commentCount = post.getComments() == null ? 0 : post.getComments().size();
             this.isLiked = isLiked;
