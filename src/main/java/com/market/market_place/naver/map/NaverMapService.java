@@ -30,6 +30,9 @@ public class NaverMapService {
     public Optional<String> getAddress(String longitude, String latitude) {
         RestTemplate restTemplate = new RestTemplate();
 
+        System.out.println("### Client ID: " + naverMapClientId);
+        System.out.println("### Client Secret: " + naverMapClientSecret);
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-NCP-APIGW-API-KEY-ID", naverMapClientId);
         headers.set("X-NCP-APIGW-API-KEY", naverMapClientSecret);
