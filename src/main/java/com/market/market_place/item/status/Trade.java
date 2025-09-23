@@ -1,5 +1,6 @@
 package com.market.market_place.item.status;
 
+import com.market.market_place._core._utils.DateUtil;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.praise.Praise;
 import com.market.market_place.item.review.TradeReview;
@@ -62,5 +63,8 @@ public class Trade {
         this.sellerReviewed = sellerReviewed;
     }
 
+    public String getTime() {
+        return DateUtil.timestampFormat(completedAt);
+    }
 
 }

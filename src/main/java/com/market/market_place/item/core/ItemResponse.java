@@ -179,7 +179,7 @@ public class ItemResponse {
         private String title;
         private Long price;
         private String thumbnailUrl;
-        private Timestamp createdAt;
+        private String createdAt;
         private String statusLabel;
         public TradeStatus status;
 
@@ -196,7 +196,7 @@ public class ItemResponse {
                     .title(item.getTitle())
                     .price(item.getPrice())
                     .thumbnailUrl(thumbUrl)
-                    .createdAt(item.getCreatedAt())
+                    .createdAt(item.getTime())
                     .status(item.getStatus())
                     .statusLabel(toStatusLabel(item.getStatus()))
                     .build();

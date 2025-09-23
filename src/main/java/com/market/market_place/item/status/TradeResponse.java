@@ -36,7 +36,7 @@ public class TradeResponse {
         private String title;
         private Long price;
         private String thumbnailUrl;
-        private Timestamp completedAt;
+        private String completedAt;
         private String statusLabel;
         private TradeStatus status;
         private Long counterPartyId;
@@ -51,7 +51,7 @@ public class TradeResponse {
                     .title(item.getTitle())
                     .price(item.getPrice())
                     .thumbnailUrl(item.getThumbnailUrl())
-                    .completedAt(trade.getCompletedAt())
+                    .completedAt(trade.getTime())
                     .statusLabel(toStatusLabel(trade.getStatus()))
                     .status(trade.getStatus())
                     .counterPartyId(seller.getId())
