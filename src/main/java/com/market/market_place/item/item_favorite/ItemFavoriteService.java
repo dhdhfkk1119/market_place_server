@@ -8,10 +8,11 @@ import com.market.market_place.members.repositories.MemberRepository;
 import com.market.market_place.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -70,27 +71,26 @@ public class ItemFavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemFavoriteResponse.FavoriteItemDTO> getMyFavoriteItems(Long memberId) {
+    public Page<ItemFavoriteResponse.FavoriteItemDTO> getMyFavoriteItems(Long memberId, Pageable pageable) {
 
-        return itemFavoriteRepository.findByMemberId(memberId).stream()
-                .map(favorite -> {
-                    Item item = favorite.getItem();
-                    Long favoriteCount = itemFavoriteRepository.countByItemId(item.getId());
+        Page<ItemFavorite> itemFavorites = itemFavoriteRepository.findByMemberId(memberId, pageable);
 
-                    return new ItemFavoriteResponse.FavoriteItemDTO(
-                            item.getId(),
-                            item.getTitle(),
-                            item.getThumbnailUrl(),
-                            item.getPrice(),
-                            item.getTradeLocation(),
-                            favoriteCount
-                    );
-                })
-                .toList();
+        return itemFavorites.map(favorite -> {
+            Item item = favorite.getItem();
+            Long favoriteCount = itemFavoriteRepository.countByItemId(item.getId());
+            return new ItemFavoriteResponse.FavoriteItemDTO(
+                    item.getId(),
+                    item.getTitle(),
+                    item.getThumbnailUrl(),
+                    item.getPrice(),
+                    // .getTradeLocation(),
+                    favoriteCount
+            );
+        });
     }
 
     @Transactional
-    public void setPrimaryImage(Item item,Long imageId) {
+    public void setPrimaryImage(Item item, Long imageId) {
         item.getImages().forEach(itemImage -> itemImage.setPrimary(itemImage.getId().equals(imageId)));
     }
 }

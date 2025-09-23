@@ -4,6 +4,10 @@ import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,11 +44,13 @@ public class ItemFavoriteController {
     // 내 좋아요 목록
     @Auth(roles = {Role.ADMIN, Role.USER})
     @GetMapping("/favorites/me")
-    public ResponseEntity<List<ItemFavoriteResponse.FavoriteItemDTO>> getMyFavorites(
-            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser
+    public ResponseEntity<Page<ItemFavoriteResponse.FavoriteItemDTO>> getMyFavorites(
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser,
+            @PageableDefault(size = 10,sort = "createdAt",direction = Sort.Direction.DESC)
+            Pageable pageable
     ) {
-        List<ItemFavoriteResponse.FavoriteItemDTO> body =
-                itemFavoriteService.getMyFavoriteItems(sessionUser.getId());
+        Page<ItemFavoriteResponse.FavoriteItemDTO> body =
+                itemFavoriteService.getMyFavoriteItems(sessionUser.getId(),pageable);
         return ResponseEntity.ok(body);
     }
 }
