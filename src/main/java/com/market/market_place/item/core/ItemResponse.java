@@ -36,6 +36,7 @@ public class ItemResponse {
         private Integer favoriteCount;
         private Long itemCategoryId;
         private List<String> tags;
+        private TradeStatus status;
 
         public static ItemListDTO from(Item item) {
             GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
@@ -74,6 +75,7 @@ public class ItemResponse {
                                     .map(itemTag -> itemTag.getTag().getDisplayName())
                                     .distinct()
                                     .toList())
+                    .status(item.getStatus())
                     .build();
         }
     }
@@ -99,6 +101,7 @@ public class ItemResponse {
         private Long viewCount;
         private List<String> tags;
         private boolean liked;
+        private TradeStatus status;
 
         public static ItemDetailDTO from(Item item, boolean liked) {
             LocationDTO location = Optional.ofNullable(item.getTradeLocation())
@@ -134,6 +137,7 @@ public class ItemResponse {
                                     .distinct()
                                     .toList())
                     .liked(liked)
+                    .status(item.getStatus())
                     .build();
         }
     }

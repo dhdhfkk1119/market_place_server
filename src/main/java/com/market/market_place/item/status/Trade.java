@@ -35,10 +35,6 @@ public class Trade {
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id",nullable = false)
-    private Member seller;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id",nullable = false)
     private Member buyer;
 
@@ -86,4 +82,13 @@ public class Trade {
         if (this.praises == null) this.praises = new ArrayList<>();
     }
 
+    public static Trade of(Item item, Member buyer) {
+        return Trade.builder()
+                .item(item)
+                .buyer(buyer)
+                .buyerReviewed(false)
+                .sellerReviewed(false)
+                .status(TradeStatus.PENDING)
+                .build();
+    }
 }

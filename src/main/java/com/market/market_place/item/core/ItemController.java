@@ -45,14 +45,14 @@ public class ItemController {
 
 
     // 상품 목록 조회
-    @GetMapping("/")
-    public ResponseEntity<Page<ItemResponse.ItemListDTO>> list(
-            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
-            Pageable pageable) {
-        Page<ItemResponse.ItemListDTO> body = itemService.findAll(pageable);
-
-        return ResponseEntity.ok(body);
-    }
+//    @GetMapping("/")
+//    public ResponseEntity<Page<ItemResponse.ItemListDTO>> list(
+//            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC)
+//            Pageable pageable) {
+//        Page<ItemResponse.ItemListDTO> body = itemService.findAll(pageable);
+//
+//        return ResponseEntity.ok(body);
+//    }
 
     @GetMapping("/nearby")
     public ResponseEntity<?> nearbyList(ItemRequest.SearchByLocationDTO location) {

@@ -20,9 +20,11 @@ public class TradeController {
 
     private final TradeService tradeService;
 
-    @PostMapping
-    public ResponseEntity<TradeResponse> createTrade(@RequestBody @Valid TradeRequest request) {
-        TradeResponse response = tradeService.createTrade(request);
+    @Auth(roles = {Role.ADMIN,Role.USER})
+    @PostMapping("/{itemId}")
+    public ResponseEntity<TradeResponse> createTrade(@PathVariable("itemId") Long itemId,
+                                                     @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        TradeResponse response = tradeService.createTrade(itemId,sessionUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

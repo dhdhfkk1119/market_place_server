@@ -21,7 +21,7 @@ public class TradeResponse {
     public TradeResponse(Trade trade) {
         this.id = trade.getId();
         this.itemId = trade.getItem().getId();
-        this.sellerId = trade.getSeller().getId();
+        this.sellerId = trade.getItem().getMember().getId();
         this.buyerId = trade.getBuyer().getId();
         this.buyerReviewed = trade.isBuyerReviewed();
         this.sellerReviewed = trade.isSellerReviewed();
@@ -44,7 +44,6 @@ public class TradeResponse {
 
         public static MyTradeListItemDTO fromPurchase(Trade trade) {
             Item item = trade.getItem();
-            Member seller = trade.getSeller();
             return MyTradeListItemDTO.builder()
                     .id(trade.getId())
                     .itemId(item.getId())
@@ -54,8 +53,8 @@ public class TradeResponse {
                     .completedAt(trade.getTime())
                     .statusLabel(toStatusLabel(trade.getStatus()))
                     .status(trade.getStatus())
-                    .counterPartyId(seller.getId())
-                    .counterPartyName(seller.getMemberProfile().getName())
+                    .counterPartyId(trade.getItem().getMember().getId())
+                    .counterPartyName(trade.getItem().getMember().getMemberProfile().getName())
                     .build();
 
         }

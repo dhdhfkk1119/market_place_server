@@ -1,5 +1,6 @@
 package com.market.market_place.item.status;
 
+import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
 import com.market.market_place.members.domain.Member;
@@ -10,6 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class TradeService {
@@ -19,16 +23,26 @@ public class TradeService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public TradeResponse createTrade(TradeRequest request) {
-        Item item = itemRepository.findById(request.getItemId())
+    public TradeResponse createTrade(Long itemId, JwtUtil.SessionUser sessionUser) {
+
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다"));
-        Member seller = memberRepository.findById(request.getSellerId())
-                .orElseThrow(() -> new RuntimeException("판매자를 찾을 수 없습니다"));
-        Member buyer = memberRepository.findById(request.getBuyerId())
+
+        Member buyer = memberRepository.findById(sessionUser.getId())
                 .orElseThrow(() -> new RuntimeException("구매자를 찾을 수 없습니다"));
 
-        Trade trade = request.toEntity(item, seller, buyer);
 
+        tradeRepository.findByItem(item).ifPresent(t -> {
+            if (t.getStatus() == TradeStatus.SOLD) {
+                throw new RuntimeException("이미 거래가 완료 된 상품입니다");
+            }
+        });
+
+        Trade trade = Trade.of(item, buyer);
+        item.setStatus(TradeStatus.SOLD); // 판매 상태로 변경
+        trade.setCompletedAt(Timestamp.valueOf(LocalDateTime.now())); // 현재 시간 저장
+        trade.setStatus(TradeStatus.SOLD);
+        itemRepository.save(item);
         Trade savedTrade = tradeRepository.save(trade);
 
         return new TradeResponse(savedTrade);

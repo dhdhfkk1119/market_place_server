@@ -51,7 +51,7 @@ public class TradeReviewService {
                 throw new IllegalStateException("구매자 후기는 이미 작성되었습니다.");
             }
             trade.setBuyerReviewed(true);
-        } else if (reviewer.getId().equals(trade.getSeller().getId())) {
+        } else if (reviewer.getId().equals(trade.getItem().getMember().getId())) {
             if (trade.isSellerReviewed()) {
                 throw new IllegalStateException("판매자 후기는 이미 작성되었습니다.");
             }

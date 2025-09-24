@@ -214,7 +214,7 @@ public class ItemService {
                 .orElseThrow(() -> new Exception404("해당 상품을 찾을 수 없습니다"));
     }
 
-    // 키워드 검색(2)
+//    // 키워드 검색(2)
     @Transactional(readOnly = true)
     public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
 

@@ -118,7 +118,6 @@ public class ItemTradeAndReviewInitializer implements CommandLineRunner {
         }).orElseGet(() -> {
             Trade t = Trade.builder()
                     .item(item)
-                    .seller(seller)
                     .buyer(buyer)
                     .status(status)
                     .buyerReviewed(buyerReviewed)
