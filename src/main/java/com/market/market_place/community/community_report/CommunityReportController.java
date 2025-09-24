@@ -34,7 +34,7 @@ public class CommunityReportController {
     @Auth(roles = Role.USER)
     @GetMapping
     public ResponseEntity<ApiUtil.ApiResult<List<CommunityReportResponse.ListDTO>>> list(
-            @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.DESC)Pageable pageable,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)Pageable pageable,
             @RequestAttribute("sessionUser")JwtUtil.SessionUser sessionUser){
         List<CommunityReportResponse.ListDTO> reports = reportService.findAllMyReports(sessionUser.getId(), pageable);
         return ResponseEntity.ok(ApiUtil.success(reports));
