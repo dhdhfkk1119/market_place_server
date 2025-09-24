@@ -32,6 +32,7 @@ public class ItemReportResponse {
         private String reason;
         private ItemReportStatus status;
         private String createdAt;
+        private String itemThumbnail;
 
         public static ItemReportDetailDTO from(ItemReport itemReport) {
             return ItemReportDetailDTO.builder()
@@ -41,6 +42,7 @@ public class ItemReportResponse {
                     .reason(itemReport.getReason())
                     .status(itemReport.getStatus())
                     .createdAt(itemReport.getTime())
+                    .itemThumbnail(itemReport.getItem().getThumbnailUrl())
                     .build();
         }
     }
@@ -55,6 +57,8 @@ public class ItemReportResponse {
         private String reason;
         private ItemReportStatus status;
         private String createdAt;
+
+        private String itemThumbnail;
     }
 
     @Data

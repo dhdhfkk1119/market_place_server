@@ -55,10 +55,12 @@ public class ItemReportService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return itemReportRepository.findByReporter_Id(memberId, pageable)
                 .map(itemReport -> ItemReportResponse.ItemReportListDTO.builder()
+                        .id(itemReport.getId())
                         .itemId(itemReport.getItem().getId())
                         .reason(itemReport.getReason())
                         .status(itemReport.getStatus())
                         .createdAt(itemReport.getTime())
+                        .itemThumbnail(itemReport.getItem().getThumbnailUrl())
                         .build()
                 );
     }
