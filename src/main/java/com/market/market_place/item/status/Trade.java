@@ -77,13 +77,4 @@ public class Trade {
             completedAt = new Timestamp(createdAt.getTime() + 2 * 60 * 60 * 1000);
         }
     }
-
-    public void fillNulls(Timestamp created, Timestamp completed, TradeStatus status) {
-        if (this.createdAt == null) this.createdAt = created;
-        if (this.completedAt == null) this.completedAt = completed;
-        if (this.status == null) this.status = status;
-        if (this.reviews == null) this.reviews = new ArrayList<>();
-        if (this.praises == null) this.praises = new ArrayList<>();
-    }
-
 }
