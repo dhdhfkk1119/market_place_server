@@ -4,11 +4,13 @@ import com.market.market_place.members.domain.Provider;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 public class SocialLoginRequest {
 
     @NotNull(message = "소셜 로그인 제공자 정보는 필수입니다.")
