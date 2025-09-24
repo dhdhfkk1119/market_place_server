@@ -92,5 +92,8 @@ ai:
 
 naver:
   api:
-    client-id: ${NAVER_CLIENT_ID}
-    client-secret: ${NAVER_CLIENT_SECRET}
+    map:
+      client-secret: ${NAVER_CLIENT_SECRET}
+    login:
+      client-secret: ${NAVER_LOGIN_SECRET}
+      token-validate-url: "https://openapi.naver.com/v1/nid/me"

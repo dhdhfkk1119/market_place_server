@@ -16,21 +16,10 @@ import java.util.Optional;
 @Service
 public class NaverMapService {
 
-    //@Value("${naver.api.client-id}")
-    private String naverMapClientId;
-
     //@Value("${naver.api.client-secret}")
     private String naverMapClientSecret;
 
-    public String getNaverMapClientId() {
-        if (naverMapClientId == null || naverMapClientId.trim().isEmpty()) {
-            log.info("clientID 값이 비어있습니다");
-            return "";
-        }
-        return naverMapClientId;
-    }
-
-    public Optional<String> getAddress(String longitude, String latitude) {
+    public Optional<String> getAddress(String longitude, String latitude, String naverMapClientId) {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
