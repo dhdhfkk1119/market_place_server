@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Transactional
 @RequiredArgsConstructor
@@ -218,13 +220,15 @@ public class ItemService {
     @Transactional(readOnly = true)
     public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
 
-        String prop = searchRequest.getSortByProp();
-        if (prop == null || prop.isBlank()) prop = "createdAt";
+        String key = Optional.ofNullable(searchRequest.getSortByProp()).orElse("latest");
+        Map<String, Sort> sortMap = Map.of(
+                "latest", Sort.by(Sort.Order.desc("createdAt")),
+                "popular", Sort.by(Sort.Order.desc("averageRating")).and(Sort.by(Sort.Order.desc("createdAt")))
+        );
+        Sort sort = sortMap.getOrDefault(key, Sort.by(Sort.Order.desc("createdAt")));
+        if ("asc".equalsIgnoreCase(searchRequest.getSortOrder())) sort = sort.ascending();
 
-        Sort.Direction direction = "asc".equalsIgnoreCase(searchRequest.getSortOrder())
-                ? Sort.Direction.ASC : Sort.Direction.DESC;
-
-        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), Sort.by(direction, prop));
+        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
 
         Page<Item> itemPage = itemRepository.findBySearchOption(pageable, searchRequest);
 

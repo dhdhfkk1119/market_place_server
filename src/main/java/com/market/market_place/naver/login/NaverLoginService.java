@@ -24,7 +24,7 @@ public class NaverLoginService {
     private final RestTemplate restTemplate;
     private final MemberAuthService memberAuthService;
 
-    //@Value("${naver.api.login.token-validate-url}")
+    @Value("${naver.api.login.token-validate-url}")
     private String naverProfileApiUrl;
 
     public LoginResponseWithTokens login(String accessToken) {
