@@ -1,5 +1,6 @@
 package com.market.market_place.naver.map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class NaverMapService {
 
@@ -22,6 +24,7 @@ public class NaverMapService {
 
     public String getNaverMapClientId() {
         if (naverMapClientId == null || naverMapClientId.trim().isEmpty()) {
+            log.info("clientID 값이 비어있습니다");
             return "";
         }
         return naverMapClientId;
