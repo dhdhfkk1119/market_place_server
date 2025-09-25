@@ -40,6 +40,8 @@ jobs:
                   secret: NAVER_CLIENT_SECRET
                 - name: NAVER_LOGIN_SECRET
                   secret: NAVER_LOGIN_SECRET
+                - name: TOSS_WIDGET_SECRET
+                  secret: TOSS_WIDGET_SECRET
                 - name: API_URL
                   value: https://app.cloudtype.io/@ysb5397/flowise
                 - name: GCP_CREDENTIALS_JSON
