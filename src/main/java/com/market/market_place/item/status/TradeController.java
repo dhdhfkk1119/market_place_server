@@ -40,94 +40,41 @@ public class TradeController {
         return ResponseEntity.ok(ApiUtil.success(purchases));
     }
 
+    // 단건 구매 카드 조회 (특정 카드만 갱신)
+    @Auth(roles = {Role.ADMIN, Role.USER})
+    @GetMapping("/{tradeId}")
+    public ResponseEntity<ApiUtil.ApiResult<TradeResponse.PurchaseListItemDTO>> getPurchaseCard(
+            @PathVariable Long tradeId,
+            @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
+        TradeResponse.PurchaseListItemDTO dto = tradeService.getMyPurchaseCard(tradeId, sessionUser.getId());
+        return ResponseEntity.ok(ApiUtil.success(dto));
+    }
+
 /*
-{
-  "거래 생성": {
-    "method": "POST",
-    "url": "/api/v1/trades",
-    "description": "특정 상품에 대한 거래를 생성합니다. 거래가 생성되면 해당 상품은 'SOLD' 상태로 변경됩니다.",
-    "auth": "필수 (USER, ADMIN)",
-    "body": {
-      "itemId": "number (필수, 거래할 상품의 ID)"
-    },
-    "response": {
-      "success": true,
-      "data": {
-        "id": "number (거래 ID)",
-        "itemId": "number (상품 ID)",
-        "sellerId": "number (판매자 ID)",
-        "buyerId": "number (구매자 ID)",
-        "buyerReviewed": "boolean",
-        "sellerReviewed": "boolean"
-      }
-    }
-  },
-  "구매 내역 조회": {
-    "method": "GET",
-    "url": "/api/v1/trades/purchases",
-    "description": "로그인한 사용자의 구매 내역 목록을 페이지 단위로 조회합니다.",
-    "auth": "필수 (USER, ADMIN)",
-    "queryParams": [
-      {
-        "name": "page",
-        "type": "number",
-        "description": "조회할 페이지 번호 (0부터 시작)",
-        "default": "0"
-      },
-      {
-        "name": "size",
-        "type": "number",
-        "description": "한 페이지에 표시할 항목 수",
-        "default": "10"
-      },
-      {
-        "name": "sort",
-        "type": "string",
-        "description": "정렬 기준. 예: 'createdAt,desc' (거래일 내림차순)",
-        "default": "createdAt,desc"
-      }
-    ],
-    "response": {
-      "success": true,
-      "data": {
-        "content": [
-          {
-            "tradeId": "number (거래 ID)",
-            "itemId": "number (상품 ID)",
-            "title": "string (상품 제목)",
-            "price": "number (거래 가격)",
-            "thumbnailUrl": "string (상품 썸네일 이미지 URL)",
-            "tradedAt": "string (거래 생성일, ISO 8601 형식)",
-            "tradeStatus": "string (거래 상태 ENUM, 예: 'SOLD', 'PENDING')",
-            "tradeStatusLabel": "string (거래 상태 라벨, 예: '거래완료', '거래중')",
-            "sellerId": "number (판매자 ID)",
-            "sellerName": "string (판매자 이름)",
-            "isReviewed": "boolean (구매자의 리뷰 작성 여부)",
-            "reviewId": "number (리뷰 ID, 리뷰 작성 시 존재)",
-            "reviewContent": "string (리뷰 내용, 리뷰 작성 시 존재)",
-            "reviewRating": "number (리뷰 평점, 리뷰 작성 시 존재)"
-          }
-        ],
-        "pageable": {
-          "sort": { "sorted": "boolean", "unsorted": "boolean", "empty": "boolean" },
-          "pageNumber": "number (현재 페이지 번호)",
-          "pageSize": "number (페이지 크기)",
-          "offset": "number",
-          "paged": "boolean",
-          "unpaged": "boolean"
-        },
-        "totalPages": "number (전체 페이지 수)",
-        "totalElements": "number (전체 항목 수)",
-        "last": "boolean (마지막 페이지 여부)",
-        "numberOfElements": "number (현재 페이지의 항목 수)",
-        "size": "number (페이지 크기)",
-        "number": "number (현재 페이지 번호, 0부터 시작)",
-        "sort": { "sorted": "boolean", "unsorted": "boolean", "empty": "boolean" },
-        "first": "boolean (첫 페이지 여부)",
-        "empty": "boolean (현재 페이지가 비어있는지 여부)"
-      }
-    }
-  }
-}
+API 명세 (클라이언트 참고)
+
+[공통]
+- 인증: Authorization 헤더에 'Bearer {accessToken}' 전달 (JwtUtil 참고)
+- 응답 래핑: ApiUtil.ApiResult { success, response, error }
+
+1) 거래 생성
+- Method: POST
+- URL: /api/v1/trades
+- Auth: USER, ADMIN
+- Body(JSON): { "itemId": number }
+- Response: { "success": true, "response": { "id": number, "itemId": number, "sellerId": number, "buyerId": number, "buyerReviewed": boolean, "sellerReviewed": boolean }, "error": null }
+
+2) 구매 내역 조회(페이지)
+- Method: GET
+- URL: /api/v1/trades/purchases?page={0}&size={10}&sort=createdAt,desc
+- Auth: USER, ADMIN
+- Response: { "success": true, "response": Page<PurchaseListItemDTO>, "error": null }
+  - PurchaseListItemDTO: { tradeId, itemId, title, price, thumbnailUrl, tradedAt, tradeStatus, tradeStatusLabel, sellerId, sellerName, isReviewed, reviewId?, reviewContent?, reviewRating? }
+
+3) 단건 구매 카드 조회(특정 카드 갱신)
+- Method: GET
+- URL: /api/v1/trades/{tradeId}
+- Auth: USER, ADMIN (본인 구매건만 조회 가능)
+- Response: { "success": true, "response": PurchaseListItemDTO, "error": null }
 */
 }

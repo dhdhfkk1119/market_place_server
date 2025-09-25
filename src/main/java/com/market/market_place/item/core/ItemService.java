@@ -66,16 +66,15 @@ public class ItemService {
 
     // 상품 리스트 DTO로 반환
     public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
-
         return itemRepository.findAll(pageable)
-                .map(ItemResponse.ItemListDTO::from);
+                .map(item -> ItemResponse.ItemListDTO.from(item, null));
     }
 
     // 위치로 상품 리스트 가져오기
     public List<ItemResponse.ItemListDTO> findAllByLocation(ItemRequest.SearchByLocationDTO search) {
         return itemRepository.findPlacesInRadius(search.getLng(), search.getLat(), search.getRadius())
                 .stream()
-                .map(ItemResponse.ItemListDTO::from)
+                .map(item -> ItemResponse.ItemListDTO.from(item, null))
                 .toList();
     }
 
@@ -235,7 +234,7 @@ public class ItemService {
 
         Page<Item> itemPage = itemRepository.findBySearchOption(pageable, searchRequest);
 
-        return itemPage.map(ItemResponse.ItemListDTO::from);
+        return itemPage.map(item -> ItemResponse.ItemListDTO.from(item, null));
     }
 
     // 특정 회원의 판매 완료 상품 리뷰 리스트 반환

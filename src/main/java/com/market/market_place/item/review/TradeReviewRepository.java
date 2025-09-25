@@ -31,4 +31,8 @@ public interface TradeReviewRepository extends JpaRepository<TradeReview, Long> 
     @Query("SELECT tr FROM TradeReview tr WHERE tr.trade.id IN :tradeIds AND tr.reviewer.id = :buyerId")
     List<TradeReview> findBuyerReviewsForTrades(@Param("tradeIds") List<Long> tradeIds, @Param("buyerId") Long buyerId);
 
+    // 단건: 특정 거래에 대해 해당 구매자가 작성한 리뷰 조회
+    @Query("SELECT tr FROM TradeReview tr WHERE tr.trade.id = :tradeId AND tr.reviewer.id = :buyerId")
+    java.util.Optional<TradeReview> findBuyerReviewForTrade(@Param("tradeId") Long tradeId, @Param("buyerId") Long buyerId);
+
 }

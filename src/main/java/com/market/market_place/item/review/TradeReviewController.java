@@ -72,69 +72,36 @@ public class TradeReviewController {
     }
 
 /**
-API 명세
+API 명세 (클라이언트 참고)
 
-"리뷰 작성": {
-  "method": "POST",
-  "url": "/api/v1/trade-reviews",
-  "description": "거래에 대한 후기를 작성합니다. 구매자와 판매자 모두 작성 가능하며, 한 거래에 대해 한 번만 작성할 수 있습니다.",
-  "auth": "필수 (USER, ADMIN)",
-  "body": {
-    "tradeId": "number (필수)",
-    "content": "string (필수, 최대 100자)",
-    "rating": "number (필수, 1~5)"
-  },
-  "response": {
-    "success": true,
-    "data": {
-      "id": "number (리뷰 ID)",
-      "content": "string (리뷰 내용)",
-      "shortContent": "string (20자 요약)",
-      "rating": "number (평점)",
-      "reviewerLoginId": "string (작성자 로그인 ID)",
-      "createdAt": "string (ISO 8601 형식)"
-    }
-  }
-},
-"리뷰 수정": {
-  "method": "PUT",
-  "url": "/api/v1/trade-reviews/{reviewId}",
-  "description": "본인이 작성한 거래 후기를 수정합니다. URL의 {reviewId}에 수정할 리뷰의 ID를 입력합니다.",
-  "auth": "필수 (USER, ADMIN)",
-  "body": {
-    "tradeId": "number (필수)",
-    "content": "string (필수, 최대 100자)",
-    "rating": "number (필수, 1~5)"
-  },
-  "response": {
-    "success": true,
-    "data": {
-      "id": "number (리뷰 ID)",
-      "content": "string (수정된 리뷰 내용)",
-      "shortContent": "string (20자 요약)",
-      "rating": "number (수정된 평점)",
-      "reviewerLoginId": "string (작성자 로그인 ID)",
-      "createdAt": "string (ISO 8601 형식)"
-    }
-  }
-},
-"리뷰 삭제": {
-  "method": "DELETE",
-  "url": "/api/v1/trade-reviews/{reviewId}",
-  "description": "본인이 작성한 거래 후기를 삭제합니다. URL의 {reviewId}에 삭제할 리뷰의 ID를 입력합니다.",
-  "auth": "필수 (USER, ADMIN)",
-  "response": {
-    "success": true,
-    "data": "삭제 성공"
-  }
-},
-"리뷰 단일 조회": {
-  "method": "GET",
-  "url": "/api/v1/trade-reviews/{reviewId}",
-  "description": "본인이 작성한 특정 리뷰를 조회합니다. URL의 {reviewId}에 조회할 리뷰의 ID를 입력합니다.",
-  "auth": "필수 (USER, ADMIN)",
-  "response": "리뷰 작성 응답의 'data'와 동일"
-}
+[공통]
+- 인증: Authorization 헤더에 'Bearer {accessToken}' 전달 (JwtUtil 참고)
+- 응답 래핑: ApiUtil.ApiResult { success, response, error }
 
+1) 리뷰 작성
+- Method: POST
+- URL: /api/v1/trade-reviews
+- Auth: USER, ADMIN
+- Body(JSON): { "tradeId": number, "content": string(<=100), "rating": number(1~5) }
+- Response: { "success": true, "response": TradeReviewResponse, "error": null }
+
+2) 리뷰 수정
+- Method: PUT
+- URL: /api/v1/trade-reviews/{reviewId}
+- Auth: USER, ADMIN (본인 리뷰만)
+- Body(JSON): { "tradeId": number, "content": string(<=100), "rating": number(1~5) }
+- Response: { "success": true, "response": TradeReviewResponse, "error": null }
+
+3) 리뷰 삭제
+- Method: DELETE
+- URL: /api/v1/trade-reviews/{reviewId}
+- Auth: USER, ADMIN (본인 리뷰만)
+- Response: { "success": true, "response": "삭제 성공", "error": null }
+
+4) 리뷰 단일 조회(본인)
+- Method: GET
+- URL: /api/v1/trade-reviews/{reviewId}
+- Auth: USER, ADMIN (본인 리뷰만)
+- Response: { "success": true, "response": TradeReviewResponse, "error": null }
 */
 }

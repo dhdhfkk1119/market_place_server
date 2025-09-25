@@ -76,4 +76,21 @@ public class TradeService {
         return trades.map(trade -> TradeResponse.PurchaseListItemDTO
                 .fromPurchaseWithBuyerReview(trade, tradeIdToBuyerReview.get(trade.getId())));
     }
+
+    // 단건 카드 조회 (구매자 본인만)
+    @Transactional(readOnly = true)
+    public TradeResponse.PurchaseListItemDTO getMyPurchaseCard(Long tradeId, Long buyerId) {
+        Trade trade = tradeRepository.findById(tradeId)
+                .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다."));
+
+        if (!trade.getBuyer().getId().equals(buyerId)) {
+            throw new Exception400("본인의 구매내역만 조회할 수 있습니다.");
+        }
+
+        TradeReview buyerReview = tradeReviewRepository
+                .findBuyerReviewForTrade(tradeId, buyerId)
+                .orElse(null);
+
+        return TradeResponse.PurchaseListItemDTO.fromPurchaseWithBuyerReview(trade, buyerReview);
+    }
 }
