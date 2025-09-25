@@ -4,13 +4,18 @@ import com.market.market_place._core.auth.AuthInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.nio.file.Paths;
 
 @Configuration
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final AuthInterceptor authInterceptor;
+    private final UploadConfig uploadConfig;
+
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -31,5 +36,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         // 토큰 재발급
                         "/api/auth/reissue"
                 );
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+        String resourceHandler = "/" + uploadConfig.getChatDir() + "**";
+
+        String resourceLocation = Paths.get(uploadConfig.getRootDir(), uploadConfig.getChatDir()).toUri().toString();
+        registry.addResourceHandler(resourceHandler)
+                .addResourceLocations(resourceLocation);
     }
 }

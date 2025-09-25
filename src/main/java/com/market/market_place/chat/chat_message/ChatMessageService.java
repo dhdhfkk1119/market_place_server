@@ -53,7 +53,7 @@ public class ChatMessageService {
         if (msgDTO.getMessage() == null || msgDTO.getMessage().trim().isEmpty()) {
             throw new Exception401("메시지를 입력해주시기 바랍니다");
         }
-        
+
         ChatRoom room = chatRoomRepository.findByUserIds(senderId, msgDTO.getReceiveId(),item.getId())
                 .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
                         .loginUser(sender)
@@ -66,6 +66,7 @@ public class ChatMessageService {
         ChatMessage chatMessage = msgDTO.toEntity(sender, receiver, room,item);
         chatMessage.setMessageType(MessageType.TEXT);
         chatMessageRepository.save(chatMessage);
+
         if (msgDTO.getImages() != null && !msgDTO.getImages().isEmpty()) {
             ChatImageRequestDTO.ChatImageDTO chatImageDTO = new ChatImageRequestDTO.ChatImageDTO();
             for (String img : msgDTO.getImages()) {
@@ -90,7 +91,7 @@ public class ChatMessageService {
         } else {
             room.setLastReadMessageIdByOtherUser(chatMessage.getId());
         }
-        
+
         room.setLastMessage(chatMessage);
         chatRoomRepository.save(room);
 
@@ -142,13 +143,19 @@ public class ChatMessageService {
         Long finalOtherUserLastReadMessageId = otherUserLastReadMessageId;
 
         return messages.map(msg -> {
-            // 내가 보낸 메시지인 경우에만 isRead를 계산
+            List<ChatImage> images = Collections.emptyList();
+            if (msg.getMessageType() == MessageType.IMAGE) {
+                images = chatImageRepository.findByChatMessage(msg);
+            }
             boolean isRead = false;
             if (msg.getSender().getId().equals(currentUserId)) {
                 isRead = (finalOtherUserLastReadMessageId != null && msg.getId() <= finalOtherUserLastReadMessageId);
             }
-            return new ChatMessageResponseDTO.MessageDTO(msg, Collections.emptyList(), isRead);
+
+            return new ChatMessageResponseDTO.MessageDTO(msg, images, isRead);
         });
+
+
     }
     @Transactional
     public void markMessagesAsRead(Long roomId, Long currentUserId) {
