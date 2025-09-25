@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 // 거래 리뷰 레포지토리 (DB 접근)
 @Repository
@@ -25,5 +26,9 @@ public interface TradeReviewRepository extends JpaRepository<TradeReview, Long> 
             "JOIN t.item i " +
             "WHERE i.member.id = :memberId AND t.status = com.market.market_place.item.status.TradeStatus.SOLD")
     List<TradeReview> findSoldReviewsBySellerId(@Param("memberId") Long memberId);
+
+    // 구매자 관점: 특정 구매자의 트레이드들에 대해 해당 구매자가 작성한 리뷰만 일괄 조회
+    @Query("SELECT tr FROM TradeReview tr WHERE tr.trade.id IN :tradeIds AND tr.reviewer.id = :buyerId")
+    List<TradeReview> findBuyerReviewsForTrades(@Param("tradeIds") List<Long> tradeIds, @Param("buyerId") Long buyerId);
 
 }

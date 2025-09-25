@@ -51,7 +51,7 @@ public class Trade {
     private boolean buyerReviewed;
 
     @Setter
-    @Column(nullable = false,updatable = false)
+    @Column(nullable = false)
     private boolean sellerReviewed;
 
     private Timestamp createdAt;

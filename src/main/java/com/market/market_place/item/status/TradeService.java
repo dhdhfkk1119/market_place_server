@@ -5,6 +5,8 @@ import com.market.market_place._core._exception.Exception404;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
+import com.market.market_place.item.review.TradeReview;
+import com.market.market_place.item.review.TradeReviewRepository;
 import com.market.market_place.members.domain.Member;
 import com.market.market_place.members.repositories.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +25,7 @@ public class TradeService {
     private final TradeRepository tradeRepository;
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
+    private final TradeReviewRepository tradeReviewRepository;
 
     @Transactional
     public TradeResponse createTrade(Long itemId, JwtUtil.SessionUser sessionUser) {
@@ -55,6 +61,19 @@ public class TradeService {
     @Transactional(readOnly = true)
     public Page<TradeResponse.PurchaseListItemDTO> getMyPurchases(Long buyerId, Pageable pageable) {
         Page<Trade> trades = tradeRepository.findByBuyerId(buyerId, pageable);
-        return trades.map(TradeResponse.PurchaseListItemDTO::fromPurchase);
+
+        List<Long> tradeIds = trades.getContent().stream()
+                .map(Trade::getId)
+                .collect(Collectors.toList());
+
+        List<TradeReview> buyerReviews = tradeIds.isEmpty()
+                ? List.of()
+                : tradeReviewRepository.findBuyerReviewsForTrades(tradeIds, buyerId);
+
+        Map<Long, TradeReview> tradeIdToBuyerReview = buyerReviews.stream()
+                .collect(Collectors.toMap(r -> r.getTrade().getId(), r -> r, (a, b) -> a));
+
+        return trades.map(trade -> TradeResponse.PurchaseListItemDTO
+                .fromPurchaseWithBuyerReview(trade, tradeIdToBuyerReview.get(trade.getId())));
     }
 }

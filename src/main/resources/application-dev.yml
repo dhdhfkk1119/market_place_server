@@ -73,7 +73,7 @@ spring:
       # 기존 데이터는 모두 삭제됨 (개발용)
       ddl-auto: create
     # SQL 쿼리를 콘솔에 출력 (개발용 디버깅)
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         # SQL 쿼리를 보기 좋게 포맷팅

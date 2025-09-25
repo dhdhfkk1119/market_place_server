@@ -94,13 +94,18 @@ public class TradeController {
           {
             "tradeId": "number (거래 ID)",
             "itemId": "number (상품 ID)",
-            "itemTitle": "string (상품 제목)",
-            "itemThumbnail": "string (상품 썸네일 이미지 URL)",
+            "title": "string (상품 제목)",
             "price": "number (거래 가격)",
-            "tradeStatus": "string (거래 상태, 예: 'TRADING', 'COMPLETED')",
-            "sellerNickname": "string (판매자 닉네임)",
+            "thumbnailUrl": "string (상품 썸네일 이미지 URL)",
+            "tradedAt": "string (거래 생성일, ISO 8601 형식)",
+            "tradeStatus": "string (거래 상태 ENUM, 예: 'SOLD', 'PENDING')",
+            "tradeStatusLabel": "string (거래 상태 라벨, 예: '거래완료', '거래중')",
+            "sellerId": "number (판매자 ID)",
+            "sellerName": "string (판매자 이름)",
             "isReviewed": "boolean (구매자의 리뷰 작성 여부)",
-            "tradedAt": "string (거래 생성일, ISO 8601 형식)"
+            "reviewId": "number (리뷰 ID, 리뷰 작성 시 존재)",
+            "reviewContent": "string (리뷰 내용, 리뷰 작성 시 존재)",
+            "reviewRating": "number (리뷰 평점, 리뷰 작성 시 존재)"
           }
         ],
         "pageable": {

@@ -291,6 +291,9 @@ Temporary Items
 # Built Visual Studio Code Extensions
 *.vsix
 
+# vscode 설정 폴더를 무시합니다.
+.vscode/
+
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
