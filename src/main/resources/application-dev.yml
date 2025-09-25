@@ -97,3 +97,7 @@ naver:
     login:
       client-secret: ${NAVER_LOGIN_SECRET}
       token-validate-url: "https://openapi.naver.com/v1/nid/me"
+
+toss:
+  api:
+    secret: ${TOSS_WIDGET_SECRET}
