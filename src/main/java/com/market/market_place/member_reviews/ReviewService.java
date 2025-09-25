@@ -23,12 +23,13 @@ public class ReviewService {
     @Transactional
     public ReviewResponse.ResponseDTO save(ReviewRequest.SaveDTO saveDTO, JwtUtil.SessionUser sessionUser) {
         Member reviewer = memberRepository.findById(sessionUser.getId())
-                .orElseThrow(() -> new Exception404("리뷰 작성자를 찾을 수 없습니다"));
+                                          .orElseThrow(() -> new Exception404("리뷰 작성자를 찾을 수 없습니다"));
         Member reviewed = memberRepository.findById(saveDTO.getReviewedId())
-                .orElseThrow(() -> new Exception404("리뷰 대상자를 찾을 수 없습니다"));
+                                          .orElseThrow(() -> new Exception404("리뷰 대상자를 찾을 수 없습니다"));
 
         // 자기 자신에게는 리뷰 작성 불가
-        if (reviewer.getId().equals(reviewed.getId())) {
+        if (reviewer.getId()
+                    .equals(reviewed.getId())) {
             throw new Exception403("자기 자신에게는 리뷰를 작성할 수 없습니다");
         }
 
@@ -42,11 +43,11 @@ public class ReviewService {
         }
 
         Review review = Review.builder()
-                .reviewer(reviewer)
-                .reviewed(reviewed)
-                .rating(saveDTO.getRating())
-                .comment(saveDTO.getComment())
-                .build();
+                              .reviewer(reviewer)
+                              .reviewed(reviewed)
+                              .rating(saveDTO.getRating())
+                              .comment(saveDTO.getComment())
+                              .build();
         try {
             reviewRepository.save(review);
         } catch (DataIntegrityViolationException e) {
@@ -57,9 +58,10 @@ public class ReviewService {
     }
 
     public List<ReviewResponse.ResponseDTO> findByReviewedId(Long memberId) {
-        return reviewRepository.findByReviewedId(memberId).stream()
-                .map(ReviewResponse.ResponseDTO::new)
-                .collect(Collectors.toList());
+        return reviewRepository.findByReviewedId(memberId)
+                               .stream()
+                               .map(ReviewResponse.ResponseDTO::new)
+                               .collect(Collectors.toList());
     }
 
     /**
@@ -70,13 +72,15 @@ public class ReviewService {
     public List<ReviewResponse.ResponseDTO> findByReviewedIdWithViewerFirst(Long memberId, Long viewerId) {
         List<Review> reviews = reviewRepository.findByReviewedId(memberId);
         List<ReviewResponse.ResponseDTO> result = reviews.stream()
-                .map(ReviewResponse.ResponseDTO::new)
-                .collect(Collectors.toList());
+                                                         .map(ReviewResponse.ResponseDTO::new)
+                                                         .collect(Collectors.toList());
         if (viewerId == null) return result;
         // viewer가 작성한 리뷰를 맨 위로 이동
         int idx = -1;
         for (int i = 0; i < result.size(); i++) {
-            if (result.get(i).getReviewer().getId().equals(viewerId)) {
+            if (result.get(i)
+                      .getReviewerId()
+                      .equals(viewerId)) {
                 idx = i;
                 break;
             }
@@ -91,8 +95,10 @@ public class ReviewService {
     @Transactional
     public ReviewResponse.ResponseDTO update(Long id, ReviewRequest.UpdateDTO updateDTO, JwtUtil.SessionUser sessionUser) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new Exception404("리뷰를 찾을 수 없습니다"));
-        if (!review.getReviewer().getId().equals(sessionUser.getId())) {
+                                        .orElseThrow(() -> new Exception404("리뷰를 찾을 수 없습니다"));
+        if (!review.getReviewer()
+                   .getId()
+                   .equals(sessionUser.getId())) {
             throw new Exception403("본인이 작성한 리뷰만 수정할 수 있습니다");
         }
         if (updateDTO.getRating() != null && (updateDTO.getRating() < 1 || updateDTO.getRating() > 5)) {
@@ -106,8 +112,10 @@ public class ReviewService {
     @Transactional
     public void delete(Long id, JwtUtil.SessionUser sessionUser) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new Exception404("리뷰를 찾을 수 없습니다"));
-        if (!review.getReviewer().getId().equals(sessionUser.getId())) {
+                                        .orElseThrow(() -> new Exception404("리뷰를 찾을 수 없습니다"));
+        if (!review.getReviewer()
+                   .getId()
+                   .equals(sessionUser.getId())) {
             throw new Exception403("본인이 작성한 리뷰만 삭제할 수 있습니다");
         }
         reviewRepository.delete(review);
