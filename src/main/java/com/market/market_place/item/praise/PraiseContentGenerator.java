@@ -1,19 +1,29 @@
 package com.market.market_place.item.praise;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class PraiseContentGenerator {
 
-    public static String generateContentFromTopic(List<String> topicNames) {
-        if (topicNames == null || topicNames.isEmpty()) {
-            return "좋은 거래 감사합니다!";
-        }
-        if (topicNames.size() == 1) {
-            return "다음과 같은 이유로 칭찬 드려요 : " + topicNames.get(0) + " . ";
-        }
-        String result = String.join(", ", topicNames.subList(0, topicNames.size() - 1))
-                + " 그리고 " + topicNames.get(topicNames.size() - 1);
+    private static final ResourceBundle BUNDLE = ResourceBundle.getBundle("messages", Locale.KOREA);
 
-        return "다음과 같은 이유로 칭찬 드려요 : " + result + " . ";
+    public static String generateContentFromTopic(List<String> topicNames) {
+
+        String defaultPraise = BUNDLE.getString(PraiseMessage.DEFAULT.getKey());
+        String prefix = BUNDLE.getString(PraiseMessage.PREFIX.getKey());
+        String andSeparator = BUNDLE.getString(PraiseMessage.SEPARATOR.getKey());
+
+        if (topicNames == null || topicNames.isEmpty()) {
+            return defaultPraise;
+        }
+
+        if (topicNames.size() == 1) {
+            return prefix + topicNames.get(0) + " . ";
+        }
+
+        String result = String.join(", ", topicNames.subList(0, topicNames.size() - 1))
+                + andSeparator + topicNames.get(topicNames.size() - 1);
+        return prefix + result + " . ";
     }
 }

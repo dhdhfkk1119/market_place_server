@@ -1,5 +1,7 @@
 package com.market.market_place.item.review;
 
+import com.market.market_place._core._exception.Exception400;
+import com.market.market_place._core._exception.Exception403;
 import com.market.market_place._core._exception.Exception404;
 import com.market.market_place.item.core.Item;
 import com.market.market_place.item.core.ItemRepository;
@@ -48,16 +50,16 @@ public class TradeReviewService {
     private void validateReviewer(Trade trade, Member reviewer) {
         if (reviewer.getId().equals(trade.getBuyer().getId())) {
             if (trade.isBuyerReviewed()) {
-                throw new IllegalStateException("구매자 후기는 이미 작성되었습니다.");
+                throw new Exception400("구매자 후기는 이미 작성되었습니다.");
             }
             trade.setBuyerReviewed(true);
         } else if (reviewer.getId().equals(trade.getItem().getMember().getId())) {
             if (trade.isSellerReviewed()) {
-                throw new IllegalStateException("판매자 후기는 이미 작성되었습니다.");
+                throw new Exception400("판매자 후기는 이미 작성되었습니다.");
             }
             trade.setSellerReviewed(true);
         } else {
-            throw new IllegalArgumentException("후기를 작성할 권한이 없습니다.");
+            throw new Exception403("후기를 작성할 권한이 없습니다.");
         }
     }
 
