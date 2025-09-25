@@ -13,6 +13,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+// 거래 리뷰 서비스 (비즈니스 로직)
 @Service
 @RequiredArgsConstructor
 public class TradeReviewService {
@@ -22,10 +26,11 @@ public class TradeReviewService {
     private final TradeReviewRepository tradeReviewRepository;
     private final ItemRepository itemRepository;
 
+    // 리뷰 작성
     @Transactional
-    public void createReview(Long tradeId, Long reviewerId, TradeReviewRequest dto) {
+    public TradeReviewResponse createReview(Long reviewerId, TradeReviewRequest dto) {
         // 1. 거래 및 회원 엔티티 조회
-        Trade trade = tradeRepository.findById(tradeId)
+        Trade trade = tradeRepository.findById(dto.getTradeId())
                 .orElseThrow(() -> new Exception404("거래를 찾을 수 없습니다."));
         Member reviewer = memberRepository.findById(reviewerId)
                 .orElseThrow(() -> new Exception404("회원을 찾을 수 없습니다."));
@@ -34,16 +39,13 @@ public class TradeReviewService {
         validateReviewer(trade, reviewer);
 
         // 3. TradeReview 엔티티 생성 및 저장
-        TradeReview review = TradeReview.builder()
-                .trade(trade)
-                .reviewer(reviewer)
-                .content(dto.getContent())
-                .rating(dto.getRating())
-                .build();
-        tradeReviewRepository.save(review);
+        TradeReview review = dto.toEntity(trade, reviewer);
+        TradeReview savedReview = tradeReviewRepository.save(review);
 
         // 4. 아이템 평점 업데이트
         updateItemAverageRating(trade.getItem());
+
+        return TradeReviewResponse.from(savedReview);
     }
 
     // 후기 작성 권한 검증 및 중복 체크
@@ -70,5 +72,48 @@ public class TradeReviewService {
             item.setAverageRating(averageRating);
 
         }
+    }
+
+
+    // 리뷰 수정
+    @Transactional
+    public TradeReviewResponse updateReview(Long reviewId, TradeReviewRequest dto, Long reviewerId) {
+        TradeReview review = tradeReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new Exception404("리뷰를 찾을 수 없습니다."));
+        if (!review.getReviewer().getId().equals(reviewerId)) {
+            throw new IllegalArgumentException("본인만 리뷰를 수정할 수 있습니다.");
+        }
+        review.update(dto.getContent(), (int)dto.getRating());
+
+        // 아이템 평점 업데이트
+        updateItemAverageRating(review.getTrade().getItem());
+
+        return TradeReviewResponse.from(review);
+    }
+
+    // 리뷰 삭제
+    @Transactional
+    public void deleteReview(Long reviewId, Long reviewerId) {
+        TradeReview review = tradeReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new Exception404("리뷰를 찾을 수 없습니다."));
+        if (!review.getReviewer().getId().equals(reviewerId)) {
+            throw new IllegalArgumentException("본인만 리뷰를 삭제할 수 있습니다.");
+        }
+        Item item = review.getTrade().getItem(); // 삭제 전에 아이템 정보를 가져옴
+        tradeReviewRepository.delete(review);
+
+        // 아이템 평점 업데이트
+        updateItemAverageRating(item);
+    }
+
+    // 내가 쓴 단일 리뷰 조회
+    @Transactional
+    public TradeReviewResponse getReviewById(Long reviewId, Long memberId) {
+        TradeReview review = tradeReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new Exception404("리뷰를 찾을 수 없습니다."));
+        if (!review.getReviewer().getId().equals(memberId)) {
+            throw new IllegalArgumentException("본인만 자신의 리뷰를 조회할 수 있습니다.");
+        }
+        return TradeReviewResponse.from(review);
     }
 }

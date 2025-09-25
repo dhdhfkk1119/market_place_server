@@ -96,36 +96,23 @@ public class ItemTradeAndReviewInitializer implements CommandLineRunner {
                               boolean buyerReviewed, boolean sellerReviewed,
                               TradeStatus status) {
 
-        Timestamp created   = new Timestamp(System.currentTimeMillis() - 24 * 60 * 60 * 1000); // 어제
-        Timestamp completed = (status == TradeStatus.SOLD)
-                ? new Timestamp(created.getTime() + 2 * 60 * 60 * 1000) // +2h
-                : null;
-
-        return tradeRepository.findByItem(item).map(t -> {
-            // 기존 row 널 보정
-            if (t.getCreatedAt() == null) t.setCreatedAt(created);
-            if (t.getStatus() == null)    t.setStatus(status);
-            if (t.getStatus() == TradeStatus.SOLD && t.getCompletedAt() == null) {
-                t.setCompletedAt(completed != null ? completed
-                        : new Timestamp(t.getCreatedAt().getTime() + 2 * 60 * 60 * 1000));
-            }
-            if (t.getStatus() == TradeStatus.PENDING) {
-                t.setCompletedAt(null);
-            }
-            t.setBuyerReviewed(buyerReviewed);
-            t.setSellerReviewed(sellerReviewed);
-            return tradeRepository.save(t);
-        }).orElseGet(() -> {
-            Trade t = Trade.builder()
+        // findByItem이 여러 거래를 반환할 수 있으므로, 여기서는 orElseGet을 사용하여 항상 새로 생성하도록 단순화
+        // 초기화 스크립트는 멱등성을 보장하는 것이 좋지만, 테스트 데이터 생성 목적이므로 단순하게 구현
+        return tradeRepository.findByItem(item).orElseGet(() -> {
+            Trade newTrade = Trade.builder()
                     .item(item)
                     .buyer(buyer)
                     .status(status)
                     .buyerReviewed(buyerReviewed)
                     .sellerReviewed(sellerReviewed)
-                    .createdAt(created)
-                    .completedAt(completed) // PENDING이면 null
                     .build();
-            return tradeRepository.save(t);
+
+            // 거래 상태가 SOLD이면 완료 시간 설정
+            if (status == TradeStatus.SOLD) {
+                newTrade.completeTrade();
+            }
+
+            return tradeRepository.save(newTrade);
         });
     }
 

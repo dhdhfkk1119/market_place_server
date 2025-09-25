@@ -5,9 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 모든 컨트롤러에서 발생하는 예외를 처리하는 글로벌 예외 핸들러
@@ -19,9 +23,13 @@ public class MyExceptionHandler {
     // 유효성 검사 실패 시
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiUtil.ApiResult<?>> handleValidationExceptions(MethodArgumentNotValidException e) {
-        // 첫 번째 에러 메시지를 사용
-        String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
-        return new ResponseEntity<>(ApiUtil.fail(errorMessage, HttpStatus.BAD_REQUEST, "VALIDATION_FAILED"), HttpStatus.BAD_REQUEST);
+        Map<String, String> errors = new HashMap<>();
+        e.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return new ResponseEntity<>(ApiUtil.fail("유효성 검사에 실패했습니다.", HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", errors), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception400.class)

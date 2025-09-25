@@ -9,22 +9,26 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "trade_tb")
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"reviews", "praises", "item", "buyer"})
 public class Trade {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @OneToMany(mappedBy = "trade", cascade = CascadeType.ALL,orphanRemoval = true)
+    @Builder.Default
     private List<TradeReview> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "trade", cascade = CascadeType.ALL,orphanRemoval = true)
@@ -38,26 +42,21 @@ public class Trade {
     @JoinColumn(name = "buyer_id",nullable = false)
     private Member buyer;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private TradeStatus status;
 
+    @Setter
     @Column(nullable = false)
     private boolean buyerReviewed;
 
+    @Setter
     @Column(nullable = false,updatable = false)
     private boolean sellerReviewed;
 
     private Timestamp createdAt;
 
     private Timestamp completedAt;
-
-    public void setBuyerReviewed(boolean buyerReviewed) {
-        this.buyerReviewed = buyerReviewed;
-    }
-
-    public void setSellerReviewed(boolean sellerReviewed) {
-        this.sellerReviewed = sellerReviewed;
-    }
 
     public String getTime() {
         return DateUtil.timestampFormat(completedAt);
@@ -67,11 +66,6 @@ public class Trade {
     void prePersist() {
         if (createdAt == null) createdAt = new Timestamp(System.currentTimeMillis());
         if (status == null) status = TradeStatus.PENDING;
-        if (reviews == null) reviews = new ArrayList<>();
-        if (praises == null) praises = new ArrayList<>();
-        if (status == TradeStatus.SOLD && completedAt == null) {
-            completedAt = new Timestamp(createdAt.getTime() + 2 * 60 * 60 * 1000);
-        }
     }
 
     public void fillNulls(Timestamp created, Timestamp completed, TradeStatus status) {
@@ -90,5 +84,10 @@ public class Trade {
                 .sellerReviewed(false)
                 .status(TradeStatus.PENDING)
                 .build();
+    }
+
+    public void completeTrade() {
+        this.status = TradeStatus.SOLD;
+        this.completedAt = Timestamp.valueOf(LocalDateTime.now());
     }
 }
