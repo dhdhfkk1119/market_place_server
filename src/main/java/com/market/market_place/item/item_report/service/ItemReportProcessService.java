@@ -55,7 +55,7 @@ public class ItemReportProcessService {
                 .build();
 
         // 상태 변경
-        memberStatus.setStatus(MemberStatus.BANNED);
+        memberStatus.ban(); // 회원 상태를 'BANNED'로 변경
         memberRepository.save(memberStatus);
 
         itemReportProcessRepository.save(process);

@@ -9,12 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
-@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(name = "member_tb")
+@Getter
+@ToString(exclude = "memberProfile") // 순환 참조 방지
 public class Member {
 
     @Id
@@ -79,15 +80,16 @@ public class Member {
     // 회원가입 요청 정보를 바탕으로 완전한 Member 객체를 생성합니다.
     public static Member from(MemberRegisterRequest dto, PasswordEncoder passwordEncoder) {
         Member member = Member.builder()
-                .loginId(dto.getLoginId())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .address(dto.getAddress()) // 주소 정보 설정 추가
-                .email(dto.getEmail())
-                .role(Role.USER) // 독립된 Role 열거형을 사용하도록 수정
-                .status(MemberStatus.ACTIVE) // 신규 회원은 항상 활성 상태로 시작
-                .build();
+                              .loginId(dto.getLoginId())
+                              .password(passwordEncoder.encode(dto.getPassword()))
+                              .address(dto.getAddress()) // 주소 정보 설정 추가
+                              .email(dto.getEmail())
+                              .role(Role.USER) // 독립된 Role 열거형을 사용하도록 수정
+                              .status(MemberStatus.ACTIVE) // 신규 회원은 항상 활성 상태로 시작
+                              .build();
 
-        member.setMemberProfile(MemberProfile.builder().build());
+        member.setMemberProfile(MemberProfile.builder()
+                                             .build());
 
         return member;
     }
