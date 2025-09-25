@@ -13,14 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TossController {
 
-    //@Value("${toss.api.secret}")
-    private String WIDGET_SECRET_KEY;
-
     private final TossService tossService;
 
     @RequestMapping("/confirm/payment")
     public ResponseEntity<JSONObject> confirmPayment(@RequestBody String jsonBody) throws Exception {
-        JSONObject response = tossService.confirmPayment(jsonBody, WIDGET_SECRET_KEY);
+        JSONObject response = tossService.confirmPayment(jsonBody);
         int statusCode = response.containsKey("error") ? 400 : 200;
         return ResponseEntity.status(statusCode).body(response);
     }

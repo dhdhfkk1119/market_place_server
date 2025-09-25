@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -17,7 +18,10 @@ import java.util.Base64;
 @Service
 public class TossService {
 
-    public JSONObject confirmPayment(@RequestBody String jsonBody, String WIDGET_SECRET_KEY) throws Exception {
+    @Value("${toss.api.secret}")
+    private String WIDGET_SECRET_KEY;
+
+    public JSONObject confirmPayment(@RequestBody String jsonBody) throws Exception {
         return sendRequest(parseRequestData(jsonBody), WIDGET_SECRET_KEY, "https://api.tosspayments.com/v1/payments/confirm");
     }
 
