@@ -11,7 +11,9 @@ import com.market.market_place.item.item_tag.Tag;
 import com.market.market_place.item.item_tag.TagRepository;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
+import com.market.market_place.item.review.TradeReviewRepository;
 import com.market.market_place.members.repositories.MemberRepository;
+import com.market.market_place.item.review.TradeReviewResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +37,7 @@ public class ItemService {
     private final ItemFavoriteRepository itemFavoriteRepository;
     private final MemberRepository memberRepository;
     private final TagRepository tagRepository;
+    private final TradeReviewRepository tradeReviewRepository;
 
     // 상품 ID로 객체를 불러와 DTO로 반환
     public ItemResponse.ItemDetailDTO findById(Long id, JwtUtil.SessionUser sessionUser) {
@@ -233,5 +236,25 @@ public class ItemService {
         Page<Item> itemPage = itemRepository.findBySearchOption(pageable, searchRequest);
 
         return itemPage.map(ItemResponse.ItemListDTO::from);
+    }
+
+    // 특정 회원의 판매 완료 상품 리뷰 리스트 반환
+    @Transactional(readOnly = true)
+    public List<TradeReviewResponse> getSoldByMember(Long memberId) {
+        List<com.market.market_place.item.review.TradeReview> reviews = tradeReviewRepository.findSoldReviewsBySellerId(memberId);
+        return reviews.stream()
+                .map(com.market.market_place.item.review.TradeReviewResponse::from)
+                .toList();
+    }
+
+    // 판매자(memberId)의 판매 완료 상품 리뷰 최근 3개 반환
+    @Transactional(readOnly = true)
+    public List<TradeReviewResponse> getRecentSoldReviewsByMember(Long memberId) {
+        List<com.market.market_place.item.review.TradeReview> reviews = tradeReviewRepository.findSoldReviewsBySellerId(memberId);
+        return reviews.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .limit(3)
+                .map(com.market.market_place.item.review.TradeReviewResponse::from)
+                .toList();
     }
 }

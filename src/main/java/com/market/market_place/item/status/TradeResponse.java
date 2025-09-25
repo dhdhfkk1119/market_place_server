@@ -30,31 +30,34 @@ public class TradeResponse {
     @Data
     @AllArgsConstructor
     @Builder
-    public static class MyTradeListItemDTO {
-        private Long id;
+    public static class PurchaseListItemDTO {
+        private Long tradeId;
         private Long itemId;
         private String title;
         private Long price;
         private String thumbnailUrl;
-        private String completedAt;
-        private String statusLabel;
-        private TradeStatus status;
-        private Long counterPartyId;
-        private String counterPartyName;
+        private String tradedAt;
+        private TradeStatus tradeStatus;
+        private String tradeStatusLabel;
+        private Long sellerId;
+        private String sellerName;
+        private boolean isReviewed;
 
-        public static MyTradeListItemDTO fromPurchase(Trade trade) {
+        public static PurchaseListItemDTO fromPurchase(Trade trade) {
             Item item = trade.getItem();
-            return MyTradeListItemDTO.builder()
-                    .id(trade.getId())
+            Member seller = item.getMember();
+            return PurchaseListItemDTO.builder()
+                    .tradeId(trade.getId())
                     .itemId(item.getId())
                     .title(item.getTitle())
                     .price(item.getPrice())
-                    .thumbnailUrl(item.getThumbnailUrl())
-                    .completedAt(trade.getTime())
-                    .statusLabel(toStatusLabel(trade.getStatus()))
-                    .status(trade.getStatus())
-                    .counterPartyId(trade.getItem().getMember().getId())
-                    .counterPartyName(trade.getItem().getMember().getMemberProfile().getName())
+                    .thumbnailUrl(item.getThumbnailUrl()) // 썸네일 URL이 없다면 기본 이미지 URL 제공 고려
+                    .tradedAt(trade.getTime())
+                    .tradeStatus(trade.getStatus())
+                    .tradeStatusLabel(toStatusLabel(trade.getStatus()))
+                    .sellerId(seller.getId())
+                    .sellerName(seller.getMemberProfile().getName())
+                    .isReviewed(trade.isBuyerReviewed())
                     .build();
 
         }
@@ -63,7 +66,7 @@ public class TradeResponse {
             if (status == null) return "알수없음";
             return switch (status) {
                 case SOLD -> "거래완료";
-                case PENDING -> "거래 진행중";
+                case PENDING -> "거래중";
                 default -> "알수없음";
             };
         }

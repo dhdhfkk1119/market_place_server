@@ -3,15 +3,17 @@ package com.market.market_place.item.core;
 import com.market.market_place._core._utils.JwtUtil;
 import com.market.market_place._core.auth.Auth;
 import com.market.market_place.members.domain.Role;
+import com.market.market_place.item.review.TradeReviewResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -43,6 +45,19 @@ public class ItemController {
         return ResponseEntity.ok(mySales);
     }
 
+    // 프로필 하단에서 판매자(memberId)의 판매 완료 상품 리뷰 리스트를 조회
+    @GetMapping("/sales/sold/{memberId}")
+    public ResponseEntity<List<TradeReviewResponse>> getSoldByMember(@PathVariable Long memberId) {
+        List<TradeReviewResponse> reviews = itemService.getSoldByMember(memberId);
+        return ResponseEntity.ok(reviews);
+    }
+
+    // 판매자(memberId)의 판매 완료 상품 리뷰 최근 3개 조회
+    @GetMapping("/sales/sold/{memberId}/recent")
+    public ResponseEntity<List<TradeReviewResponse>> getRecentSoldReviewsByMember(@PathVariable Long memberId) {
+        List<TradeReviewResponse> reviews = itemService.getRecentSoldReviewsByMember(memberId);
+        return ResponseEntity.ok(reviews);
+    }
 
     // 상품 목록 조회
 //    @GetMapping("/")
