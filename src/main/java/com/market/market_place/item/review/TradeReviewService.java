@@ -99,6 +99,18 @@ public class TradeReviewService {
         if (!review.getReviewer().getId().equals(reviewerId)) {
             throw new IllegalArgumentException("본인만 리뷰를 삭제할 수 있습니다.");
         }
+
+        // 삭제 전에 Trade의 정보를 업데이트
+        Trade trade = review.getTrade();
+        Member reviewer = review.getReviewer();
+
+        // 리뷰 작성자가 구매자인지 판매자인지 확인하여 해당 플래그 업데이트
+        if (reviewer.getId().equals(trade.getBuyer().getId())) {
+            trade.setBuyerReviewed(false); // 구매자 리뷰 플래그를 false로 변경
+        } else if (reviewer.getId().equals(trade.getItem().getMember().getId())) {
+            trade.setSellerReviewed(false); // 판매자 리뷰 플래그를 false로 변경
+        }
+
         Item item = review.getTrade().getItem(); // 삭제 전에 아이템 정보를 가져옴
         tradeReviewRepository.delete(review);
 
