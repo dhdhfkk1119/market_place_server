@@ -7,6 +7,9 @@ import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_category.ItemCategoryRepository;
 import com.market.market_place.item.item_favorite.ItemFavoriteRepository;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.item_report._enum.ItemReportStatus;
+import com.market.market_place.item.item_report.entity.ItemReport;
+import com.market.market_place.item.item_report.repository.ItemReportRepository;
 import com.market.market_place.item.item_tag.Tag;
 import com.market.market_place.item.item_tag.TagRepository;
 import com.market.market_place.item.status.TradeStatus;
@@ -33,6 +36,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemCategoryRepository itemCategoryRepository;
     private final ItemFavoriteRepository itemFavoriteRepository;
+    private final ItemReportRepository itemReportRepository;
     private final MemberRepository memberRepository;
     private final TagRepository tagRepository;
 
@@ -61,20 +65,33 @@ public class ItemService {
                 .map(ItemResponse.MySalesListItemDTO::from);
     }
 
-    // 상품 리스트 DTO로 반환
-    public Page<ItemResponse.ItemListDTO> findAll(Pageable pageable) {
 
-        return itemRepository.findAll(pageable)
-                .map(ItemResponse.ItemListDTO::from);
-    }
-
-    // 위치로 상품 리스트 가져오기
+    @Transactional(readOnly = true)
     public List<ItemResponse.ItemListDTO> findAllByLocation(ItemRequest.SearchByLocationDTO search) {
-        return itemRepository.findPlacesInRadius(search.getLng(), search.getLat(), search.getRadius())
-                .stream()
-                .map(ItemResponse.ItemListDTO::from)
+        // 1) 범위 내 상품 조회
+        List<Item> items = itemRepository.findPlacesInRadius(
+                search.getLng(),
+                search.getLat(),
+                search.getRadius()
+        );
+
+        if (items.isEmpty()) return List.of();
+
+        // 2) itemId 목록 추출
+        List<Long> itemIds = items.stream().map(Item::getId).toList();
+
+        // 3) 각 아이템별 최신 신고 상태 조회
+        Map<Long, ItemReportStatus> statusMap = itemReportRepository.findLatestStatusByItemIds(itemIds);
+
+        // 4) DTO 생성 시 상태 함께 넣기
+        return items.stream()
+                .map(item -> {
+                    ItemReportStatus status = statusMap.getOrDefault(item.getId(), ItemReportStatus.PENDING);
+                    return ItemResponse.ItemListDTO.from(item, status);
+                })
                 .toList();
     }
+
 
     // 상품 저장
     public ItemResponse.ItemSaveDTO save(Long id, ItemRequest.ItemSaveDTO dto) {
@@ -219,19 +236,27 @@ public class ItemService {
 //    // 키워드 검색(2)
     @Transactional(readOnly = true)
     public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
-
-        String key = Optional.ofNullable(searchRequest.getSortByProp()).orElse("latest");
-        Map<String, Sort> sortMap = Map.of(
-                "latest", Sort.by(Sort.Order.desc("createdAt")),
-                "popular", Sort.by(Sort.Order.desc("averageRating")).and(Sort.by(Sort.Order.desc("createdAt")))
+        Pageable pageable = PageRequest.of(
+                searchRequest.getPage(),
+                searchRequest.getSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
         );
-        Sort sort = sortMap.getOrDefault(key, Sort.by(Sort.Order.desc("createdAt")));
-        if ("asc".equalsIgnoreCase(searchRequest.getSortOrder())) sort = sort.ascending();
-
-        Pageable pageable = PageRequest.of(searchRequest.getPage(), searchRequest.getSize(), sort);
 
         Page<Item> itemPage = itemRepository.findBySearchOption(pageable, searchRequest);
 
-        return itemPage.map(ItemResponse.ItemListDTO::from);
+        // 1) 한 번에 ItemId 목록을 가져옴
+        List<Long> itemIds = itemPage.getContent().stream()
+                .map(Item::getId)
+                .toList();
+
+        // 2) 각 아이템별 최신 신고 상태를 맵으로 조회
+        Map<Long, ItemReportStatus> statusMap = itemReportRepository.findLatestStatusByItemIds(itemIds);
+
+        // 3) DTO 생성 시 statusMap 에서 상태 주입
+        return itemPage.map(item -> {
+            ItemReportStatus status = statusMap.getOrDefault(item.getId(), ItemReportStatus.PENDING);
+            return ItemResponse.ItemListDTO.from(item, status);
+        });
     }
+
 }

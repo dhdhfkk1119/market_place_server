@@ -2,6 +2,7 @@ package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
 import com.market.market_place.item.item_image.ItemImage;
+import com.market.market_place.item.item_report._enum.ItemReportStatus;
 import com.market.market_place.item.status.TradeStatus;
 import io.grpc.LoadBalancer;
 import lombok.AllArgsConstructor;
@@ -37,8 +38,9 @@ public class ItemResponse {
         private Long itemCategoryId;
         private List<String> tags;
         private TradeStatus status;
+        private ItemReportStatus itemReportStatus;
 
-        public static ItemListDTO from(Item item) {
+        public static ItemListDTO from(Item item,ItemReportStatus itemReportStatus) {
             GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
             String thumbUrl = Optional.ofNullable(item.getImages())
@@ -76,6 +78,7 @@ public class ItemResponse {
                                     .distinct()
                                     .toList())
                     .status(item.getStatus())
+                    .itemReportStatus(itemReportStatus)
                     .build();
         }
     }
