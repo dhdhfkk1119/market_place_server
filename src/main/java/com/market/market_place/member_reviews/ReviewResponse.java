@@ -9,6 +9,7 @@ public class ReviewResponse {
     @Data
     public static class ResponseDTO {
         private Long id;
+        private Long reviewerId;
         private String reviewerName;
         private Integer rating;
         private String comment;
@@ -17,11 +18,14 @@ public class ReviewResponse {
         @Builder
         public ResponseDTO(Review review) {
             this.id = review.getId();
+            this.reviewerId = review.getReviewer().getId();
             this.reviewerName = review.getReviewer().getMemberProfile().getName();
             this.rating = review.getRating();
             this.comment = review.getComment();
             this.createdAt = review.getCreatedAt();
         }
+        public Long getReviewerId() {
+            return reviewerId;
+        }
     }
 }
-
