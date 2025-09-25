@@ -1,17 +1,18 @@
 package com.market.market_place.community.community_post;
 
 import com.market.market_place.community.community_comment.CommunityComment;
-import com.market.market_place.community.community_comment.CommunityCommentResponse;
 import com.market.market_place.community.community_post_image.CommunityPostImage;
 import lombok.Builder;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommunityPostResponse {
 
+    // 전체조회
     @Data
     public static class ListDTO{
         private Long id;
@@ -45,29 +46,33 @@ public class CommunityPostResponse {
         }
     }
 
+    // 상세조회
     @Data
     public static class DetailDTO {
         private Long id;
         private String title;
         private String content;
         private String writerName;
+        private Long writerMemberId;
         private String topic;
+        private Long topicId;
         private int likeCount;
         private int viewCount;
         private String createdAt;
         private String location;
         private List<String> images;
-        private List<CommunityCommentResponse.ResponseDTO> comments;
+        private List<CommunityComment> comments;
         private int commentCount;
-        private boolean isLiked;
 
         @Builder
-        public DetailDTO(CommunityPost post,String sortType,boolean isLiked) {
+        public DetailDTO(CommunityPost post,String sortType) {
             this.id = post.getId();
             this.title = post.getTitle();
             this.content = post.getContent();
             this.writerName = post.getMember().getMemberProfile().getName();
+            this.writerMemberId = post.getMember().getId();
             this.topic = post.getTopic().getName();
+            this.topicId = post.getTopic().getId();
             this.likeCount = post.getLikeCount();
             this.viewCount = post.getViewCount();
             this.createdAt = post.getTime();
@@ -78,31 +83,23 @@ public class CommunityPostResponse {
                     .sorted("likes".equals(sortType)
                             ? Comparator.comparing(CommunityComment::getLikeCount).reversed()
                             : Comparator.comparing(CommunityComment::getCreatedAt).reversed())
-                    .map(CommunityCommentResponse.ResponseDTO::new) // <-- 여기서 ResponseDTO 변환
                     .collect(Collectors.toList());
             this.commentCount = post.getComments() == null ? 0 : post.getComments().size();
-            this.isLiked = isLiked;
         }
     }
 
+    // 작성, 수정
     @Data
     public static class ResponseDTO{
         private Long id;
-        private Long topicId;
         private String title;
         private String content;
-        private String location;
 
         @Builder
         public ResponseDTO(CommunityPost post) {
             this.id = post.getId();
-            this.topicId = post.getTopic().getId();
             this.title = post.getTitle();
             this.content = post.getContent();
-            this.location = post.getLocation();
         }
     }
-
-
-
 }

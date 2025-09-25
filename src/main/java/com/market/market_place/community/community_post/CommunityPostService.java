@@ -58,7 +58,7 @@ public class CommunityPostService {
         postRepository.save(post);
 
 
-        return new CommunityPostResponse.DetailDTO(post, sortType,isLiked);
+        return new CommunityPostResponse.DetailDTO(post, sortType);
     }
 
     @Transactional
