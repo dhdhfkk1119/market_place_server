@@ -128,4 +128,24 @@ public class TradeReviewService {
         }
         return TradeReviewResponse.from(review);
     }
+
+    // 특정 회원의 판매 완료 상품 리뷰 리스트 반환
+    @Transactional
+    public List<TradeReviewResponse> getSoldByMember(Long memberId) {
+        List<TradeReview> reviews = tradeReviewRepository.findSoldReviewsBySellerId(memberId);
+        return reviews.stream()
+                .map(TradeReviewResponse::from)
+                .toList();
+    }
+
+    // 판매자(memberId)의 판매 완료 상품 리뷰 최근 3개 반환
+    @Transactional
+    public List<TradeReviewResponse> getRecentSoldReviewsByMember(Long memberId) {
+        List<TradeReview> reviews = tradeReviewRepository.findSoldReviewsBySellerId(memberId);
+        return reviews.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .limit(3)
+                .map(TradeReviewResponse::from)
+                .toList();
+    }
 }

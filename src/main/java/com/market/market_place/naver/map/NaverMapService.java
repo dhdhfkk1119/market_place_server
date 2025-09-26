@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 public class NaverMapService {
 
-    //@Value("${naver.api.client-secret}")
+    @Value("${naver.api.map.client-secret}")
     private String naverMapClientSecret;
 
     public Optional<String> getAddress(String longitude, String latitude, String naverMapClientId) {
