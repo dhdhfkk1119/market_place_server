@@ -25,13 +25,13 @@ public class GeminiService {
     private final ObjectMapper objectMapper;
     private final TranslationUtil translationUtil;
 
-    //@Value("${ai.gemini.key}")
+    @Value("${ai.gemini.key}")
     private String apiKey;
 
-    //@Value("${ai.gemini.url.flash-stream}")
+    @Value("${ai.gemini.url.flash-stream}")
     private String flashStreamApiUrl;
 
-    //@Value("${ai.gemini.url.pro-stream}")
+    @Value("${ai.gemini.url.pro-stream}")
     private String proStreamApiUrl;
 
     @Async
