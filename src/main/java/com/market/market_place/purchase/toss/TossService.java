@@ -18,7 +18,7 @@ import java.util.Base64;
 @Service
 public class TossService {
 
-    @Value("${toss.api.secret}")
+    //@Value("${toss.api.secret}")
     private String WIDGET_SECRET_KEY;
 
     public JSONObject confirmPayment(@RequestBody String jsonBody) throws Exception {

@@ -32,6 +32,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
     }
 
-
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(1024 * 1024);        // 메시지 최대 크기 (바이트 단위) → 여기선 1MB
+        registration.setSendBufferSizeLimit(1024 * 1024 * 2); // 송신 버퍼 크기
+        registration.setSendTimeLimit(20 * 1000);             // 송신 제한 시간 (밀리초)
+    }
 }
 
