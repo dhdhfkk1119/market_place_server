@@ -71,6 +71,26 @@ public class TradeReviewController {
         return ResponseEntity.ok(ApiUtil.success(review));
     }
 
+    // 특정 판매자의 모든 판매완료 상품 리뷰 조회
+    @Operation(summary = "판매자의 전체 리뷰 조회", description = "특정 판매자의 모든 판매완료 상품에 대한 리뷰를 조회합니다.")
+    @GetMapping("/sellers/{sellerId}")
+    public ResponseEntity<ApiUtil.ApiResult<List<TradeReviewResponse>>> getSellerReviews(
+            @Parameter(description = "판매자 ID") @PathVariable Long sellerId
+    ) {
+        List<TradeReviewResponse> reviews = tradeReviewService.getSoldByMember(sellerId);
+        return ResponseEntity.ok(ApiUtil.success(reviews));
+    }
+
+    // 특정 판매자의 최근 리뷰 3개 조회 (프로필 요약용)
+    @Operation(summary = "판매자의 최근 리뷰 조회", description = "특정 판매자의 최근 3개 리뷰를 조회합니다.")
+    @GetMapping("/sellers/{sellerId}/recent")
+    public ResponseEntity<ApiUtil.ApiResult<List<TradeReviewResponse>>> getRecentSellerReviews(
+            @Parameter(description = "판매자 ID") @PathVariable Long sellerId
+    ) {
+        List<TradeReviewResponse> reviews = tradeReviewService.getRecentSoldReviewsByMember(sellerId);
+        return ResponseEntity.ok(ApiUtil.success(reviews));
+    }
+
 /**
 API 명세 (클라이언트 참고)
 
@@ -103,5 +123,17 @@ API 명세 (클라이언트 참고)
 - URL: /api/v1/trade-reviews/{reviewId}
 - Auth: USER, ADMIN (본인 리뷰만)
 - Response: { "success": true, "response": TradeReviewResponse, "error": null }
+
+5) 판매자의 전체 리뷰 조회
+- Method: GET
+- URL: /api/v1/trade-reviews/sellers/{sellerId}
+- Auth: 없음 (공개 데이터)
+- Response: { "success": true, "response": List<TradeReviewResponse>, "error": null }
+
+6) 판매자의 최근 리뷰 3개 조회 (프로필 요약용)
+- Method: GET
+- URL: /api/v1/trade-reviews/sellers/{sellerId}/recent
+- Auth: 없음 (공개 데이터)
+- Response: { "success": true, "response": List<TradeReviewResponse>, "error": null }
 */
 }
