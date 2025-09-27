@@ -78,3 +78,8 @@
 
 <br/>
 <br/>
+
+## 기능들에 대한 영상 및 이미지는 -> 플러터 프론트 에서 관리하고있습니다
+👀 [눈으로 보고 싶다 -> 프론트 주소](https://github.com/dhdhfkk1119/markit_place_front.git)
+
+
