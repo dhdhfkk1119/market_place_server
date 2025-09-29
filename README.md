@@ -68,7 +68,7 @@
 ## 4. Tasks & Responsibilities (작업 및 역할 분담)
 |  |  |  |
 |-----------------|-----------------|-----------------|
-| 조정우    |  <img src="[https://avatars.githubusercontent.com/u/140272714?v=4](https://github.com/dhdhfkk1119)" alt="조정우" width="100"> | <ul><li>프로젝트 계획 및 관리</li><li>채팅,Flutter 레이아웃 작업</li><li>Flutter 상품 및 마이페이지 상태관리</li></ul>     |
+| 조정우    |  [<img src="https://avatars.githubusercontent.com/u/140272714?v=4" alt="조정우" width="100">](https://github.com/dhdhfkk1119) | <ul><li>프로젝트 계획 및 관리</li><li>채팅,Flutter 레이아웃 작업</li><li>Flutter 상품 및 마이페이지 상태관리</li></ul>     |
 | 유류진   |  <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="유류진" width="100">| <ul><li>메인 페이지 개발</li><li>동아리 만들기 페이지 개발</li><li>커스텀훅 개발</li></ul> |
 | 양성빈   |  <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="양성빈" width="100">    |<ul><li>홈 페이지 개발</li><li>로그인 페이지 개발</li><li>동아리 찾기 페이지 개발</li><li>동아리 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>  |
 | 조충희    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="조충희" width="100">    | <ul><li>회원가입 페이지 개발</li><li>마이 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>    |
