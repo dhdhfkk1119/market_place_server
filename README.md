@@ -65,16 +65,16 @@
 
 
 
-## 4. Tasks & Responsibilities (작업 및 역할 분담)
+## ♻️ 4. Tasks & Responsibilities (작업 및 역할 분담)
 |  |  |  |
 |-----------------|-----------------|-----------------|
-| 조정우    |  [<img src="https://avatars.githubusercontent.com/u/140272714?v=4" alt="조정우" width="100">](https://github.com/dhdhfkk1119) | <ul><li>프로젝트 계획 및 관리</li><li>채팅,Flutter 레이아웃 작업</li><li>Flutter 상품 및 마이페이지 상태관리</li></ul>     |
-| 유류진   |  <img src="https://github.com/user-attachments/assets/78ec4937-81bb-4637-975d-631eb3c4601e" alt="유류진" width="100">| <ul><li>메인 페이지 개발</li><li>동아리 만들기 페이지 개발</li><li>커스텀훅 개발</li></ul> |
-| 양성빈   |  <img src="https://github.com/user-attachments/assets/78ce1062-80a0-4edb-bf6b-5efac9dd992e" alt="양성빈" width="100">    |<ul><li>홈 페이지 개발</li><li>로그인 페이지 개발</li><li>동아리 찾기 페이지 개발</li><li>동아리 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>  |
-| 조충희    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="조충희" width="100">    | <ul><li>회원가입 페이지 개발</li><li>마이 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>    |
-| 손지윤    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="손지윤" width="100">    | <ul><li>회원가입 페이지 개발</li><li>마이 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>    |
-| 황지백    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="황지백" width="100">    | <ul><li>회원가입 페이지 개발</li><li>마이 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>    |
-| 조현진    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="조현진" width="100">    | <ul><li>회원가입 페이지 개발</li><li>마이 프로필 페이지 개발</li><li>커스텀훅 개발</li></ul>    |
+| 조정우    |  [<img src="https://avatars.githubusercontent.com/u/140272714?v=4" alt="조정우" width="100">](https://github.com/dhdhfkk1119) | <ul><li>전체적인 프로젝트 계획 및 관리</li><li>Back 1:1 채팅 기능 ,Flutter 레이아웃 작업</li><li>Flutter 상품 전체 기능 및 마이페이지 상태관리</li></ul>     |
+| 유류진   |  [<img src="https://avatars.githubusercontent.com/u/208729786?v=4" alt="유류진" width="100">](https://github.com/yooryujin)| <ul><li>Figma 레이아웃</li><li>유저 거래 리뷰 및 평점</li><li>flutter 게시물 등록 수정 삭제</li></ul> |
+| 양성빈   |  [<img src="https://avatars.githubusercontent.com/u/197378605?v=4" alt="양성빈" width="100">](https://github.com/ysb5397)    |<ul><li>Flutter GPS 기능 </li><li>Toss 결제 하기 기능</li><li>상품 등록 Ai 이미지 인식 기능</li></ul>  |
+| 조충희    |  [<img src="https://avatars.githubusercontent.com/u/105851912?v=4" alt="조충희" width="100">](https://github.com/dovahk11m)    | <ul><li>회원가입 및 로그인 기능</li><li>flutter 상태관리 회원가입 및 로그인 기능</li></ul>    |
+| 손지윤    |  [<img src="https://avatars.githubusercontent.com/u/208729868?v=4" alt="손지윤" width="100">](https://github.com/sonjiyoon12)    | <ul><li>Back 게시물 전체적인 기능 및 신고 SSE 알람기능</li><li>Front 상태관리 게시물 리스트 및 상세보기</li><li>게시물 댓글 작성 좋아요</li></ul>    |
+| 황지백    |  [<img src="https://avatars.githubusercontent.com/u/208729937?v=4" alt="황지백" width="100">](https://github.com/jibaek1)    | <ul><li>Back 상품 등록 수정 삭제</li><li>Back 상품 신고 하기</li><li>Back 신고 처리 기능 로그인 정지</li></ul>    |
+| 조현진    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="조현진" width="100">    | <ul><li>Back 공지사항 기능</li><li>Back Q&A 기능</li></ul>    |
 
 <br/>
 <br/>
