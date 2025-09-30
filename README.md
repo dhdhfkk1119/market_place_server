@@ -25,7 +25,7 @@
 - **Build Tool** : Gradle (groovy)
 - **DBMS** : H2-Console 
 - **ORM** : JPA
-- **개발기간** : 2025.08.25 ~ 09.26
+- **개발기간** : 2025.08.25 ~ 2025.09.26
 
 
 ## 🔑 3. Key Features (주요 기능)
