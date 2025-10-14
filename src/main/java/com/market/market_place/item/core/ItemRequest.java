@@ -1,6 +1,7 @@
 package com.market.market_place.item.core;
 
 import com.market.market_place.item.item_category.ItemCategory;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class ItemRequest {
     @Data
     public static class ItemSaveDTO {
 
+        @NotBlank
         private Long itemCategoryId;
         private String title;
         private String content;
@@ -37,7 +39,6 @@ public class ItemRequest {
     public static class ItemUpdateDTO {
 
         private Long itemCategoryId;
-        private Long memberAddressId;
         private String title;
         private String content;
         private Long price;

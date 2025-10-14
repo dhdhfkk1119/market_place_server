@@ -9,11 +9,11 @@ import com.market.market_place.item.item_favorite.ItemFavoriteRepository;
 import com.market.market_place.item.item_image.ItemImage;
 import com.market.market_place.item.item_tag.Tag;
 import com.market.market_place.item.item_tag.TagRepository;
+import com.market.market_place.item.review.TradeReviewRepository;
+import com.market.market_place.item.review.TradeReviewResponse;
 import com.market.market_place.item.status.TradeStatus;
 import com.market.market_place.members.domain.Member;
-import com.market.market_place.item.review.TradeReviewRepository;
 import com.market.market_place.members.repositories.MemberRepository;
-import com.market.market_place.item.review.TradeReviewResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -91,11 +91,9 @@ public class ItemService {
         item.setStatus(TradeStatus.ON_SALE);
 
         if (dto.getBase64Images() != null && !dto.getBase64Images().isEmpty()) {
-            for (String data : dto.getBase64Images()) {
-                if (data != null && !data.isBlank()) {
-                    item.addImage(ItemImage.of(data));
-                }
-            }
+            item.addItemImage(dto.getBase64Images().stream()
+                    .map(ItemImage::of)
+                    .toList());
         }
 
         if (dto.getTags() != null) {
@@ -126,18 +124,14 @@ public class ItemService {
         if (!Objects.equals(item.getMember().getId(), sessionUserId)) {
             throw new Exception403("수정 권한이 없습니다.");
         }
-        if (dto.getTitle() != null) {
-            item.setTitle(dto.getTitle());
+
+        item.update(dto);
+        if (dto.getBase64Images() != null && !dto.getBase64Images().isEmpty()) {
+            item.addItemImage(dto.getBase64Images().stream()
+                    .map(ItemImage::of)
+                    .toList());
         }
-        if (dto.getContent() != null) {
-            item.setContent(dto.getContent());
-        }
-        if (dto.getPrice() != null) {
-            item.setPrice(dto.getPrice());
-        }
-        if (dto.getTradeLocation() != null) {
-            item.setTradeLocation(dto.getTradeLocation());
-        }
+
 
         ItemCategory itemCategory = itemCategoryRepository.findById(dto.getItemCategoryId()).orElseThrow(() -> new Exception404("해당 카테고리를 찾을수없습니다"));
         item.setItemCategory(itemCategory);
@@ -218,7 +212,7 @@ public class ItemService {
                 .orElseThrow(() -> new Exception404("해당 상품을 찾을 수 없습니다"));
     }
 
-//    // 키워드 검색(2)
+    //    // 키워드 검색(2)
     @Transactional(readOnly = true)
     public Page<ItemResponse.ItemListDTO> getItems(ItemRequest.SearchDTO searchRequest) {
 

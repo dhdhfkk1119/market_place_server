@@ -77,14 +77,14 @@ public class Item {
         this.viewCount++;
     }
 
-    public void addImage(ItemImage image) {
-        images.add(image);
-        image.setItem(this);
-    }
-
-    public void removeImage(ItemImage image) {
-        images.remove(image);
-        image.setItem(null);
+    public void addItemImage(List<ItemImage> images) {
+        this.images.clear();
+        for (ItemImage image : images) {
+            if (image != null) {
+                this.images.add(image);
+                image.setItem(this);
+            }
+        }
     }
 
     public void addTag(Tag tag) {
@@ -106,6 +106,7 @@ public class Item {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.price = dto.getPrice();
+        this.tradeLocation = dto.getTradeLocation();
     }
 
     public String getThumbnailUrl() {
