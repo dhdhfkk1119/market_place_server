@@ -87,6 +87,7 @@ public class CommunityPostController {
         );
 
         Page<CommunityPostResponse.ListDTO> resultPage = postsPage.map(CommunityPostResponse.ListDTO::new);
+        log.info("Controller 검색 요청: keyword={}, categories={}, sortType={}", keyword, categories, sortType);
 
         return ResponseEntity.ok(ApiUtil.success(resultPage));
     }
