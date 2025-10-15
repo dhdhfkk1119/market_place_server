@@ -73,14 +73,15 @@ public class CommunityPostController {
     @Auth(roles = {Role.USER, Role.ADMIN})
     @GetMapping("/search")
     public ResponseEntity<ApiUtil.ApiResult<Page<CommunityPostResponse.ListDTO>>> searchPosts(
-            @ModelAttribute CommunityPostRequest.SearchDTO searchDTO,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "categories", required = false) List<String> categories,
             @RequestParam(value = "sortType", required = false, defaultValue = "LATEST") String sortType,
             Pageable pageable,
             @RequestAttribute("sessionUser") JwtUtil.SessionUser sessionUser) {
 
         Page<CommunityPost> postsPage = postService.search(
-                searchDTO.getKeyword(),
-                searchDTO.getCategories(),
+                keyword,
+                categories,
                 sortType,
                 pageable
         );
@@ -89,6 +90,7 @@ public class CommunityPostController {
 
         return ResponseEntity.ok(ApiUtil.success(resultPage));
     }
+
 
     // 내가 쓴 게시글 목록 조회
     @Auth(roles = {Role.USER, Role.ADMIN})

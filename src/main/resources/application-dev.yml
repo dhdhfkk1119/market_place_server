@@ -8,7 +8,7 @@ server:
     encoding:
       charset: utf-8
       force: true
-  port: 8080
+  port: 8087
 
 # 이미지 저장 시 파일 저장 위치
 upload:
