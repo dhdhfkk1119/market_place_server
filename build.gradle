@@ -1,102 +1,99 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.0'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.market'
+group = 'markit'
 version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	// 시간 데이터포맷
-	implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+    // 시간 데이터포맷
+    implementation 'org.apache.commons:commons-lang3:3.10'
 
-	// 비밀번호 암호화 passwordEncoder
-	implementation 'org.springframework.security:spring-security-crypto'
+    // 비밀번호 암호화
+    implementation 'org.springframework.security:spring-security-crypto'
 
-	// JWT 라이브러리 (Auth0)
-	implementation 'com.auth0:java-jwt:4.4.0'
+    // JWT 라이브러리 (Auth0)
+    implementation 'com.auth0:java-jwt:4.4.0'
 
-    // 이메일 전송 기능
+    // 이메일 전송
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // 스웨거
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
-	// 웹소켓
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // 웹소켓
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-	// AppConfig에서 필요한 의존성
-	implementation 'org.apache.httpcomponents.client5:httpclient5'
+    // AppConfig용
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
 
-	// 토스 결제 통신시 필요한 도구
-	implementation group: 'net.minidev', name: 'json-smart', version: '2.5.2'
+    // 토스 결제용 JSON
+    implementation 'net.minidev:json-smart:2.5.2'
 
-	// WebClient 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-	// querydsl 의존성
-	implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-	implementation 'com.querydsl:querydsl-spatial:5.1.0'
+    // ✅ Querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.h2database:h2'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // ✅ 공간 데이터
+    implementation 'com.querydsl:querydsl-spatial:5.1.0'
+    implementation 'org.hibernate.orm:hibernate-spatial:6.2.7.Final'
+    annotationProcessor 'com.querydsl:querydsl-spatial:5.1.0'
 
-	// 번역 의존성 추가
-	implementation 'com.google.cloud:google-cloud-translate:2.38.0'
+    // ✅ Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	implementation 'org.hibernate.orm:hibernate-spatial:6.2.7.Final'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.h2database:h2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	annotationProcessor 'com.querydsl:querydsl-spatial:5.1.0'
-	annotationProcessor 'org.hibernate.orm:hibernate-spatial:6.2.7.Final'
+    // 번역 기능
+    implementation 'com.google.cloud:google-cloud-translate:2.38.0'
 }
-// Querydsl 설정
-def generated = 'src/main/generated'
+
+def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
-	main {
-		java {
-			srcDirs += [ generated ]
-		}
-	}
+    main.java.srcDirs += [ querydslDir ]
 }
 
 tasks.withType(JavaCompile) {
-	options.generatedSourceOutputDirectory = file(generated)
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
 }
 
 clean.doLast {
-	file(generated).deleteDir()
+    delete file(querydslDir)
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

@@ -1,0 +1,33 @@
+package markit.community.community_comment_like;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import markit.community.community_comment.CommunityComment;
+import markit.members.domain.Member;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@Table(name = "community_comment_like_tb",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"comment_id", "member_id"})})
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+public class CommunityCommentLike {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id")
+    @JsonBackReference // 순환 참조 방지
+    private CommunityComment comment;
+
+}

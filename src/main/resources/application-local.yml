@@ -1,0 +1,5 @@
+# 이 파일은 Git에 포함되지 않습니다.
+# 개인 PC의 민감한 설정(DB 비밀번호, API 키 등)을 관리합니다.
+spring:
+  mail:
+    password: oixu rrji bwni jjkm

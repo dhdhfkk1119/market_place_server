@@ -330,9 +330,11 @@ $RECYCLE.BIN/
 .gradle/
 build/
 .idea/
-/data/
 
 # Q Class 무시
 src/main/generated/
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,windows,eclipse,visualstudiocode,macos,flutter
+
+# Local configuration
+application-local.yml

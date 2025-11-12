@@ -1,4 +1,9 @@
 spring:
   profiles:
-    active:
-      - dev
+    # 1. 기본으로 dev 프로필을 활성화합니다.
+    active: dev
+
+    group:
+      # 2. 'dev' 프로필이 활성화되면,
+      #    'local' 프로필도 함께 묶어서(group) 활성화합니다.
+      dev: "local"
