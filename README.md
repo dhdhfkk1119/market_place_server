@@ -1,8 +1,5 @@
-<a href="https://club-project-one.vercel.app/" target="_blank">
-// 홍보 이미지 넣기
-</a>
+<img width="720" height="480" alt="제목을 입력해주세요  (2)" src="https://github.com/user-attachments/assets/75361cf7-03e7-4579-a3a8-e6e29488f3e5" />
 
-<br/>
 <br/>
 
 # 📝 Back Server 소개 
