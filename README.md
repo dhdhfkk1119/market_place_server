@@ -72,7 +72,6 @@
 | 조충희    |  [<img src="https://avatars.githubusercontent.com/u/105851912?v=4" alt="조충희" width="100">](https://github.com/dovahk11m)    | <ul><li>회원가입 및 로그인 기능</li><li>flutter 상태관리 회원가입 및 로그인 기능</li></ul>    |
 | 손지윤    |  [<img src="https://avatars.githubusercontent.com/u/208729868?v=4" alt="손지윤" width="100">](https://github.com/sonjiyoon12)    | <ul><li>Back 게시물 전체적인 기능 및 신고 SSE 알람기능</li><li>Front 상태관리 게시물 리스트 및 상세보기</li><li>게시물 댓글 작성 좋아요</li></ul>    |
 | 황지백    |  [<img src="https://avatars.githubusercontent.com/u/208729937?v=4" alt="황지백" width="100">](https://github.com/jibaek1)    | <ul><li>Back 상품 등록·수정·삭제, 좋아요 토글, 이미지 업로드·삭제(대표 이미지 지정)</li><li>상품 검색 기능 커스텀 Repository 인터페이스 구현</li><li>Back 상품 신고 하기</li><li>Back 신고 처리 기능 로그인 정지 / 자동 해제 / 게시글 작성 금지 및 삭제</li></ul>    |
-| 조현진    |  <img src="https://github.com/user-attachments/assets/beea8c64-19de-4d91-955f-ed24b813a638" alt="조현진" width="100">    | <ul><li>Back 공지사항 기능</li><li>Back Q&A 기능</li></ul>    |
 
 <br/>
 <br/>
